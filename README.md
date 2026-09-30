@@ -17,9 +17,9 @@ Proposta de site para a **Drysul — gesso e acabamento**. HTML, CSS e JavaScrip
 | `js/app.js` | Catálogo, busca, filtros, pedido/orçamento, WhatsApp, calculadora, menu |
 | `js/checkout-model.js` | Regras da central de vendas: canal (site x WhatsApp), limite, validações (testável no Node) |
 | `js/checkout.js` | Central de vendas: pedido → entrega → pagamento (Pix, crédito, débito, WhatsApp) → confirmação |
-| `js/motion.js` | Canvas técnico, entradas ao rolar, parallax, camadas do hero, ponteiro, pausa de efeitos |
+| `js/motion.js` | Canvas técnico (congela durante rolagem e toques), entradas ao rolar, parallax, parede 3D do hero, ponteiro, pausa de efeitos; liga o 3D só nos blocos perto da tela |
 | `css/styles.css` | Design system (tokens, componentes, seções, responsivo) |
-| `css/motion.css` | Animações; estados ocultos só existem com efeitos ativos |
+| `css/motion.css` | Animações; estados ocultos só existem com efeitos ativos. 3D na rolagem em CSS (`animation-timeline`), com as entradas normais como alternativa em navegadores sem suporte |
 | `assets/` | Logo e padrão vetoriais (do arquivo oficial da marca), fotos do manual em WebP, fonte Archivo (OFL) |
 | `tests/calculator.test.js` | Casos conferidos com a calculadora de referência |
 | `tests/checkout.test.js` | Regras de roteamento e validação da central de vendas |

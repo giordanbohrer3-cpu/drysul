@@ -83,6 +83,8 @@ body {
   text-rendering: optimizeLegibility;
   overflow-x: clip;
 }
+/* clip (não hidden): corta o que o 3D projeta para fora da tela sem virar contêiner de rolagem, e o sticky continua funcionando */
+main, .footer { overflow-x: clip; }
 img, svg { display: block; max-width: 100%; }
 img { height: auto; }
 a { color: inherit; text-decoration: none; }
@@ -628,7 +630,7 @@ ul, ol { padding: 0; list-style: none; }
 /* ---------- Como funciona ---------- */
 .story__grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(32px, 6vw, 96px); }
 .story__sticky { position: sticky; top: calc(var(--header-h) + 24px); align-self: start; }
-.story__stage { position: relative; height: 380px; margin-top: 12px; }
+.story__stage { position: relative; height: 380px; margin-top: 12px; perspective: 1100px; }
 .stage-card {
   position: absolute; left: 0; top: 0; width: min(88%, 440px); padding: 20px;
   background: #F7F7F3; color: var(--ink); border-radius: var(--r-m); box-shadow: 0 30px 60px -30px rgba(0, 0, 0, .7);
@@ -638,11 +640,11 @@ ul, ol { padding: 0; list-style: none; }
 .story__stage[data-step="2"] .stage-card--2,
 .story__stage[data-step="3"] .stage-card--3 { opacity: 1; transform: none; z-index: 3; }
 .story__stage[data-step="2"] .stage-card--1,
-.story__stage[data-step="3"] .stage-card--2 { opacity: .22; transform: translate(-22px, -22px) scale(.94); z-index: 1; }
-.story__stage[data-step="3"] .stage-card--1 { opacity: .12; transform: translate(-40px, -40px) scale(.88); z-index: 0; }
+.story__stage[data-step="3"] .stage-card--2 { opacity: .22; transform: translate3d(-26px, -22px, -90px) rotateY(18deg) rotateX(6deg); z-index: 1; }
+.story__stage[data-step="3"] .stage-card--1 { opacity: .12; transform: translate3d(-46px, -40px, -180px) rotateY(26deg) rotateX(10deg); z-index: 0; }
 .story__stage[data-step="1"] .stage-card--2,
-.story__stage[data-step="2"] .stage-card--3 { opacity: .3; transform: translate(26px, 26px) scale(.95); z-index: 2; }
-.story__stage[data-step="1"] .stage-card--3 { opacity: .15; transform: translate(48px, 48px) scale(.9); z-index: 1; }
+.story__stage[data-step="2"] .stage-card--3 { opacity: .3; transform: translate3d(30px, 26px, -70px) rotateY(-16deg) rotateX(-6deg); z-index: 2; }
+.story__stage[data-step="1"] .stage-card--3 { opacity: .15; transform: translate3d(54px, 48px, -150px) rotateY(-24deg) rotateX(-10deg); z-index: 1; }
 .stage-card > * { visibility: hidden; opacity: 0; transition: opacity var(--t) var(--ease), visibility 0s linear var(--t); }
 .story__stage[data-step="1"] .stage-card--1 > *,
 .story__stage[data-step="2"] .stage-card--2 > *,

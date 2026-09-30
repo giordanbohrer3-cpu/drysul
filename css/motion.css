@@ -16,8 +16,8 @@
 @keyframes sweep { 0% { transform: translateY(-110%); } 60%, 100% { transform: translateY(260%); } }
 @keyframes marquee { to { transform: translateX(-50%); } }
 @keyframes breathe { from { transform: rotate(0deg) scale(1); } to { transform: rotate(1.6deg) scale(1.05); } }
-@keyframes sheet-in { from { opacity: 0; transform: translateX(28px); } to { opacity: 1; transform: none; } }
-@keyframes pop-in { from { opacity: 0; transform: translateY(14px) scale(.98); } to { opacity: 1; transform: none; } }
+@keyframes sheet-in { from { opacity: 0; transform: perspective(1200px) translateX(36px) rotateY(-12deg); } to { opacity: 1; transform: none; } }
+@keyframes pop-in { from { opacity: 0; transform: perspective(1200px) translateY(24px) rotateX(14deg) scale(.97); } to { opacity: 1; transform: none; } }
 @keyframes body-in { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
 @keyframes blink { 50% { opacity: 0; } }
 
@@ -101,3 +101,122 @@
 }
 .motion-on .sheet--checkout[open] { animation: pop-in 380ms var(--ease) both; }
 .motion-on .co-step:not([hidden]) { animation: fade-up 360ms var(--ease) both; }
+
+/* ==========================================================================
+   3D na rolagem
+   Animações ligadas à rolagem (animation-timeline): rodam no compositor e seguem o dedo.
+   Só onde o navegador suporta (Chrome, Edge, Samsung Internet, Safari 26+); nos demais ficam as entradas acima.
+   O motion.js põe .s3d apenas nos blocos a até uma tela de distância: o navegador atualiza poucas linhas de
+   tempo por quadro em vez de todas. O quadro final é implícito: terminada a entrada, vale o transform do
+   próprio elemento (hover, inclinação pelo mouse).
+   ========================================================================== */
+@property --s3d-x { syntax: "<length>"; inherits: false; initial-value: 0px; }
+@property --s3d-y { syntax: "<length>"; inherits: false; initial-value: 56px; }
+@property --s3d-z { syntax: "<length>"; inherits: false; initial-value: -180px; }
+@property --s3d-rx { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+@property --s3d-ry { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+@property --s3d-k { syntax: "<number>"; inherits: false; initial-value: 0; }
+@property --g-ry { syntax: "<angle>"; inherits: false; initial-value: 26deg; }
+
+@supports (animation-timeline: view()) {
+  @keyframes s3d-in {
+    from {
+      opacity: 0;
+      transform: perspective(1100px) translate3d(var(--s3d-x), var(--s3d-y), var(--s3d-z)) rotateX(var(--s3d-rx)) rotateY(var(--s3d-ry));
+    }
+  }
+  @keyframes s3d-out {
+    to { opacity: .15; transform: perspective(1000px) translate3d(0, -50px, -260px) rotateX(24deg); }
+  }
+  @keyframes s3d-spin { from { opacity: 0; transform: perspective(600px) rotateY(-200deg) scale(.6); } }
+  @keyframes s3d-media { from { transform: perspective(700px) rotateX(20deg) rotateY(-24deg) scale(1.4); } }
+  @keyframes s3d-ribbon {
+    0% { transform: perspective(600px) rotateX(-64deg) scale(1.05); }
+    36%, 64% { transform: none; }
+    100% { transform: perspective(600px) rotateX(58deg) scale(1.05); }
+  }
+  @keyframes s3d-gallery {
+    0% { opacity: .1; transform: perspective(1300px) translateZ(-280px) rotateY(var(--g-ry)) rotateX(10deg); }
+    32%, 68% { opacity: 1; transform: none; }
+    100% { opacity: .4; transform: perspective(1300px) translateZ(-200px) rotateY(calc(var(--g-ry) * -.7)) rotateX(-8deg); }
+  }
+  @keyframes s3d-stage {
+    from { transform: perspective(1300px) rotateY(-18deg) rotateX(9deg); }
+    50% { transform: perspective(1300px) rotateY(0deg) rotateX(0deg); }
+    to { transform: perspective(1300px) rotateY(16deg) rotateX(-7deg); }
+  }
+
+  /* Entradas: os blocos sobem da profundidade e se levantam como chapas */
+  .motion-on :where(.sec-title, .contact__title, .cat-card, .dest-card, .prod-card, .offer, .calc__panel, .step,
+      .acc__item, .values li, .info-card, .footer__grid > *).s3d {
+    animation: s3d-in cubic-bezier(.2, .7, .25, 1) both;
+    animation-timeline: view();
+    animation-range: entry 0% cover 32%;
+  }
+  .motion-on :where(.sec-title, .contact__title) { --s3d-rx: 74deg; --s3d-y: 24px; --s3d-z: -40px; transform-origin: 50% 100%; }
+  .motion-on .cat-card { --s3d-rx: 58deg; --s3d-y: 80px; --s3d-z: -140px; }
+  .motion-on .dest-card { --s3d-z: -260px; --s3d-y: 90px; --s3d-rx: 26deg; }
+  .motion-on .dest-card:nth-child(3n+1) { --s3d-ry: 34deg; --s3d-x: -40px; }
+  .motion-on .dest-card:nth-child(3n) { --s3d-ry: -34deg; --s3d-x: 40px; }
+  .motion-on .prod-card { --s3d-rx: 48deg; --s3d-ry: 12deg; --s3d-z: -170px; }
+  .motion-on .prod-card:nth-child(even) { --s3d-ry: -12deg; }
+  .motion-on .offer { --s3d-ry: 44deg; --s3d-x: -50px; --s3d-z: -220px; --s3d-y: 30px; }
+  .motion-on .offer:nth-child(even) { --s3d-ry: -44deg; --s3d-x: 50px; }
+  .motion-on .calc__panel { --s3d-rx: 34deg; --s3d-y: 100px; --s3d-z: -320px; animation-range: entry 0% entry 75%; }
+  .motion-on .step { --s3d-ry: -30deg; --s3d-x: 70px; --s3d-z: -150px; --s3d-y: 20px; }
+  .motion-on .acc__item { --s3d-rx: 66deg; --s3d-y: 40px; --s3d-z: -90px; }
+  .motion-on .values li { --s3d-rx: -88deg; --s3d-y: 0px; --s3d-z: -30px; transform-origin: 50% 0; }
+  .motion-on .info-card { --s3d-rx: 52deg; --s3d-z: -160px; }
+  .motion-on .footer__grid > * { --s3d-rx: 40deg; --s3d-z: -120px; animation-range: entry 0% entry 100%; }
+
+  /* Fotos: giram em profundidade na entrada e tombam para trás na saída */
+  .motion-on .about__media { --s3d-ry: -38deg; --s3d-x: 90px; --s3d-z: -280px; --s3d-y: 40px; }
+  .motion-on .about__media.s3d {
+    animation: s3d-in cubic-bezier(.2, .7, .25, 1) both, s3d-out linear none;
+    animation-timeline: view(), view();
+    animation-range: entry 0% cover 45%, exit 0% exit 100%;
+  }
+  .motion-on .ph.s3d { animation: s3d-gallery linear both; animation-timeline: view(); animation-range: cover 0% cover 100%; }
+  .motion-on .ph--b { --g-ry: -22deg; }
+  .motion-on .ph--c { --g-ry: -34deg; }
+  .motion-on .ph--d { --g-ry: 18deg; }
+  .motion-on .ph--e { --g-ry: -28deg; }
+
+  /* Dentro dos cartões: a foto gira até assentar e os desenhos viram como moeda */
+  .motion-on :where(.cat-card, .dest-card, .prod-card, .offer).s3d { view-timeline-name: --card; }
+  .motion-on :where(.dest-card, .prod-card).s3d :is(.dest-card__media, .prod-card__media) > img {
+    animation: s3d-media cubic-bezier(.2, .7, .25, 1) both; animation-timeline: --card; animation-range: entry 0% cover 45%;
+  }
+  .motion-on :where(.dest-card, .prod-card, .offer).s3d :is(.dest-card__media, .prod-card__media, .offer__main) > .ill,
+  .motion-on .cat-card.s3d > .ill {
+    animation: s3d-spin cubic-bezier(.2, .7, .25, 1) both; animation-timeline: --card; animation-range: entry 10% cover 45%;
+  }
+
+  /* Hero: o texto tomba para trás ao rolar; a faixa laranja passa torcida como fita */
+  .motion-on .hero__copy { transform-origin: 50% 100%; }
+  .motion-on .hero__copy.s3d { animation: s3d-out linear both; animation-timeline: view(); animation-range: exit 0% exit 100%; }
+  .motion-on .marquee.s3d { animation: s3d-ribbon linear both; animation-timeline: view(); animation-range: cover 0% cover 100%; }
+
+  /* Como funciona: o palco gira acompanhando a seção inteira */
+  .motion-on .story { view-timeline-name: --story; }
+  .motion-on .story__stage { animation: s3d-stage linear both; animation-timeline: --story; animation-range: contain 0% contain 100%; }
+
+  /* Em grade, cada coluna entra um pouco depois da anterior */
+  @media (min-width: 720px) {
+    .motion-on :is(.cat-grid, .dest-grid, .prod-grid, .offer-grid, .contact__grid, .values) > :nth-child(n) {
+      animation-range: entry calc(var(--s3d-k) * 7%) cover calc(32% + var(--s3d-k) * 7%);
+    }
+    /* o rodapé termina a página: a faixa fica dentro da entrada para sempre chegar ao fim */
+    .motion-on .footer__grid > :nth-child(n) { animation-range: entry calc(var(--s3d-k) * 6%) entry calc(64% + var(--s3d-k) * 12%); }
+    .motion-on :is(.cat-grid, .prod-grid, .contact__grid, .footer__grid) > :nth-child(4n+2),
+    .motion-on :is(.dest-grid, .offer-grid, .values) > :nth-child(3n+2) { --s3d-k: 1; }
+    .motion-on :is(.cat-grid, .prod-grid, .contact__grid, .footer__grid) > :nth-child(4n+3),
+    .motion-on :is(.dest-grid, .offer-grid, .values) > :nth-child(3n) { --s3d-k: 2; }
+    .motion-on :is(.cat-grid, .prod-grid, .contact__grid, .footer__grid) > :nth-child(4n) { --s3d-k: 3; }
+  }
+
+  /* Quem anima pela rolagem não usa a entrada por IntersectionObserver */
+  .motion-on :is(.sec-title, .contact__title, .cat-card, .dest-card, .offer, .calc__panel, .acc__item, .info-card, .values li)[data-reveal]:not(.is-in) {
+    opacity: 1; transform: none;
+  }
+}

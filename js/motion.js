@@ -67,6 +67,24 @@
   }
   observeReveals();
 
+  /* ---------- 3D na rolagem: só perto da tela ----------
+     As animações estão no CSS (animation-timeline). Aqui só se decide quem as recebe: blocos a até uma tela
+     de distância ganham .s3d, então o navegador atualiza poucas linhas de tempo por quadro, não todas. */
+  var S3D = '.hero__copy, .marquee, .sec-title, .contact__title, .cat-card, .dest-card, .prod-card, .offer, .calc__panel, ' +
+    '.step, .acc__item, .values li, .info-card, .about__media, .ph, .footer__grid > *';
+  var s3dIO = hasIO && window.CSS && CSS.supports && CSS.supports('animation-timeline: view()') ? new IntersectionObserver(function (es) {
+    es.forEach(function (e) {
+      if (!e.target.isConnected) { s3dIO.unobserve(e.target); return; }
+      e.target.classList.toggle('s3d', e.isIntersecting);
+    });
+  }, { rootMargin: '100% 0px' }) : null;
+  function observar3d(raiz) { if (s3dIO) $$(S3D, raiz).forEach(function (el) { s3dIO.observe(el); }); }
+  observar3d();
+  var gradeCatalogo = $('#prod-grid'); // o catálogo é redesenhado a cada filtro
+  if (s3dIO && gradeCatalogo && 'MutationObserver' in window) {
+    new MutationObserver(function () { observar3d(gradeCatalogo); }).observe(gradeCatalogo, { childList: true });
+  }
+
   /* ---------- parallax e camadas ---------- */
   var parallax = $$('[data-parallax]'), photos = $$('[data-parallax-img]'), drift = $('[data-drift]');
   var hero = $('.hero');
@@ -297,12 +315,21 @@
 
   var canvases = $$('canvas[data-canvas]').map(function (cv) { return new TechCanvas(cv); });
 
-  var raf = 0, last = 0;
+  // Durante rolagem e toques o fundo congela: a thread principal fica livre para o 3D e para responder.
+  // O relógio próprio (vt) só anda quando desenha, então o fundo retoma de onde parou, sem salto.
+  var raf = 0, last = 0, vt = 0, pausaAte = 0;
+  function pausarFundo() { pausaAte = performance.now() + 180; }
+  window.addEventListener('scroll', pausarFundo, { passive: true });
+  document.addEventListener('pointerdown', pausarFundo, { passive: true });
+  document.addEventListener('keydown', pausarFundo);
   function loop(t) {
     raf = requestAnimationFrame(loop);
     if (t - last < 33) return; // ~30 fps
+    var dt = Math.min(t - last, 100);
     last = t;
-    canvases.forEach(function (cv) { if (cv.visible) cv.draw(t); });
+    if (t < pausaAte) return;
+    vt += dt;
+    canvases.forEach(function (cv) { if (cv.visible) cv.draw(vt); });
   }
   function startCanvas() { if (!raf && on && !document.hidden && canvases.length) raf = requestAnimationFrame(loop); }
   function stopCanvas() { if (raf) cancelAnimationFrame(raf); raf = 0; }

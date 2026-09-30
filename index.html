@@ -1,0 +1,685 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Drysul — Drywall, gesso e acabamento · Demonstração</title>
+  <meta name="description" content="Proposta de site da Drysul: chapas, perfis, fixação, massas e fitas para drywall. Catálogo com busca, calculadora de materiais e orçamento pelo WhatsApp.">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#111A38">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="pt_BR">
+  <meta property="og:title" content="Drysul — gesso e acabamento · Proposta de site">
+  <meta property="og:description" content="Demonstração navegável: catálogo, calculadora de materiais e orçamento pelo WhatsApp.">
+  <meta property="og:url" content="https://giordanbohrer3-cpu.github.io/drysul/">
+  <meta property="og:image" content="https://giordanbohrer3-cpu.github.io/drysul/assets/img/og-drysul.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <link rel="preload" href="assets/fonts/archivo-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="css/styles.css?v=7">
+  <link rel="stylesheet" href="css/motion.css?v=7">
+  <script>
+    (function () {
+      var root = document.documentElement, pref = null;
+      root.classList.add('js');
+      try { pref = localStorage.getItem('drysul-motion'); } catch (e) {}
+      var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var on = pref === 'on' ? true : pref === 'off' ? false : !reduce;
+      root.classList.add(on ? 'motion-on' : 'motion-paused');
+    })();
+  </script>
+</head>
+<body>
+  <svg class="sprite" aria-hidden="true" focusable="false">
+    <symbol id="logo-drysul" viewBox="0 0 1752.7 556.3"><path class="lg-mark" transform="matrix(1 0 0 -1 230.9 231.41)" d="M0 0-86.04-81.6H-150.47L-40.04 21.82-40.08 45.33-150.26 147.73H-85.05L0 67.11ZM-72.41 179.86H-230.9L-74.57 33.51-230.9-113.73H-73.39L32.13-13.3V80.33ZM-169.38-23.7-127.83 15.72V50.85L-168.95 89.83H-217.79L-156.96 33.28-217.79-23.7Z"/><path class="lg-word" transform="matrix(1 0 0 -1 -83.67 797.49)" d="M1764.87 484.87H1836.33V797.49H1764.87ZM1668.42 586.59C1667.1 568.83 1661.88 555.27 1652.24 546.47 1641.06 536.26 1625.92 531.15 1606.82 531.15 1588.88 531.15 1576.61 535.06 1570.02 542.89 1563.43 550.7 1560.13 568.6 1560.13 596.64V713.82H1488.86V592.37C1488.86 557.5 1495.57 530.55 1509.01 511.5 1522.44 492.45 1546.65 482.93 1581.64 482.93 1623.08 482.93 1653.79 493.9 1673.73 515.86 1677.56 520.08 1680.7 524.21 1683.79 528.35L1686.62 526.32 1672.28 508.7C1672.02 508.43 1671.83 508.05 1671.71 507.54 1671.58 507.02 1671.5 506.49 1671.5 505.98V484.87H1739.88V713.62H1668.42ZM1436.75 606.5C1416.21 614.39 1391.04 619.29 1361.21 621.23 1337.84 622.9 1318.41 624.75 1302.9 626.75 1287.42 628.75 1279.67 635.44 1279.67 646.79 1279.67 658.67 1283.9 665.68 1292.35 667.82 1300.81 669.93 1313.69 671 1331 671 1352.29 671 1369.11 669.59 1381.45 666.75 1393.78 663.91 1399.95 654.35 1399.95 638.09H1467.36C1467.36 668.16 1457.47 688.56 1437.72 699.28 1417.97 710.01 1383.17 715.36 1333.32 715.36 1292.12 715.36 1261.5 710.33 1241.42 700.25 1221.33 690.18 1211.29 672.94 1211.29 648.54 1211.29 620.9 1222.24 602.56 1244.13 593.53 1266.01 584.49 1292.12 579.06 1322.47 577.27 1346.24 575.71 1365.06 574.03 1378.94 572.22 1392.81 570.41 1399.76 563.52 1399.76 551.5 1399.76 540.15 1394.98 533.37 1385.42 531.15 1375.86 528.97 1362.83 527.88 1346.29 527.88 1325.76 527.88 1309.42 529.38 1297.29 532.41 1285.15 535.46 1279.08 545.31 1279.08 561.95H1211.29C1211.29 530.2 1221.23 509.08 1241.12 498.62 1261 488.17 1294.9 482.93 1342.81 482.93 1389.93 482.93 1422.52 488.22 1440.52 498.81 1458.54 509.4 1467.55 528.18 1467.55 555.17 1467.55 581.52 1457.28 598.64 1436.75 606.5M1074.95 534.07H1070.88L1075.71 557.9C1075.71 559.17 1075.69 560.54 1075.62 561.95 1075.56 563.38 1075.33 564.79 1074.95 566.22L1028.65 713.62H954.08L1032.91 484.87H1059.4C1053.55 473.68 1048.12 467.09 1043.09 465.31 1037.98 463.5 1011.49 462.61 963.58 462.61V406.04C1022.97 406.04 1060.74 408.11 1076.88 412.25 1093.03 416.38 1109.35 440.59 1125.88 484.87L1203.94 713.62H1129.37ZM854.33 715.55C820.64 715.55 794.62 707.28 776.28 690.77 770.26 685.34 765.6 679.57 761.55 673.65L760.98 673.13 758.07 676.43 771.82 692.5C772.09 692.77 772.31 693.15 772.5 693.66 772.7 694.18 772.79 694.69 772.79 695.23V714.79H701.14V484.87H772.79V619.05C773.49 634.11 777.69 646.09 786.35 654.16 795.78 662.94 809.59 667.32 827.8 667.32 846.52 667.32 859.05 664.12 865.38 657.74 871.7 651.34 874.86 636.28 874.86 612.5H946.14C946.14 650.35 939.34 676.98 925.72 692.41 912.08 707.84 888.29 715.55 854.33 715.55M610.68 580.3C610.43 563.11 604.92 550.52 593.83 542.89 582.46 535.06 567.16 531.15 547.92 531.15 527.39 531.15 512.67 534.97 503.75 542.58 494.86 550.2 490.4 569.19 490.4 599.53 490.4 629.23 494.86 648.03 503.75 655.89 512.67 663.78 527.39 667.72 547.92 667.72 567.16 667.72 582.46 663.8 593.83 655.99 604.92 648.35 610.43 635.64 610.68 618.19ZM610.68 697.34C610.68 696.83 610.78 696.39 610.97 695.99 611.16 695.61 611.39 695.23 611.63 694.83L627.92 679.72 624.84 677.88C619.76 683.65 613.37 689.46 604.76 695.32 583.79 709.59 555.98 716.33 521.39 715.55 486.65 714.79 460.76 704.9 443.72 685.91 426.67 666.94 418.16 638.28 418.16 599.91 418.16 561.44 426.67 532.55 443.72 513.25 460.76 493.94 486.65 483.98 521.39 483.33 555.98 482.68 583.79 489.39 604.76 503.46 613.38 509.24 619.78 515.02 624.86 520.8L627.33 519.16 611.63 504.43C611.39 504.05 611.16 503.63 610.97 503.18 610.78 502.72 610.68 502.24 610.68 501.73V484.87H682.34V791.68H610.68Z"/><g class="lg-tagline"><path class="lg-tag" transform="matrix(1 0 0 -1 1270.72 424.57)" d="M0 0C-6.68 2.69-10.04 7.41-10.04 14.18-10.04 26.43-6.56 34.03 .406 37.02 7.37 39.99 15.38 41.48 24.43 41.48H43.84 63.82V33.41H40.43 24.66C18.48 33.41 12.99 32.62 8.2 31.03 3.41 29.45 1.01 24.22 1.01 15.38 1.01 10.55 3.15 7.43 7.42 5.96 11.7 4.49 17.91 3.73 26.04 3.69 39.97 3.57 46.87 8.61 46.76 18.81 46.64 28.23 41.46 33.24 31.19 33.8L37.83 34.62 38.52 33.19H40.93C51.31 32.92 56.5 26.52 56.5 14 56.5 1.98 46.43-4.03 26.25-4.03 15.45-4.03 6.7-2.69 0 0M56.2-19.93C59.99-22.12 61.88-25.78 61.88-30.89 61.88-36.74 59.44-40.93 54.58-43.49 49.72-46.06 38.65-47.33 21.39-47.33 5.71-47.33-4.03-45.58-7.83-42.1-11.63-38.59-11.39-33.96-7.07-28.2H1.75C-1.38-32.48-1.52-35.34 1.33-36.79 4.17-38.24 10.89-38.97 21.52-38.97 33.38-38.97 41.25-38.4 45.14-37.29 49.01-36.16 50.94-34.12 50.94-31.19 50.94-28.36 49.22-26.48 45.76-25.57 42.31-24.65 33.43-24.19 19.16-24.19 2.28-24.19-7.11-21.73-9.02-16.78-10.93-11.83-8.59-5.59-2.03 1.98L5.3-1.11C.654-6.47-.159-10.36 2.9-12.84 5.96-15.29 15.04-16.55 30.16-16.58 43.74-16.62 52.44-17.73 56.2-19.93"/><path class="lg-tag" transform="matrix(1 0 0 -1 1402.77 442.21)" d="M0 0C-2.74-3.61-6.12-6.12-10.15-7.55-14.16-8.98-20.4-9.71-28.84-9.71V-2.49C-23.07-2.49-18.93-2.03-16.44-1.11-13.93-.194-11.76 1.63-9.88 4.33-8.01 7.04-6.75 10.86-6.1 15.79H5.06C4.42 8.88 2.72 3.61 0 0M-54.08 23.51V29.81H-5.99C-6.06 38.21-7.76 44.01-11.05 47.19-14.36 50.37-20.37 51.98-29.07 51.98-37.89 51.98-44.06 50.28-47.56 46.87-51.08 43.48-52.83 36.69-52.83 26.48-52.83 14.53-51.15 6.72-47.79 3.04-44.43-.637-38.12-2.49-28.84-2.49L-28.89-9.71C-42.48-9.71-51.68-7.09-56.47-1.86-61.26 3.38-63.65 12.29-63.65 24.89-63.65 37.6-61.19 46.48-56.26 51.54-51.34 56.59-42.29 59.12-29.12 59.12-15.77 59.12-6.7 56.58-1.95 51.48 2.79 46.39 5.18 38.12 5.18 26.66L5.06 23.57Z"/><path class="lg-tag" transform="matrix(1 0 0 -1 1426.51 447.39)" d="M0 0C-5.39 2.99-8.08 8.89-8.08 17.75H2.63C2.63 11.53 4.7 7.5 8.88 5.64 13.03 3.8 18.64 2.86 25.65 2.86 32.41 2.86 37.5 3.59 40.95 5.02 44.38 6.45 46.09 9.35 46.09 13.76 46.09 19.43 43.77 22.82 39.16 23.9 34.55 25 28.64 25.86 21.46 26.52 13.46 27.31 6.59 28.87 .884 31.19-4.83 33.48-7.67 38.52-7.67 46.27-7.67 53.15-5.09 57.87 .053 60.41 5.22 62.98 12.96 64.25 23.3 64.25 34.99 64.25 43.46 62.8 48.73 59.9 53.99 57 56.63 51.43 56.63 43.17H45.98C45.98 49.06 43.95 52.83 39.89 54.49 35.82 56.15 30.16 56.98 22.9 56.98 16.27 56.98 11.31 56.36 8.04 55.12 4.77 53.87 3.15 50.81 3.15 45.93 3.15 40.93 5.5 37.8 10.22 36.54 14.94 35.27 20.81 34.3 27.83 33.61 35.87 32.85 42.73 31.45 48.35 29.44 53.99 27.42 56.8 22.4 56.8 14.37 56.8 7.23 54.38 2.31 49.52-.39 44.68-3.11 36.54-4.46 25.14-4.46 13.76-4.46 5.38-2.97 0 0"/><path class="lg-tag" transform="matrix(1 0 0 -1 1501.58 447.39)" d="M0 0C-5.39 2.99-8.08 8.89-8.08 17.75H2.63C2.63 11.53 4.7 7.5 8.88 5.64 13.03 3.8 18.63 2.86 25.65 2.86 32.41 2.86 37.5 3.59 40.95 5.02 44.38 6.45 46.09 9.35 46.09 13.76 46.09 19.43 43.77 22.82 39.16 23.9 34.55 25 28.64 25.86 21.46 26.52 13.45 27.31 6.59 28.87 .884 31.19-4.83 33.48-7.67 38.52-7.67 46.27-7.67 53.15-5.09 57.87 .053 60.41 5.21 62.98 12.96 64.25 23.3 64.25 34.99 64.25 43.46 62.8 48.73 59.9 53.99 57 56.63 51.43 56.63 43.17H45.98C45.98 49.06 43.95 52.83 39.88 54.49 35.82 56.15 30.16 56.98 22.89 56.98 16.27 56.98 11.31 56.36 8.04 55.12 4.77 53.87 3.15 50.81 3.15 45.93 3.15 40.93 5.5 37.8 10.22 36.54 14.94 35.27 20.81 34.3 27.83 33.61 35.87 32.85 42.73 31.45 48.35 29.44 53.99 27.42 56.8 22.4 56.8 14.37 56.8 7.23 54.38 2.31 49.52-.39 44.68-3.11 36.54-4.46 25.14-4.46 13.75-4.46 5.38-2.97 0 0"/><path class="lg-tag" transform="matrix(1 0 0 -1 1621.34 439.03)" d="M0 0C3.64 3.43 5.46 10.66 5.46 21.64 5.46 32.73 3.64 39.96 0 43.35-3.64 46.74-9.74 48.44-18.3 48.44-26.82 48.44-32.9 46.74-36.56 43.35-40.24 39.96-42.06 32.73-42.06 21.64-42.06 10.66-40.24 3.43-36.56 0-32.9-3.43-26.82-5.14-18.3-5.14-9.74-5.14-3.64-3.43 0 0M-44.73-5.18C-50.44-.089-53.29 8.88-53.29 21.71-53.29 34.6-50.44 43.55-44.73 48.53-39.02 53.52-30.21 56.01-18.3 56.01-6.35 56.01 2.48 53.52 8.15 48.53 13.84 43.55 16.69 34.6 16.69 21.71 16.69 8.88 13.84-.089 8.15-5.18 2.48-10.27-6.35-12.82-18.3-12.82-30.21-12.82-39.02-10.27-44.73-5.18"/><path class="lg-tag" transform="matrix(1 0 0 -1 1747.49 442.21)" d="M0 0C-2.74-3.61-6.12-6.12-10.15-7.55-14.16-8.98-20.4-9.71-28.84-9.71V-2.49C-23.07-2.49-18.93-2.03-16.44-1.11-13.93-.194-11.76 1.63-9.88 4.33-8.01 7.04-6.75 10.86-6.1 15.79H5.06C4.42 8.88 2.72 3.61 0 0M-54.08 23.51V29.81H-5.99C-6.06 38.21-7.76 44.01-11.05 47.19-14.36 50.37-20.37 51.98-29.07 51.98-37.89 51.98-44.06 50.28-47.56 46.87-51.08 43.48-52.83 36.69-52.83 26.48-52.83 14.53-51.15 6.72-47.79 3.04-44.43-.637-38.12-2.49-28.84-2.49L-28.89-9.71C-42.48-9.71-51.68-7.09-56.47-1.86-61.26 3.38-63.65 12.29-63.65 24.89-63.65 37.6-61.19 46.48-56.26 51.54-51.34 56.59-42.29 59.12-29.12 59.12-15.77 59.12-6.7 56.58-1.95 51.48 2.79 46.39 5.18 38.12 5.18 26.66L5.06 23.57Z"/><path class="lg-tag" transform="matrix(1 0 0 -1 1007.63 548.58)" d="M0 0C2.85 .389 5.36 1.13 7.53 2.23 9.71 3.34 11.56 4.72 13.08 6.36 14.62 7.99 15.49 9.72 15.72 11.51L16.07 26.29H-9.99C-12.29 26.29-14.5 26.09-16.64 25.74-18.78 25.37-20.69 24.73-22.38 23.8-24.08 22.86-25.42 21.52-26.43 19.78-27.42 18.05-27.92 15.79-27.92 12.99-27.92 9.72-27.4 7.2-26.36 5.41-25.34 3.64-23.94 2.35-22.19 1.56-20.44 .742-18.44 .194-16.23-.106-14.02-.425-11.7-.566-9.3-.566-5.94-.566-2.85-.371 0 0M18.48 4.86 17.43 5.16C16.07 2.71 14.67 .76 13.26-.707 11.85-2.17 10.01-3.48 7.76-4.61 5.52-5.73 2.77-6.52-.46-6.98-3.68-7.44-7.37-7.67-11.53-7.67-14.25-7.67-16.95-7.5-19.64-7.12-22.33-6.77-24.86-6.19-27.19-5.38-29.54-4.58-31.63-3.47-33.43-2.05-35.25-.654-36.67 1.22-37.68 3.52-38.68 5.83-39.2 8.91-39.2 12.77-39.2 16.09-38.68 18.85-37.68 21.04-36.67 23.25-35.25 25.1-33.47 26.66-31.66 28.2-29.56 29.4-27.1 30.27-24.66 31.12-22.06 31.75-19.32 32.16-16.58 32.55-13.84 32.76-11.14 32.76H15.77V37.96C15.77 42.78 14.97 46.32 13.37 48.58 11.77 50.86 9.67 52.31 7.07 52.97 4.47 53.62-.018 53.94-6.44 53.94-11.93 53.94-16.21 53.53-19.27 52.74-22.33 51.94-24.61 50.49-26.13 48.42-27.67 46.34-28.39 43.19-28.3 39H-38.74C-38.67 44.3-37.69 48.37-35.84 51.22-34 54.06-31.66 56.13-28.85 57.44-26.06 58.73-22.98 59.69-19.64 60.3-16.3 60.91-11.72 61.21-5.92 61.21 3.46 61.21 10.02 60.57 13.77 59.26 17.52 57.97 20.65 55.66 23.16 52.33 25.69 49.02 26.94 43.99 26.94 37.22V-6.98H16V-.177C16 .282 16.09 .725 16.23 1.15 16.39 1.57 16.6 1.94 16.87 2.3Z"/><path class="lg-tag" transform="matrix(1 0 0 -1 1051.74 549.23)" d="M0 0C-5.11 4.63-7.67 13.77-7.67 27.4-7.67 40.75-5.11 49.84 0 54.63 5.13 59.42 14.13 61.81 27.03 61.81 39.74 61.81 48.21 59.65 52.44 55.34 56.65 51.02 58.96 44.34 59.39 35.31H48.67C48.5 41.97 47.01 46.78 44.27 49.7 41.53 52.61 35.8 54.08 27.09 54.08 18.23 54.08 12.06 52.35 8.57 48.9 5.07 45.44 3.32 38.28 3.32 27.4 3.32 16.28 5.09 9.09 8.63 5.78 12.16 2.48 18.32 .831 27.09 .831 35.75 .831 41.48 2.21 44.23 4.99 47.01 7.74 48.5 12.59 48.67 19.5H59.39C58.96 10.15 56.65 3.4 52.44-.742 48.21-4.9 39.74-6.97 27.03-6.97 14.13-6.97 5.13-4.63 0 0"/><path class="lg-tag" transform="matrix(1 0 0 -1 1161.19 548.58)" d="M0 0C2.85 .389 5.36 1.13 7.53 2.23 9.71 3.34 11.56 4.72 13.08 6.36 14.62 7.99 15.49 9.72 15.72 11.51L16.07 26.29H-9.99C-12.29 26.29-14.5 26.09-16.64 25.74-18.78 25.37-20.68 24.73-22.38 23.8-24.08 22.86-25.42 21.52-26.43 19.78-27.42 18.05-27.92 15.79-27.92 12.99-27.92 9.72-27.4 7.2-26.36 5.41-25.34 3.64-23.94 2.35-22.19 1.56-20.44 .742-18.44 .194-16.23-.106-14.02-.425-11.7-.566-9.3-.566-5.94-.566-2.85-.371 0 0M18.48 4.86 17.43 5.16C16.07 2.71 14.67 .76 13.26-.707 11.85-2.17 10.01-3.48 7.76-4.61 5.52-5.73 2.78-6.52-.459-6.98-3.68-7.44-7.37-7.67-11.53-7.67-14.25-7.67-16.95-7.5-19.64-7.12-22.33-6.77-24.86-6.19-27.19-5.38-29.54-4.58-31.63-3.47-33.43-2.05-35.25-.654-36.67 1.22-37.67 3.52-38.68 5.83-39.2 8.91-39.2 12.77-39.2 16.09-38.68 18.85-37.67 21.04-36.67 23.25-35.25 25.1-33.47 26.66-31.66 28.2-29.56 29.4-27.1 30.27-24.66 31.12-22.06 31.75-19.32 32.16-16.58 32.55-13.84 32.76-11.14 32.76H15.77V37.96C15.77 42.78 14.97 46.32 13.37 48.58 11.78 50.86 9.67 52.31 7.07 52.97 4.47 53.62-.018 53.94-6.44 53.94-11.93 53.94-16.21 53.53-19.27 52.74-22.33 51.94-24.61 50.49-26.13 48.42-27.67 46.34-28.39 43.19-28.3 39H-38.74C-38.67 44.3-37.69 48.37-35.84 51.22-34 54.06-31.66 56.13-28.85 57.44-26.06 58.73-22.98 59.69-19.64 60.3-16.3 60.91-11.72 61.21-5.92 61.21 3.46 61.21 10.02 60.57 13.77 59.26 17.52 57.97 20.65 55.66 23.16 52.33 25.69 49.02 26.94 43.99 26.94 37.22V-6.98H16V-.177C16 .282 16.09 .725 16.23 1.15 16.39 1.57 16.6 1.94 16.87 2.3Z"/><path class="lg-tag" transform="matrix(1 0 0 -1 1215.05 549.92)" d="M0 0C-4.97 4.17-7.44 8.22-7.44 12.11L-3.61 19.22C-3.61 14.06-1.8 9.83 1.8 6.52 5.41 3.22 11.28 1.57 19.41 1.57 28 1.57 33.73 3.22 36.6 6.51 39.46 9.78 40.89 17.04 40.89 28.25 40.89 39.28 39.46 46.48 36.6 49.84 33.73 53.2 28 54.88 19.41 54.88 11.28 54.88 5.41 53.25 1.8 49.96-1.8 46.67-3.61 42.45-3.61 37.25L-7.44 44.29C-7.44 48.23-4.95 52.3 .035 56.49 5 60.69 12.75 62.73 23.25 62.62 34.28 62.5 41.87 59.95 45.98 54.97 50.1 50 52.17 41.1 52.17 28.32 52.17 15.33 50.1 6.38 45.98 1.43 41.87-3.52 34.28-6.05 23.25-6.15 12.71-6.22 4.97-4.17 0 0M-3.55-5.64H-14.78L-14.83 85.23H-3.61L-3.55 54.88C-3.55 54.74-3.57 54.58-3.61 54.44-3.64 54.28-3.68 54.15-3.73 54.08L-6.42 49.79-5.5 49.45-3.55 50.53V7.64 5.92L-5.5 7.12-6.42 6.79-3.78 2.44C-3.69 2.31-3.64 2.19-3.61 2.03-3.57 1.87-3.55 1.73-3.55 1.57Z"/><path class="lg-tag" transform="matrix(1 0 0 -1 1316.49 548.58)" d="M0 0C2.85 .389 5.36 1.13 7.53 2.23 9.71 3.34 11.56 4.72 13.08 6.36 14.62 7.99 15.49 9.72 15.72 11.51L16.07 26.29H-9.99C-12.29 26.29-14.5 26.09-16.64 25.74-18.78 25.37-20.68 24.73-22.38 23.8-24.08 22.86-25.42 21.52-26.43 19.78-27.42 18.05-27.92 15.79-27.92 12.99-27.92 9.72-27.4 7.2-26.36 5.41-25.34 3.64-23.94 2.35-22.19 1.56-20.44 .742-18.44 .194-16.23-.106-14.02-.425-11.7-.566-9.3-.566-5.94-.566-2.85-.371 0 0M18.48 4.86 17.43 5.16C16.07 2.71 14.67 .76 13.26-.707 11.85-2.17 10.01-3.48 7.76-4.61 5.52-5.73 2.78-6.52-.459-6.98-3.68-7.44-7.37-7.67-11.53-7.67-14.25-7.67-16.95-7.5-19.64-7.12-22.33-6.77-24.86-6.19-27.19-5.38-29.54-4.58-31.63-3.47-33.43-2.05-35.25-.654-36.67 1.22-37.67 3.52-38.68 5.83-39.2 8.91-39.2 12.77-39.2 16.09-38.68 18.85-37.67 21.04-36.67 23.25-35.25 25.1-33.47 26.66-31.66 28.2-29.56 29.4-27.1 30.27-24.66 31.12-22.06 31.75-19.32 32.16-16.58 32.55-13.84 32.76-11.14 32.76H15.77V37.96C15.77 42.78 14.97 46.32 13.37 48.58 11.78 50.86 9.67 52.31 7.07 52.97 4.47 53.62-.018 53.94-6.44 53.94-11.93 53.94-16.21 53.53-19.27 52.74-22.33 51.94-24.61 50.49-26.13 48.42-27.67 46.34-28.39 43.19-28.3 39H-38.74C-38.67 44.3-37.69 48.37-35.84 51.22-34 54.06-31.66 56.13-28.85 57.44-26.06 58.73-22.98 59.69-19.64 60.3-16.3 60.91-11.72 61.21-5.92 61.21 3.46 61.21 10.02 60.57 13.77 59.26 17.52 57.97 20.65 55.66 23.16 52.33 25.69 49.02 26.94 43.99 26.94 37.22V-6.98H16V-.177C16 .282 16.09 .725 16.23 1.15 16.39 1.57 16.6 1.94 16.87 2.3Z"/><path class="lg-tag" transform="matrix(1 0 0 -1 1446.21 516.74)" d="M0 0C0 8.17-.99 13.82-3 16.95-5 20.08-9.18 21.64-15.51 21.64-22.54 21.64-27.39 19.8-30.09 16.12-32.78 12.43-34.12 6.88-34.12-.565L-40.47 2C-40.47 9.53-38.03 15.98-33.11 21.39-28.22 26.79-21.13 29.44-11.85 29.31-2.65 29.21 3.48 26.73 6.56 21.91 9.64 17.08 11.17 10.08 11.17 .919V-38.82H0ZM-45.23 0C-45.23 8.17-46.2 13.82-48.14 16.95-50.1 20.08-54.35 21.64-60.92 21.64-67.25 21.64-71.94 19.78-74.98 16.09-78 12.39-79.52 6.82-79.52-.565L-83.87 2.63C-83.87 10.27-81.59 16.65-77.01 21.78-72.43 26.93-65.82 29.44-57.19 29.31-47.81 29.21-41.6 26.73-38.59 21.91-35.57 17.08-34.07 10.08-34.07 .919V-38.82H-45.23ZM-81.93 14.25-81.13 13.86-79.42 15.35V13.81-38.82H-90.64V28.8H-79.42V20.84C-79.42 20.69-79.42 20.53-79.44 20.35-79.47 20.19-79.5 20.05-79.59 19.93Z"/><path class="lg-tag" transform="matrix(1 0 0 -1 1531.11 546.49)" d="M0 0C-2.74-3.61-6.12-6.12-10.15-7.55-14.16-8.98-20.4-9.71-28.84-9.71V-2.49C-23.07-2.49-18.93-2.03-16.44-1.11-13.93-.194-11.76 1.63-9.88 4.33-8.01 7.04-6.75 10.86-6.1 15.79H5.06C4.42 8.88 2.72 3.61 0 0M-54.08 23.51V29.81H-5.99C-6.06 38.21-7.76 44.01-11.05 47.19-14.36 50.37-20.37 51.98-29.07 51.98-37.89 51.98-44.06 50.28-47.56 46.87-51.08 43.48-52.83 36.69-52.83 26.48-52.83 14.53-51.15 6.72-47.79 3.04-44.43-.637-38.12-2.49-28.84-2.49L-28.89-9.71C-42.48-9.71-51.68-7.09-56.47-1.86-61.26 3.38-63.65 12.29-63.65 24.89-63.65 37.6-61.19 46.48-56.26 51.54-51.34 56.59-42.29 59.12-29.12 59.12-15.77 59.12-6.7 56.58-1.95 51.48 2.79 46.39 5.18 38.12 5.18 26.66L5.06 23.57Z"/><path class="lg-tag" transform="matrix(1 0 0 -1 1599.72 517.84)" d="M0 0C0 8.59-1.22 14.55-3.66 17.87-6.1 21.2-11.09 22.86-18.62 22.86-26.32 22.86-31.93 20.97-35.45 17.18-38.95 13.4-40.72 8.17-40.72 1.5L-45.91 6.08C-45.91 11.49-43.31 17.01-38.1 22.59-32.9 28.18-24.98 30.85-14.37 30.59-4.37 30.32 2.39 27.65 5.91 22.58 9.41 17.48 11.17 10.08 11.17 .354V-37.73H0ZM-42.77 16.16-41.97 15.81-40.26 17.24V15.65-37.73H-51.48V29.9H-40.26V22.05C-40.26 21.9-40.26 21.75-40.27 21.59-40.31 21.45-40.34 21.3-40.43 21.2Z"/><path class="lg-tag" transform="matrix(1 0 0 -1 1637.11 551.9)" d="M0 0C-2.6 2.44-3.89 6.82-3.89 13.12V55.83H-18.1V63.91H-14.5C-12.69 63.91-11.07 64.21-9.6 64.8-8.13 65.38-6.86 66.21-5.78 67.25-4.72 68.31-3.87 69.53-3.27 70.95-2.65 72.36-2.35 73.88-2.35 75.53V87.27H8.82V75.6C8.82 73.72 8.54 72.13 7.99 70.81 7.42 69.5 6.7 68.39 5.82 67.48 4.92 66.6 3.89 65.91 2.72 65.45 1.56 64.99 .407 64.71-.743 64.6V63.91H37.04V55.83H7.27V15.93C7.27 11.46 8.15 8.54 9.94 7.16 11.7 5.78 14.46 5.11 18.21 5.11H37.11V-3.66H14.71C7.5-3.66 2.6-2.44 0 0"/><path class="lg-tag" transform="matrix(1 0 0 -1 1735.98 543.31)" d="M0 0C3.64 3.43 5.46 10.66 5.46 21.64 5.46 32.73 3.64 39.96 0 43.35-3.64 46.74-9.74 48.44-18.3 48.44-26.82 48.44-32.9 46.74-36.56 43.35-40.24 39.96-42.06 32.73-42.06 21.64-42.06 10.66-40.24 3.43-36.56 0-32.9-3.43-26.82-5.15-18.3-5.15-9.74-5.15-3.64-3.43 0 0M-44.73-5.18C-50.44-.089-53.29 8.88-53.29 21.71-53.29 34.6-50.44 43.55-44.73 48.53-39.02 53.52-30.21 56.01-18.3 56.01-6.35 56.01 2.48 53.52 8.15 48.53 13.84 43.55 16.69 34.6 16.69 21.71 16.69 8.88 13.84-.089 8.15-5.18 2.48-10.27-6.35-12.82-18.3-12.82-30.21-12.82-39.02-10.27-44.73-5.18"/></g></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M5 7h14M10 7V5h4v2M7 7l1 13h8l1-13"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="1.5"/><path d="M16 8V5.5A1.5 1.5 0 0 0 14.5 4h-9A1.5 1.5 0 0 0 4 5.5v9A1.5 1.5 0 0 0 5.5 16H8"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+    <symbol id="i-list" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01"/></symbol>
+    <symbol id="i-calc" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="1.5"/><path d="M8 7h8M8.5 11.5h.01M12 11.5h.01M15.5 11.5h.01M8.5 15h.01M12 15h.01M15.5 15v2.5M8.5 18h.01M12 18h.01"/></symbol>
+    <symbol id="i-pause" viewBox="0 0 24 24"><path d="M9 6v12M15 6v12"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13l10.5-6.5z"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5M12 7.8h.01"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><path d="M6.5 3.5h3l1.5 4.5-2 1.3a10.5 10.5 0 0 0 5.7 5.7l1.3-2 4.5 1.5v3a2 2 0 0 1-2 2A16.5 16.5 0 0 1 4.5 5.5a2 2 0 0 1 2-2z"/></symbol>
+    <symbol id="i-whats" viewBox="0 0 24 24"><path d="M4.2 19.8 5.3 16A8.5 8.5 0 1 1 8.4 19z"/><path d="M9.2 8.2c.2-.5.5-.5.8-.5h.5c.2 0 .4.1.5.4l.7 1.6c.1.2 0 .5-.1.7l-.5.6c-.1.2-.1.4 0 .6.6 1.1 1.5 2 2.6 2.6.2.1.4.1.6 0l.6-.6c.2-.2.5-.2.7-.1l1.6.8c.2.1.3.3.3.5v.4c0 .4-.2.8-.6 1-1 .5-2.3.4-3.6-.2a9 9 0 0 1-3.8-3.8c-.6-1.3-.7-2.6-.3-3.6z" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-insta" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4.5"/><circle cx="12" cy="12" r="3.7"/><path d="M16.8 7.2h.01"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol>
+    <symbol id="i-truck" viewBox="0 0 24 24"><path d="M3 6.5h11v9H3zM14 9.5h3.5l3 3v3H14"/><circle cx="7" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></symbol>
+    <symbol id="i-pix" viewBox="0 0 24 24"><path d="M12 3.5 20.5 12 12 20.5 3.5 12z"/><path d="M8.5 12h7M12 8.5v7" opacity=".55"/></symbol>
+    <symbol id="i-card" viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3 10h18M6.5 15h4"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3.5 5 6v5.5c0 4.3 3 7.8 7 9 4-1.2 7-4.7 7-9V6z"/><path d="m9 12 2.2 2.2L15.5 10"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="1.5"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5M12 14.5v2.5"/></symbol>
+    <symbol id="i-bag" viewBox="0 0 24 24"><path d="M5 8h14l-1 12H6zM9 8V6.5a3 3 0 0 1 6 0V8"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11M7 10.5l5 5 5-5M5 19.5h14"/></symbol>
+    <symbol id="i-print" viewBox="0 0 24 24"><path d="M7 8.5V4h10v4.5M7 16.5H5a1.5 1.5 0 0 1-1.5-1.5v-5A1.5 1.5 0 0 1 5 8.5h14a1.5 1.5 0 0 1 1.5 1.5v5a1.5 1.5 0 0 1-1.5 1.5h-2"/><path d="M7 13.5h10V20H7z"/></symbol>
+    <symbol id="i-share" viewBox="0 0 24 24"><circle cx="17.5" cy="6" r="2.5"/><circle cx="6.5" cy="12" r="2.5"/><circle cx="17.5" cy="18" r="2.5"/><path d="m8.7 10.8 6.6-3.6M8.7 13.2l6.6 3.6"/></symbol>
+    <symbol id="i-ext" viewBox="0 0 24 24"><path d="M14 5h5v5M19 5l-8 8M17 14v4.5a1.5 1.5 0 0 1-1.5 1.5h-10A1.5 1.5 0 0 1 4 18.5v-10A1.5 1.5 0 0 1 5.5 7H10"/></symbol>
+
+    <symbol id="p-chapa" viewBox="0 0 120 90"><path d="M14 62 64 44l42 12-50 18z"/><path d="M14 62v5l42 12v-5M56 79l50-18v-5"/><path d="M14 51 64 33l42 12-50 18z" opacity=".6"/><path d="M14 40 64 22l42 12-50 18z" opacity=".35"/><path d="M35 55.5 85 37.5" stroke-dasharray="3 4" opacity=".6"/></symbol>
+    <symbol id="p-perfil" viewBox="0 0 120 90"><path d="M16 42v28h26V42"/><path d="M16 42h6v24h14V42h6" opacity=".55"/><path d="M16 42 78 18M42 42l62-24M42 70l62-24V18M78 18h6M98 18h6"/><path d="M22 42l62-24" opacity=".35"/></symbol>
+    <symbol id="p-parafuso" viewBox="0 0 120 90"><g transform="rotate(38 60 45)"><path d="M47 14h26l-9 10h-8z"/><path d="M57 11.5v4M63 11.5v4" opacity=".5"/><path d="M57 24v44l3 9 3-9V24"/><path d="M55 31l10-3M55 38l10-3M55 45l10-3M55 52l10-3M55 59l10-3M55 66l10-3" opacity=".7"/></g></symbol>
+    <symbol id="p-caixa" viewBox="0 0 120 90"><path d="M20 34h56v42H20zM20 34l18-14h56L76 34M76 76l18-14V20"/><path d="M28 44h40v22H28z" opacity=".55"/><g transform="translate(34 47) scale(.5)"><path d="M4 8h16l-5 6h-6zM10 14v14l2 5 2-5V14"/></g><path d="M50 52h12M50 58h9" opacity=".55"/></symbol>
+    <symbol id="p-balde" viewBox="0 0 120 90"><ellipse cx="60" cy="20" rx="31" ry="7"/><path d="M29 20v4c0 4 14 7 31 7s31-3 31-7v-4"/><path d="M31 25l5 49c1 4 11 7 24 7s23-3 24-7l5-49"/><path d="M33 40c5 3 15 5 27 5s22-2 27-5M35 60c5 3 14 5 25 5s20-2 25-5" opacity=".55"/><path d="M29 22c-4 16 2 30 8 32M91 22c4 16-2 30-8 32" opacity=".4"/></symbol>
+    <symbol id="p-fita" viewBox="0 0 120 90"><circle cx="46" cy="44" r="28"/><circle cx="46" cy="44" r="12"/><circle cx="46" cy="44" r="20" opacity=".35"/><path d="M58 69 108 80l-2 7-52-12"/><path d="M68 74h.01M78 76.2h.01M88 78.4h.01M98 80.6h.01" stroke-width="3" stroke-linecap="round" opacity=".7"/></symbol>
+    <symbol id="p-ancora" viewBox="0 0 120 90"><path d="M50 10h20v10H50zM46 20h28v4H46z"/><path d="M56 24v58M64 24v58" opacity=".6"/><path d="M53 36h14v34l-7 8-7-8z"/><path d="M60 38v30M56 44l8 0M56 52h8M56 60h8" opacity=".5"/></symbol>
+  </svg>
+
+  <a class="skip" href="#conteudo">Pular para o conteúdo</a>
+
+  <div class="demo-bar" role="region" aria-label="Aviso de demonstração">
+    <div class="wrap demo-bar__in">
+      <p class="demo-bar__txt"><span class="demo-tag">Demo</span> Proposta de site para a Drysul <span class="hide-sm">· preços e disponibilidade confirmados no atendimento</span></p>
+      <div class="demo-bar__actions">
+        <button class="demo-btn" type="button" data-open="sobre-demo" aria-label="Sobre a demo"><svg class="ic"><use href="#i-info"/></svg><span>Sobre a demo</span></button>
+        <button class="demo-btn" type="button" id="motion-toggle" aria-label="Pausar efeitos"><svg class="ic"><use href="#i-pause"/></svg><span>Pausar efeitos</span></button>
+      </div>
+    </div>
+  </div>
+
+  <header class="site-header" id="topo">
+    <div class="wrap site-header__in">
+      <a class="brand" href="#inicio" aria-label="Drysul — gesso e acabamento, início">
+        <svg class="logo" viewBox="0 0 1752.7 556.3" role="img" aria-hidden="true"><use href="#logo-drysul"/></svg>
+      </a>
+      <nav class="nav" id="nav" aria-label="Principal">
+        <ul class="nav__list">
+          <li><a href="#produtos">Produtos</a></li>
+          <li><a href="#ofertas">Ofertas</a></li>
+          <li><a href="#calculadora">Calculadora</a></li>
+          <li><a href="#como-funciona">Como funciona</a></li>
+          <li><a href="#a-drysul">A Drysul</a></li>
+          <li><a href="#contato">Contato</a></li>
+        </ul>
+      </nav>
+      <div class="header-actions">
+        <button class="btn btn--primary btn--sm quote-btn" type="button" data-open-quote data-magnetic>
+          <svg class="ic"><use href="#i-bag"/></svg><span>Pedido</span><span class="quote-count" data-quote-count aria-label="itens no pedido">0</span>
+        </button>
+        <button class="menu-btn" type="button" aria-expanded="false" aria-controls="nav" id="menu-btn"><svg class="ic"><use href="#i-menu"/></svg><span class="sr">Abrir menu</span></button>
+      </div>
+    </div>
+    <div class="progress" aria-hidden="true"><span id="progress-bar"></span></div>
+  </header>
+
+  <main id="conteudo">
+    <!-- HERO -->
+    <section class="hero" id="inicio" aria-labelledby="hero-title">
+      <canvas class="tech-canvas" data-canvas="dark" aria-hidden="true"></canvas>
+      <div class="hero__pattern" data-parallax="0.12" aria-hidden="true"></div>
+      <div class="hero__light" aria-hidden="true"></div>
+      <div class="wrap hero__grid">
+        <div class="hero__copy">
+          <p class="eyebrow hero__eyebrow"><span class="dot"></span>Loja de materiais para construção a seco</p>
+          <h1 class="hero__title" id="hero-title">
+            <span class="line"><span>Da estrutura</span></span>
+            <span class="line"><span>ao <em>acabamento.</em></span></span>
+          </h1>
+          <p class="hero__lead">Chapas, perfis, fixação, massas e fitas para drywall. Monte sua lista, calcule o material pela medida da obra e receba o orçamento pelo WhatsApp.</p>
+          <div class="hero__actions">
+            <a class="btn btn--primary btn--lg" href="#produtos" data-magnetic><span>Montar orçamento</span><svg class="ic"><use href="#i-arrow"/></svg></a>
+            <a class="btn btn--ghost btn--lg" href="#calculadora" data-magnetic><svg class="ic"><use href="#i-calc"/></svg><span>Calcular materiais</span></a>
+          </div>
+          <ul class="hero__facts" aria-label="Destaques">
+            <li><strong>3 produtos</strong><span>com preço da loja</span></li>
+            <li><strong>5 sistemas</strong><span>na calculadora</span></li>
+            <li><strong>WhatsApp</strong><span>atendimento direto</span></li>
+          </ul>
+        </div>
+
+        <figure class="hero__art" aria-hidden="true">
+          <div class="hero__stage">
+          <div class="wall" id="wall">
+            <div class="wall__rig" id="wall-rig">
+              <div class="wl wl--back"></div>
+              <svg class="wl wl--frame" viewBox="-12 -16 424 512" preserveAspectRatio="none">
+                <defs>
+                  <linearGradient id="aco" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="#7C828E"/><stop offset=".45" stop-color="#D9DCE1"/><stop offset=".55" stop-color="#C3C7CE"/><stop offset="1" stop-color="#6E747F"/></linearGradient>
+                  <linearGradient id="acoH" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#7C828E"/><stop offset=".5" stop-color="#D2D5DA"/><stop offset="1" stop-color="#6E747F"/></linearGradient>
+                </defs>
+                <g fill="url(#aco)" stroke="#2A3050" stroke-width=".8">
+                  <rect x="-6" y="-10" width="12" height="500"/><rect x="94" y="-10" width="12" height="500"/><rect x="194" y="-10" width="12" height="500"/><rect x="294" y="-10" width="12" height="500"/><rect x="394" y="-10" width="12" height="500"/>
+                </g>
+                <g fill="none" stroke="#2A3050" stroke-width=".8" opacity=".6"><path d="M-2-10v500M98-10v500M198-10v500M298-10v500M398-10v500"/></g>
+                <g fill="url(#acoH)" stroke="#2A3050" stroke-width=".8"><rect x="-12" y="-16" width="424" height="12"/><rect x="-12" y="484" width="424" height="12"/></g>
+                <g class="wl-dim" stroke="#D8D9D2" stroke-width="1" fill="none" opacity=".75"><path d="M106 30h88M106 24v12M194 24v12"/></g>
+                <text class="wl-dimtxt" x="150" y="22" text-anchor="middle">600 mm</text>
+              </svg>
+              <div class="wl wl--screws" id="wall-screws"></div>
+              <div class="wl wl--plate wl--plate-a"><span class="wl-print">drysul · drywall ST 12,5 mm</span><span class="wl-label wl-label--chapa">Chapa ST 12,5</span></div>
+              <div class="wl wl--plate wl--plate-b"><span class="wl-print">drysul · drywall ST 12,5 mm</span></div>
+              <div class="wl wl--tape"><span class="wl-label wl-label--fita">Fita + massa</span></div>
+              <span class="wl-label wl-label--guia">Guia 70</span>
+              <span class="wl-label wl-label--montante">Montante 70</span>
+              <span class="wl-label wl-label--parafuso">Parafuso TA 25</span>
+            </div>
+          </div>
+          <figcaption class="hero__caption"><span>Parede drywall</span> <em class="cap-anim">role a página e veja a montagem por dentro</em><em class="cap-static">estrutura, parafusos e chapas</em></figcaption>
+          </div>
+        </figure>
+      </div>
+      <a class="scroll-cue" href="#categorias" aria-label="Rolar para as categorias"><span></span></a>
+    </section>
+
+    <!-- MARQUEE -->
+    <div class="marquee">
+      <p class="sr">Drywall, gesso, estrutura, acabamento e fixação</p>
+      <div class="marquee__track" aria-hidden="true">
+        <span>Drywall</span><i></i><span>Gesso</span><i></i><span>Estrutura</span><i></i><span>Acabamento</span><i></i><span>Fixação</span><i></i>
+        <span>Drywall</span><i></i><span>Gesso</span><i></i><span>Estrutura</span><i></i><span>Acabamento</span><i></i><span>Fixação</span><i></i>
+      </div>
+    </div>
+
+    <!-- CATEGORIAS -->
+    <section class="section section--paper" id="categorias" aria-labelledby="cat-title">
+      <div class="wrap">
+        <header class="sec-head">
+          <p class="eyebrow" data-reveal>01 · Categorias</p>
+          <h2 class="sec-title" id="cat-title" data-reveal>Tudo para a obra seca, <span class="hl">em camadas.</span></h2>
+          <span class="rule" data-reveal="line" aria-hidden="true"></span>
+          <p class="sec-lead" data-reveal>Da estrutura metálica ao tratamento de juntas. Escolha a categoria e veja os materiais disponíveis.</p>
+        </header>
+        <div class="cat-grid" data-stagger id="cat-grid"></div>
+      </div>
+    </section>
+
+    <!-- DESTAQUES -->
+    <section class="section section--navy" id="destaques" aria-labelledby="dest-title">
+      <div class="dest-pattern" aria-hidden="true"></div>
+      <div class="wrap">
+        <header class="sec-head sec-head--row">
+          <div>
+            <p class="eyebrow eyebrow--light" data-reveal>02 · Preço da loja</p>
+            <h2 class="sec-title sec-title--light" id="dest-title" data-reveal>Linha Drysul <span class="hl">com preço.</span></h2>
+          </div>
+          <p class="sec-lead sec-lead--light" data-reveal>Valores informados pela loja em 30/09/2026, por embalagem. Estoque e condições são confirmados no atendimento.</p>
+        </header>
+        <div class="dest-grid" data-stagger id="dest-grid"></div>
+      </div>
+    </section>
+
+    <!-- CATÁLOGO -->
+    <section class="section section--light catalog" id="produtos" aria-labelledby="prod-title">
+      <canvas class="tech-canvas" data-canvas="light" aria-hidden="true"></canvas>
+      <div class="wrap">
+        <header class="sec-head">
+          <p class="eyebrow" data-reveal>03 · Catálogo</p>
+          <h2 class="sec-title" id="prod-title" data-reveal>Encontre o material <span class="hl">e monte a lista.</span></h2>
+          <span class="rule" data-reveal="line" aria-hidden="true"></span>
+        </header>
+
+        <div class="toolbar" data-reveal>
+          <label class="search">
+            <svg class="ic"><use href="#i-search"/></svg>
+            <span class="sr">Buscar material</span>
+            <input type="search" id="busca" placeholder="Busque chapa, perfil, parafuso, massa…" autocomplete="off">
+          </label>
+          <div class="chips" role="group" aria-label="Filtrar por categoria" id="filtros"></div>
+          <label class="sort">
+            <span class="sr">Ordenar</span>
+            <select id="ordem">
+              <option value="padrao">Destaques primeiro</option>
+              <option value="az">Nome A–Z</option>
+              <option value="za">Nome Z–A</option>
+              <option value="preco">Menor preço</option>
+            </select>
+          </label>
+        </div>
+        <p class="result-info" id="result-info" aria-live="polite"></p>
+        <div class="prod-grid" id="prod-grid"></div>
+        <div class="empty" id="empty" hidden>
+          <p><strong>Nenhum material encontrado.</strong> Tente outro termo ou fale com a equipe — o catálogo completo é atendido pelo WhatsApp.</p>
+          <button class="btn btn--outline btn--sm" type="button" id="limpar">Limpar busca e filtros</button>
+        </div>
+        <p class="catalog-note"><svg class="ic"><use href="#i-info"/></svg> Itens “sob consulta” têm preço, marca e medidas confirmados pela equipe. Adicione-os à lista normalmente.</p>
+      </div>
+    </section>
+
+    <!-- OFERTAS -->
+    <section class="section section--sand" id="ofertas" aria-labelledby="of-title">
+      <div class="wrap">
+        <header class="sec-head sec-head--row">
+          <div>
+            <p class="eyebrow" data-reveal>04 · Ofertas publicadas</p>
+            <h2 class="sec-title" id="of-title" data-reveal>Direto do <span class="hl">@drysul.loja</span></h2>
+          </div>
+          <div class="sec-side" data-reveal>
+            <p class="sec-lead">Ofertas publicadas no Instagram em 09/09/2026. Cada card leva à publicação original. Vigência e estoque são confirmados no atendimento.</p>
+            <a class="btn btn--outline btn--sm" href="https://www.instagram.com/drysul.loja/" target="_blank" rel="noopener" data-store-link="instagram"><svg class="ic"><use href="#i-insta"/></svg><span>Seguir no Instagram</span></a>
+          </div>
+        </header>
+        <div class="offer-grid" data-stagger id="offer-grid"></div>
+      </div>
+    </section>
+
+    <!-- CALCULADORA -->
+    <section class="section section--light" id="calculadora" aria-labelledby="calc-title">
+      <div class="wrap calc">
+        <header class="sec-head calc__head">
+          <p class="eyebrow" data-reveal>05 · Calculadora</p>
+          <h2 class="sec-title" id="calc-title" data-reveal>Da medida <span class="hl">à lista.</span></h2>
+          <span class="rule" data-reveal="line" aria-hidden="true"></span>
+          <p class="sec-lead" data-reveal>Informe as medidas e veja a estimativa de consumo por sistema. Depois, leve a estimativa para o orçamento com um toque.</p>
+        </header>
+
+        <div class="calc__panel" data-reveal>
+          <div class="calc__systems" role="group" aria-label="Sistema construtivo" id="calc-systems"></div>
+          <form class="calc__form" id="calc-form" novalidate>
+            <p class="calc__desc" id="calc-desc"></p>
+            <div class="calc__fields" id="calc-fields"></div>
+            <div class="calc__actions">
+              <button class="btn btn--primary" type="submit" data-magnetic><svg class="ic"><use href="#i-calc"/></svg><span>Calcular</span></button>
+              <p class="calc__hint">Use vírgula ou ponto. Ex.: 2,8</p>
+            </div>
+          </form>
+          <div class="calc__result" id="calc-result" aria-live="polite">
+            <div class="calc__placeholder">
+              <svg class="ic ic--xl"><use href="#i-calc"/></svg>
+              <p>O resultado aparece aqui, com quantidade e unidade de cada material.</p>
+            </div>
+          </div>
+        </div>
+        <p class="calc__note"><svg class="ic"><use href="#i-info"/></svg> Estimativa de consumo com coeficientes de referência de mercado (calculadora pública da Gypsum, conferida em 29/09/2026). Não substitui projeto técnico; embalagens, perdas e compatibilidade são confirmadas pela equipe.</p>
+      </div>
+    </section>
+
+    <!-- COMO FUNCIONA -->
+    <section class="section section--deep story" id="como-funciona" aria-labelledby="story-title">
+      <canvas class="tech-canvas" data-canvas="dark" aria-hidden="true"></canvas>
+      <div class="wrap story__grid">
+        <div class="story__sticky">
+          <header class="sec-head">
+            <p class="eyebrow eyebrow--light">06 · Como funciona</p>
+            <h2 class="sec-title sec-title--light" id="story-title">Seu projeto, <span class="hl">passo a passo.</span></h2>
+          </header>
+          <div class="story__stage" id="story-stage" data-step="1" aria-hidden="true">
+            <div class="stage-card stage-card--1">
+              <div class="sc-search"><svg class="ic"><use href="#i-search"/></svg><span>chapa</span><i class="caret"></i></div>
+              <div class="sc-row is-hit"><svg><use href="#p-chapa"/></svg><span>Chapa de drywall ST</span><b>+</b></div>
+              <div class="sc-row"><svg><use href="#p-chapa"/></svg><span>Chapa de drywall RU</span><b>+</b></div>
+              <div class="sc-row"><svg><use href="#p-chapa"/></svg><span>Chapa de drywall RF</span><b>+</b></div>
+            </div>
+            <div class="stage-card stage-card--2">
+              <p class="sc-title">Minha lista <span>4 itens</span></p>
+              <div class="sc-line"><span>Chapa de drywall ST</span><em>24</em></div>
+              <div class="sc-line"><span>Montante 70</span><em>9</em></div>
+              <div class="sc-line"><span>Massa Drysul · balde 25 kg</span><em>1</em></div>
+              <div class="sc-line"><span>Fita de papel Drysul</span><em>2</em></div>
+              <div class="sc-note">Obs.: parede de 2,8 × 4 m</div>
+            </div>
+            <div class="stage-card stage-card--3">
+              <p class="sc-wa"><svg class="ic"><use href="#i-whats"/></svg> Drysul · WhatsApp</p>
+              <div class="sc-bubble">Olá, Drysul! Gostaria de um orçamento:<br>• 24 × Chapa de drywall ST<br>• 9 × Montante 70<br>• 1 × Massa Drysul (balde 25 kg)<br>• 2 × Fita de papel Drysul</div>
+              <div class="sc-bubble sc-bubble--in">Recebido! Já conferimos estoque e entrega. 👷</div>
+            </div>
+            <div class="story__bars"><span></span><span></span><span></span></div>
+          </div>
+        </div>
+        <ol class="story__steps">
+          <li class="step" data-step="1">
+            <span class="step__n">01</span>
+            <h3 class="step__t">Encontre a base</h3>
+            <p>Busque pelo nome, filtre por categoria ou calcule pela medida da parede, forro ou revestimento.</p>
+            <a class="link-arrow" href="#produtos">Abrir catálogo <svg class="ic"><use href="#i-arrow"/></svg></a>
+          </li>
+          <li class="step" data-step="2">
+            <span class="step__n">02</span>
+            <h3 class="step__t">Monte a lista</h3>
+            <p>Ajuste quantidades, junte a estimativa da calculadora e anote medidas e detalhes da obra.</p>
+            <a class="link-arrow" href="#calculadora">Usar calculadora <svg class="ic"><use href="#i-arrow"/></svg></a>
+          </li>
+          <li class="step" data-step="3">
+            <span class="step__n">03</span>
+            <h3 class="step__t">Compre ou peça orçamento</h3>
+            <p>Pedido pequeno com preço no site? Pague com Pix ou cartão e retire na loja. Obra com cálculo ou pedido maior? A lista vai pronta para o WhatsApp da equipe.</p>
+            <button class="link-arrow" type="button" data-open-quote>Ver meu pedido <svg class="ic"><use href="#i-arrow"/></svg></button>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- SOLUÇÕES -->
+    <section class="section section--paper" id="solucoes" aria-labelledby="sol-title">
+      <div class="wrap sol">
+        <header class="sec-head">
+          <p class="eyebrow" data-reveal>07 · Soluções</p>
+          <h2 class="sec-title" id="sol-title" data-reveal>Cada sistema, <span class="hl">o material certo.</span></h2>
+          <span class="rule" data-reveal="line" aria-hidden="true"></span>
+          <p class="sec-lead" data-reveal>Precisa de instalação ou indicação de profissional? Consulte a equipe pelo WhatsApp.</p>
+        </header>
+        <div class="acc" data-stagger>
+          <details class="acc__item" data-reveal open>
+            <summary><span class="acc__n">A</span><span class="acc__t">Paredes e divisórias</span><svg class="ic acc__ic"><use href="#i-plus"/></svg></summary>
+            <div class="acc__body">
+              <p>Divisórias leves e rápidas com estrutura de guias e montantes e chapas dos dois lados. Aceita isolamento com lã mineral.</p>
+              <ul class="tags"><li>Chapa ST / RU / RF</li><li>Guia e montante 70</li><li>Parafusos LA e TA</li><li>Fita e massa</li></ul>
+              <button class="btn btn--outline btn--sm" type="button" data-calc-system="parede"><svg class="ic"><use href="#i-calc"/></svg><span>Calcular parede</span></button>
+            </div>
+          </details>
+          <details class="acc__item" data-reveal>
+            <summary><span class="acc__n">B</span><span class="acc__t">Forros</span><svg class="ic acc__ic"><use href="#i-plus"/></svg></summary>
+            <div class="acc__body">
+              <p>Forro estruturado (FGE), com perfis e reguladores, ou forro aramado (FGA). Acabamento contínuo, pronto para pintura.</p>
+              <ul class="tags"><li>Perfil de forro</li><li>Cantoneira</li><li>Reguladores e arame</li><li>Fita e massa</li></ul>
+              <div class="btn-row">
+                <button class="btn btn--outline btn--sm" type="button" data-calc-system="fge"><svg class="ic"><use href="#i-calc"/></svg><span>Forro estruturado</span></button>
+                <button class="btn btn--outline btn--sm" type="button" data-calc-system="fga"><svg class="ic"><use href="#i-calc"/></svg><span>Forro aramado</span></button>
+              </div>
+            </div>
+          </details>
+          <details class="acc__item" data-reveal>
+            <summary><span class="acc__n">C</span><span class="acc__t">Revestimentos</span><svg class="ic acc__ic"><use href="#i-plus"/></svg></summary>
+            <div class="acc__body">
+              <p>Chapas coladas direto na alvenaria ou sobre estrutura, para regularizar e renovar paredes sem quebra-quebra.</p>
+              <ul class="tags"><li>Chapa ST / RU</li><li>Cola para drywall</li><li>Estrutura 70</li><li>Fita e massa</li></ul>
+              <div class="btn-row">
+                <button class="btn btn--outline btn--sm" type="button" data-calc-system="colado"><svg class="ic"><use href="#i-calc"/></svg><span>Revestimento colado</span></button>
+                <button class="btn btn--outline btn--sm" type="button" data-calc-system="estruturado"><svg class="ic"><use href="#i-calc"/></svg><span>Revestimento estruturado</span></button>
+              </div>
+            </div>
+          </details>
+          <details class="acc__item" data-reveal>
+            <summary><span class="acc__n">D</span><span class="acc__t">Acabamento e juntas</span><svg class="ic acc__ic"><use href="#i-plus"/></svg></summary>
+            <div class="acc__body">
+              <p>Fita, massa e fixação certas fazem a diferença no resultado final. A linha Drysul já tem preço publicado.</p>
+              <ul class="tags"><li>Massa Drysul 25 kg</li><li>Fita de papel Drysul</li><li>Parafusos Drysul</li></ul>
+              <a class="btn btn--outline btn--sm" href="#destaques"><span>Ver linha Drysul</span><svg class="ic"><use href="#i-arrow"/></svg></a>
+            </div>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- INSPIRAÇÃO -->
+    <section class="section section--light insp" id="inspiracao" aria-labelledby="insp-title">
+      <p class="insp__word" data-drift aria-hidden="true">Transformar.</p>
+      <div class="wrap">
+        <header class="sec-head sec-head--row">
+          <div>
+            <p class="eyebrow" data-reveal>08 · Inspiração</p>
+            <h2 class="sec-title" id="insp-title" data-reveal>Ambientes que <span class="hl">ganham forma.</span></h2>
+          </div>
+          <p class="sec-lead" data-reveal>Imagens de referência do manual da marca Drysul. Espaço pronto para receber fotos de obras atendidas pela loja.</p>
+        </header>
+        <div class="gallery">
+          <figure class="ph ph--a" data-reveal="clip"><img data-parallax-img src="assets/img/amb-janelas-800.webp" srcset="assets/img/amb-janelas-800.webp 800w, assets/img/amb-janelas-1600.webp 1600w" sizes="(min-width: 900px) 55vw, 100vw" alt="Ambiente com paredes e teto em drywall com juntas tratadas, antes da pintura" loading="lazy" decoding="async" width="1600" height="1173"></figure>
+          <figure class="ph ph--b" data-reveal="clip"><img data-parallax-img src="assets/img/amb-pintor-800.webp" srcset="assets/img/amb-pintor-800.webp 800w, assets/img/amb-pintor-1600.webp 1600w" sizes="(min-width: 900px) 25vw, 50vw" alt="Profissional em escada fazendo acabamento no teto" loading="lazy" decoding="async" width="1600" height="2395"></figure>
+          <figure class="ph ph--c" data-reveal="clip"><img data-parallax-img src="assets/img/amb-instalacao-800.webp" srcset="assets/img/amb-instalacao-800.webp 800w, assets/img/amb-instalacao-1600.webp 1600w" sizes="(min-width: 900px) 40vw, 100vw" alt="Instalador fixando chapa em estrutura de parede" loading="lazy" decoding="async" width="1600" height="900"></figure>
+          <figure class="ph ph--d" data-reveal="clip"><img data-parallax-img src="assets/img/amb-massa-800.webp" srcset="assets/img/amb-massa-800.webp 800w, assets/img/amb-massa-1600.webp 1600w" sizes="(min-width: 900px) 25vw, 50vw" alt="Aplicação de massa com desempenadeira em parede" loading="lazy" decoding="async" width="1600" height="1856"></figure>
+          <figure class="ph ph--e" data-reveal="clip"><img data-parallax-img src="assets/img/amb-sala-800.webp" srcset="assets/img/amb-sala-800.webp 800w, assets/img/amb-sala-1600.webp 1600w" sizes="(min-width: 900px) 35vw, 100vw" alt="Sala com divisórias de drywall recém-instaladas" loading="lazy" decoding="async" width="1600" height="1148"></figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- A DRYSUL -->
+    <section class="section section--navy about" id="a-drysul" aria-labelledby="about-title">
+      <div class="about__pattern" data-parallax="0.08" aria-hidden="true"></div>
+      <div class="wrap about__grid">
+        <div class="about__copy">
+          <p class="eyebrow eyebrow--light" data-reveal>09 · A Drysul</p>
+          <h2 class="sec-title sec-title--light" id="about-title" data-reveal>Precisão em <span class="hl">cada camada.</span></h2>
+          <p class="about__lead" data-reveal>A Drysul é especializada em materiais para construção a seco: drywall, gesso e acabamento. Atendimento direto para montar a lista certa e manter a obra andando.</p>
+          <ul class="values" data-stagger>
+            <li data-reveal><span>01</span>Confiança</li>
+            <li data-reveal><span>02</span>Precisão</li>
+            <li data-reveal><span>03</span>Agilidade</li>
+            <li data-reveal><span>04</span>Excelência</li>
+            <li data-reveal><span>05</span>Dedicação</li>
+            <li data-reveal><span>06</span>Inovação</li>
+          </ul>
+        </div>
+        <figure class="about__media" data-reveal="clip">
+          <img data-parallax-img src="assets/img/marca-obra-800.webp" srcset="assets/img/marca-obra-800.webp 800w, assets/img/marca-obra-1600.webp 1600w" sizes="(min-width: 900px) 50vw, 100vw" alt="Logotipo Drysul aplicado em parede em acabamento" loading="lazy" decoding="async" width="1600" height="900">
+        </figure>
+      </div>
+    </section>
+
+    <!-- CONTATO -->
+    <section class="section section--deep contact" id="contato" aria-labelledby="contact-title">
+      <div class="contact__pattern" data-parallax="0.1" aria-hidden="true"></div>
+      <div class="wrap">
+        <header class="contact__head">
+          <p class="eyebrow eyebrow--light" data-reveal>10 · Contato</p>
+          <h2 class="contact__title" id="contact-title" data-reveal>Sua obra começa <span class="hl">com a lista certa.</span></h2>
+          <div class="contact__cta" data-reveal>
+            <a class="btn btn--primary btn--lg" data-store-link="whatsapp" href="https://wa.me/5555992010668" target="_blank" rel="noopener" data-magnetic><svg class="ic"><use href="#i-whats"/></svg><span>Chamar no WhatsApp</span></a>
+            <button class="btn btn--ghost btn--lg" type="button" data-open-quote data-magnetic><svg class="ic"><use href="#i-list"/></svg><span>Enviar minha lista</span></button>
+          </div>
+        </header>
+        <div class="contact__grid" data-stagger>
+          <a class="info-card" data-reveal data-store-link="maps" href="#" target="_blank" rel="noopener">
+            <svg class="ic"><use href="#i-pin"/></svg>
+            <span class="info-card__k">Endereço</span>
+            <span class="info-card__v"><span data-store="endereco"></span><br><span data-store="bairro"></span></span>
+            <span class="info-card__a">Ver no mapa <svg class="ic"><use href="#i-ext"/></svg></span>
+          </a>
+          <a class="info-card" data-reveal data-store-link="tel" href="#">
+            <svg class="ic"><use href="#i-phone"/></svg>
+            <span class="info-card__k">Telefone e WhatsApp</span>
+            <span class="info-card__v" data-store="telefone"></span>
+            <span class="info-card__a">Ligar agora <svg class="ic"><use href="#i-arrow"/></svg></span>
+          </a>
+          <a class="info-card" data-reveal data-store-link="instagram" href="#" target="_blank" rel="noopener">
+            <svg class="ic"><use href="#i-insta"/></svg>
+            <span class="info-card__k">Instagram</span>
+            <span class="info-card__v" data-store="instagram"></span>
+            <span class="info-card__a">Ver ofertas <svg class="ic"><use href="#i-ext"/></svg></span>
+          </a>
+          <div class="info-card info-card--todo" data-reveal>
+            <svg class="ic"><use href="#i-clock"/></svg>
+            <span class="info-card__k">Horário e entrega</span>
+            <span class="info-card__v">Horário de atendimento e área de entrega</span>
+            <span class="todo">a definir com a loja</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap footer__grid">
+      <div class="footer__brand">
+        <svg class="logo logo--light" viewBox="0 0 1752.7 556.3" role="img" aria-label="Drysul — gesso e acabamento"><use href="#logo-drysul"/></svg>
+        <p>Materiais para construção a seco: drywall, gesso e acabamento.</p>
+      </div>
+      <nav class="footer__col" aria-label="Rodapé — navegação">
+        <p class="footer__k">Navegação</p>
+        <a href="#produtos">Produtos</a><a href="#ofertas">Ofertas</a><a href="#calculadora">Calculadora</a><a href="#a-drysul">A Drysul</a>
+      </nav>
+      <div class="footer__col">
+        <p class="footer__k">Categorias</p>
+        <a href="#produtos" data-filter-link="chapas">Chapas</a><a href="#produtos" data-filter-link="perfis">Perfis</a><a href="#produtos" data-filter-link="fixacao">Fixação</a><a href="#produtos" data-filter-link="acabamento">Massas e fitas</a>
+      </div>
+      <div class="footer__col">
+        <p class="footer__k">Contato</p>
+        <span data-store="endereco"></span><span data-store="bairro"></span>
+        <a data-store-link="tel" href="#" data-store="telefone"></a>
+        <a data-store-link="instagram" href="#" target="_blank" rel="noopener">@drysul.loja</a>
+      </div>
+    </div>
+    <div class="wrap footer__bottom">
+      <p>© 2026 Drysul · gesso e acabamento</p>
+      <p>Protótipo de demonstração — conteúdo sujeito à aprovação da loja.</p>
+      <a class="to-top" href="#inicio" data-magnetic aria-label="Voltar ao início"><svg class="ic"><use href="#i-arrow"/></svg></a>
+    </div>
+  </footer>
+
+  <button class="fab" type="button" data-open-quote id="fab" hidden>
+    <svg class="ic"><use href="#i-bag"/></svg><span>Pedido</span><span class="quote-count" data-quote-count>0</span>
+  </button>
+
+  <!-- Diálogo de orçamento -->
+  <dialog class="sheet" id="orcamento" aria-labelledby="quote-title">
+    <div class="sheet__in">
+      <header class="sheet__head">
+        <div>
+          <p class="eyebrow">Sua lista</p>
+          <h2 class="sheet__title" id="quote-title">Seu pedido</h2>
+        </div>
+        <button class="icon-btn" type="button" data-close aria-label="Fechar pedido"><svg class="ic"><use href="#i-close"/></svg></button>
+      </header>
+      <div class="sheet__body">
+        <div id="quote-items"></div>
+        <div id="quote-estimate"></div>
+        <div class="quote-empty" id="quote-empty">
+          <svg class="ic ic--xl"><use href="#i-list"/></svg>
+          <p><strong>Sua lista está vazia.</strong> Adicione materiais do catálogo ou leve uma estimativa da calculadora.</p>
+          <div class="btn-row">
+            <a class="btn btn--outline btn--sm" href="#produtos" data-close>Ver catálogo</a>
+            <a class="btn btn--outline btn--sm" href="#calculadora" data-close>Calculadora</a>
+          </div>
+          <button class="btn btn--sm btn--outline" type="button" id="q-last-receipt" hidden><svg class="ic"><use href="#i-check"/></svg><span>Ver comprovante</span></button>
+        </div>
+        <div class="quote-sum" id="quote-sum" hidden></div>
+        <div class="quote-fields">
+          <label class="field"><span>Seu nome <em>(opcional)</em></span><input type="text" id="q-nome" autocomplete="name" maxlength="80"></label>
+          <label class="field"><span>Observações</span><textarea id="q-obs" rows="3" maxlength="600" placeholder="Medidas, endereço de entrega, prazo…"></textarea></label>
+        </div>
+      </div>
+      <footer class="sheet__foot">
+        <div class="route" id="q-route" aria-live="polite" hidden></div>
+        <div class="sheet__actions">
+          <button class="btn btn--primary btn--wide" type="button" id="q-buy" hidden><svg class="ic"><use href="#i-bag"/></svg><span>Comprar pelo site</span><svg class="ic"><use href="#i-arrow"/></svg></button>
+          <button class="btn btn--outline" type="button" id="q-copy"><svg class="ic"><use href="#i-copy"/></svg><span>Copiar lista</span></button>
+          <a class="btn btn--primary" id="q-send" href="#" target="_blank" rel="noopener"><svg class="ic"><use href="#i-whats"/></svg><span>Enviar pelo WhatsApp</span></a>
+        </div>
+        <p class="sheet__note">O WhatsApp abre com a mensagem pronta — nada é enviado sem a sua confirmação.</p>
+        <textarea class="copy-fallback" id="q-fallback" readonly hidden aria-label="Texto da lista para copiar"></textarea>
+      </footer>
+    </div>
+  </dialog>
+
+  <!-- Central de vendas -->
+  <dialog class="sheet sheet--checkout" id="checkout" aria-labelledby="co-title">
+    <div class="sheet__in">
+      <header class="sheet__head">
+        <div>
+          <p class="eyebrow">Central de vendas</p>
+          <h2 class="sheet__title" id="co-title">Finalizar compra</h2>
+        </div>
+        <button class="icon-btn" type="button" data-close aria-label="Fechar central de vendas"><svg class="ic"><use href="#i-close"/></svg></button>
+      </header>
+      <p class="co-demo"><svg class="ic"><use href="#i-info"/></svg><span><strong>Modo demonstração:</strong> nenhum pagamento é cobrado e nenhum dado sai do seu aparelho.</span></p>
+      <ol class="co-steps" id="co-steps" aria-label="Etapas da compra">
+        <li data-s="1"><span>1</span>Pedido</li><li data-s="2"><span>2</span>Entrega</li><li data-s="3"><span>3</span>Pagamento</li><li data-s="4"><span>4</span>Pronto</li>
+      </ol>
+      <form class="sheet__body co-body" id="co-form" novalidate>
+        <section class="co-step" data-step="1" aria-labelledby="co-h1">
+          <h3 class="co-h" id="co-h1" tabindex="-1">Confira seu pedido</h3>
+          <ul class="co-lines" id="co-lines"></ul>
+          <button class="link-arrow" type="button" data-co="editar">Editar lista <svg class="ic"><use href="#i-arrow"/></svg></button>
+        </section>
+
+        <section class="co-step" data-step="2" aria-labelledby="co-h2" hidden>
+          <h3 class="co-h" id="co-h2" tabindex="-1">Como você quer receber?</h3>
+          <fieldset class="opts">
+            <legend class="sr">Forma de recebimento</legend>
+            <label class="opt"><input type="radio" name="entrega" value="retirada" checked><span class="opt__box"><svg class="ic"><use href="#i-pin"/></svg><b>Retirar na loja</b><small>Rua Albino Brendler, 596 — sem custo</small></span></label>
+            <label class="opt"><input type="radio" name="entrega" value="entrega"><span class="opt__box"><svg class="ic"><use href="#i-truck"/></svg><b>Receber no endereço</b><small>Taxa de entrega combinada no WhatsApp</small></span></label>
+          </fieldset>
+          <div class="co-fields">
+            <div class="field"><label for="co-nome"><span>Nome completo</span></label><input id="co-nome" name="nome" autocomplete="name" maxlength="80" aria-describedby="co-nome-msg" required><p class="field__err" id="co-nome-msg" hidden></p></div>
+            <div class="field"><label for="co-tel"><span>WhatsApp</span></label><input id="co-tel" name="telefone" type="tel" inputmode="tel" autocomplete="tel" maxlength="20" placeholder="(55) 99999-9999" aria-describedby="co-tel-msg" required><p class="field__err" id="co-tel-msg" hidden></p></div>
+            <div class="field"><label for="co-email"><span>E-mail <em>(opcional, para o comprovante)</em></span></label><input id="co-email" name="email" type="email" autocomplete="email" maxlength="120" aria-describedby="co-email-msg"><p class="field__err" id="co-email-msg" hidden></p></div>
+          </div>
+        </section>
+
+        <section class="co-step" data-step="3" aria-labelledby="co-h3" hidden>
+          <h3 class="co-h" id="co-h3" tabindex="-1">Forma de pagamento</h3>
+          <p class="co-hint" id="co-pay-hint" hidden>Com entrega no endereço, o pagamento é combinado no WhatsApp junto com a taxa de entrega.</p>
+          <fieldset class="opts opts--pay">
+            <legend class="sr">Forma de pagamento</legend>
+            <label class="opt"><input type="radio" name="pagamento" value="pix" checked><span class="opt__box"><svg class="ic"><use href="#i-pix"/></svg><b>Pix</b><small>Aprovação na hora · QR Code ou copia e cola</small></span></label>
+            <label class="opt"><input type="radio" name="pagamento" value="credito"><span class="opt__box"><svg class="ic"><use href="#i-card"/></svg><b>Cartão de crédito</b><small>Digitado só no ambiente seguro do provedor</small></span></label>
+            <label class="opt"><input type="radio" name="pagamento" value="debito"><span class="opt__box"><svg class="ic"><use href="#i-card"/></svg><b>Cartão de débito</b><small>Conforme bancos aceitos pelo provedor</small></span></label>
+            <label class="opt"><input type="radio" name="pagamento" value="whatsapp"><span class="opt__box"><svg class="ic"><use href="#i-whats"/></svg><b>Conversar no WhatsApp</b><small>Pague no atendimento ou na retirada</small></span></label>
+          </fieldset>
+          <ul class="co-secure" aria-label="Segurança da compra">
+            <li><svg class="ic"><use href="#i-lock"/></svg>Conexão protegida (HTTPS)</li>
+            <li><svg class="ic"><use href="#i-shield"/></svg>Dados do cartão ficam só com o provedor de pagamento: a Drysul não vê nem guarda</li>
+            <li><svg class="ic"><use href="#i-check"/></svg>Preço e estoque conferidos pela loja antes da cobrança</li>
+          </ul>
+        </section>
+
+        <section class="co-step" data-step="4" aria-labelledby="co-h4" hidden>
+          <div id="co-result"></div>
+        </section>
+      </form>
+      <footer class="sheet__foot co-foot">
+        <div class="co-total"><span>Total</span><strong id="co-total">R$ 0,00</strong><small id="co-total-note">Retirada na loja, sem custo</small></div>
+        <div class="co-nav">
+          <button class="btn btn--outline" type="button" id="co-back">Voltar</button>
+          <button class="btn btn--primary" type="button" id="co-next"><span>Continuar</span><svg class="ic"><use href="#i-arrow"/></svg></button>
+        </div>
+      </footer>
+    </div>
+  </dialog>
+
+  <!-- Comprovante (reabrir) -->
+  <dialog class="sheet sheet--checkout" id="comprovante" aria-labelledby="rc-title">
+    <div class="sheet__in">
+      <header class="sheet__head">
+        <div>
+          <p class="eyebrow">Seu pedido</p>
+          <h2 class="sheet__title" id="rc-title">Comprovante</h2>
+        </div>
+        <button class="icon-btn" type="button" data-close aria-label="Fechar comprovante"><svg class="ic"><use href="#i-close"/></svg></button>
+      </header>
+      <div class="sheet__body" id="rc-body"></div>
+    </div>
+  </dialog>
+
+  <!-- Diálogo sobre a demo -->
+  <dialog class="sheet sheet--center" id="sobre-demo" aria-labelledby="about-demo-title">
+    <div class="sheet__in">
+      <header class="sheet__head">
+        <div>
+          <p class="eyebrow">Proposta de site</p>
+          <h2 class="sheet__title" id="about-demo-title">Sobre esta demonstração</h2>
+        </div>
+        <button class="icon-btn" type="button" data-close aria-label="Fechar"><svg class="ic"><use href="#i-close"/></svg></button>
+      </header>
+      <div class="sheet__body prose">
+        <p>Versão navegável da proposta de site da Drysul. Tudo aqui funciona: busca, filtros, calculadora, pedido e central de vendas. Pedidos pequenos com preço vão para a compra no site; obras com cálculo, itens sob consulta ou valores maiores seguem para o WhatsApp da loja com a mensagem pronta.</p>
+        <h3>Já com dados reais</h3>
+        <ul class="check">
+          <li>Logotipo, cores, padrão gráfico e fotos do manual da marca</li>
+          <li>Endereço, telefone/WhatsApp e Instagram da loja</li>
+          <li>Preços e fotos da linha Drysul (fita, parafusos e massa), preços informados em 30/09/2026</li>
+          <li>Cinco ofertas publicadas no Instagram, com link para cada publicação</li>
+        </ul>
+        <h3>Para a versão final</h3>
+        <ul class="todo-list">
+          <li>Fotos dos demais produtos (os desenhos técnicos são provisórios)</li>
+          <li>Catálogo completo com preços, marcas e medidas</li>
+          <li>Cidade/CEP, horário de atendimento e área de entrega</li>
+          <li>Pagamento real: conta no provedor (ex.: Mercado Pago ou PagBank) no CNPJ da loja e um pequeno servidor que confere preços e confirma pagamentos</li>
+          <li>Comprovante emitido pelo servidor só após a confirmação do provedor, com código assinado e cópia por e-mail</li>
+          <li>Domínio próprio (ex.: drysul.com.br) e publicação definitiva</li>
+        </ul>
+        <p class="muted">Nesta demonstração nenhum pagamento é cobrado e nenhum dado é enviado. Na versão final, o cartão é digitado apenas no ambiente seguro do provedor de pagamento.</p>
+      </div>
+    </div>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script defer src="js/data.js?v=7"></script>
+  <script defer src="js/calculator-model.js?v=7"></script>
+  <script defer src="js/checkout-model.js?v=7"></script>
+  <script defer src="js/app.js?v=7"></script>
+  <script defer src="js/receipt.js?v=7"></script>
+  <script defer src="js/checkout.js?v=7"></script>
+  <script defer src="js/motion.js?v=7"></script>
+</body>
+</html>

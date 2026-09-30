@@ -1,0 +1,103 @@
+/* ==========================================================================
+   Drysul — sistema de movimento
+   Todo estado inicial "escondido" existe só sob .motion-on.
+   Com efeitos pausados (.motion-paused) ou sem JS, o conteúdo aparece completo.
+   ========================================================================== */
+
+/* ---------- Entrada da página (hero) ---------- */
+@keyframes rise { from { transform: translateY(108%); } to { transform: none; } }
+@keyframes fade-up { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+@keyframes clip-up { from { clip-path: inset(100% 0 0 0); opacity: 0; } to { clip-path: inset(0 0 0 0); opacity: 1; } }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+@keyframes slide-in-up { from { opacity: 0; transform: translateY(36px); } to { opacity: 1; transform: none; } }
+@keyframes slide-in-left { from { opacity: 0; transform: translateX(48px); } to { opacity: 1; transform: none; } }
+@keyframes grow-y { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+@keyframes sweep { 0% { transform: translateY(-110%); } 60%, 100% { transform: translateY(260%); } }
+@keyframes marquee { to { transform: translateX(-50%); } }
+@keyframes breathe { from { transform: rotate(0deg) scale(1); } to { transform: rotate(1.6deg) scale(1.05); } }
+@keyframes sheet-in { from { opacity: 0; transform: translateX(28px); } to { opacity: 1; transform: none; } }
+@keyframes pop-in { from { opacity: 0; transform: translateY(14px) scale(.98); } to { opacity: 1; transform: none; } }
+@keyframes body-in { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+@keyframes blink { 50% { opacity: 0; } }
+
+.motion-on .site-header { animation: fade-up 600ms var(--ease) both; }
+.motion-on .hero__title .line > span { animation: rise 1000ms var(--ease) both; }
+.motion-on .hero__title .line:nth-child(2) > span { animation-delay: 110ms; }
+.motion-on .hero__eyebrow { animation: fade-up 700ms var(--ease) 60ms both; }
+.motion-on .hero__lead { animation: fade-up 800ms var(--ease) 320ms both; }
+.motion-on .hero__actions { animation: fade-up 800ms var(--ease) 440ms both; }
+.motion-on .hero__facts { animation: fade-up 800ms var(--ease) 560ms both; }
+@keyframes wall-in { from { opacity: 0; } to { opacity: 1; } }
+.motion-on .wall { animation: wall-in 700ms linear 100ms both, float 8s ease-in-out 2.2s infinite; }
+.motion-on .hero__caption { animation: fade-up 600ms var(--ease) 1600ms both; }
+.motion-on .scroll-cue span::after { animation: sweep 2.6s var(--ease-io) infinite; }
+.motion-on .sc-search .caret { animation: blink 1s steps(1) infinite; }
+
+/* Parede 3D: as camadas usam variáveis que o JS atualiza com a rolagem */
+.motion-on .wl--plate, .motion-on .wl--back, .motion-on .wl--tape, .motion-on .wall__rig { will-change: transform; }
+
+/* ---------- Faixa contínua ---------- */
+.motion-on .marquee__track { animation: marquee 38s linear infinite; }
+.motion-on .marquee:hover .marquee__track { animation-play-state: paused; }
+
+/* ---------- Padrões respirando ---------- */
+.motion-on .dest-pattern { animation: breathe 9s ease-in-out infinite alternate; }
+
+/* ---------- Entradas ao rolar ---------- */
+.motion-on [data-reveal] {
+  transition: opacity 720ms var(--ease), transform 720ms var(--ease), clip-path 1100ms var(--ease);
+  transition-delay: var(--d, 0ms);
+}
+.motion-on [data-reveal]:not(.is-in) { opacity: 0; transform: translateY(34px); }
+/* Revelação de imagens: cortina em pseudo-elemento (clip-path no alvo impediria o IntersectionObserver) */
+.motion-on [data-reveal="clip"] { transition: none; }
+.motion-on [data-reveal="clip"]:not(.is-in) { opacity: 1; transform: none; }
+.motion-on [data-reveal="clip"]::after {
+  content: ""; position: absolute; inset: -1px; z-index: 2; pointer-events: none;
+  background: var(--reveal-bg, #fff); transform-origin: top;
+  transition: transform 1200ms var(--ease-io); transition-delay: var(--d, 0ms);
+}
+.motion-on [data-reveal="clip"].is-in::after { transform: scaleY(0); }
+.motion-on [data-reveal="clip"] img { transition: scale 1600ms var(--ease); }
+.motion-on [data-reveal="clip"]:not(.is-in) img { scale: 1.08; }
+.motion-on [data-reveal="line"] { transition: transform 900ms var(--ease-io); transition-delay: var(--d, 120ms); }
+.motion-on [data-reveal="line"]:not(.is-in) { opacity: 1; transform: scaleX(0); }
+
+/* Cartões entram como painéis encaixando */
+.motion-on .cat-card[data-reveal]:not(.is-in),
+.motion-on .dest-card[data-reveal]:not(.is-in),
+.motion-on .offer[data-reveal]:not(.is-in) { transform: translateY(40px) scale(.985); }
+
+/* Parallax — deslocamentos pequenos aplicados via JS */
+[data-parallax], [data-parallax-img], [data-drift] { will-change: transform; }
+.motion-paused [data-parallax], .motion-paused [data-parallax-img], .motion-paused [data-drift] { will-change: auto; }
+
+/* Inclinação de cartões e botões magnéticos */
+.motion-on [data-tilt] { transform-style: preserve-3d; }
+.motion-on .is-tilting { transition: transform 140ms linear, border-color var(--t), box-shadow var(--t); }
+
+/* Como funciona — camadas se aproximam */
+.motion-on .stage-card { transition: transform 700ms var(--ease), opacity 500ms var(--ease); }
+
+/* Soluções */
+.motion-on .acc__item[open] .acc__body { animation: body-in 420ms var(--ease) both; }
+
+/* Resultado da calculadora */
+.motion-on .res__list li { animation: fade-up 480ms var(--ease) both; animation-delay: calc(var(--i, 0) * 40ms); }
+
+/* Diálogos */
+.motion-on .sheet[open] { animation: sheet-in 380ms var(--ease) both; }
+.motion-on .sheet--center[open] { animation: pop-in 380ms var(--ease) both; }
+.motion-on .sheet[open]::backdrop { animation: fade-up 300ms linear both; }
+
+/* ---------- Pausado / movimento reduzido ---------- */
+.motion-paused *, .motion-paused *::before, .motion-paused *::after { animation: none !important; }
+.motion-paused dialog[open] { opacity: 1 !important; transform: none !important; }
+.motion-paused .stage-card, .motion-paused .step::before, .motion-paused .story__bars span::after { transition: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  html:not(.motion-on) *, html:not(.motion-on) *::before, html:not(.motion-on) *::after { animation: none !important; transition-duration: 1ms !important; }
+}
+.motion-on .sheet--checkout[open] { animation: pop-in 380ms var(--ease) both; }
+.motion-on .co-step:not([hidden]) { animation: fade-up 360ms var(--ease) both; }

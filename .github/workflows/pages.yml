@@ -1,14 +1,15 @@
 name: Publicar no GitHub Pages
 
+# O Pages deste repositório publica a branch gh-pages.
+# A cada push na main, os testes rodam e, se passarem, a gh-pages recebe o mesmo commit.
+
 on:
   push:
     branches: [main]
   workflow_dispatch:
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
 concurrency:
   group: pages
@@ -16,19 +17,12 @@ concurrency:
 
 jobs:
   deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Testes (calculadora e central de vendas)
         run: node --test tests/calculator.test.js tests/checkout.test.js
-      - uses: actions/configure-pages@v5
-        with:
-          enablement: true
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: .
-      - id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Atualizar a branch gh-pages
+        run: git push origin HEAD:refs/heads/gh-pages

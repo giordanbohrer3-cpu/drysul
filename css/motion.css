@@ -95,6 +95,15 @@
 .motion-on .sheet[open] { animation: sheet-in 380ms var(--ease) both; }
 .motion-on .sheet--center[open] { animation: pop-in 380ms var(--ease) both; }
 .motion-on .sheet[open]::backdrop { animation: fade-up 300ms linear both; }
+/* busca rápida: o painel desce de leve, os resultados entram em cascata e a linha laranja corre a cada busca */
+.motion-on .busca-dlg[open] { animation: busca-in 420ms var(--ease) both; }
+.motion-on .busca-dlg[open]::backdrop { animation: fade-up 300ms linear both; }
+.motion-on .bres { animation: bres-in 420ms var(--ease) both; animation-delay: calc(var(--i, 0) * 32ms); }
+.motion-on .busca__campo.is-buscando::after { animation: busca-linha 640ms var(--ease) both; }
+.motion-on .busca__vazio:not([hidden]), .motion-on .busca__sugestoes:not([hidden]) { animation: bres-in 420ms var(--ease) both; }
+@keyframes busca-in { from { opacity: 0; transform: translateY(-18px) scale(.97); } }
+@keyframes bres-in { from { opacity: 0; transform: translateY(10px); } }
+@keyframes busca-linha { 0% { transform: scaleX(0); opacity: 1; } 70% { transform: scaleX(1); opacity: 1; } 100% { transform: scaleX(1); opacity: 0; } }
 
 /* ---------- Pausado / movimento reduzido ---------- */
 .motion-paused *, .motion-paused *::before, .motion-paused *::after { animation: none !important; }

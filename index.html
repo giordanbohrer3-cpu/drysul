@@ -20,8 +20,8 @@
   <meta name="twitter:card" content="summary_large_image">
 
   <link rel="preload" href="assets/fonts/archivo-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="css/styles.css?v=11">
-  <link rel="stylesheet" href="css/motion.css?v=11">
+  <link rel="stylesheet" href="css/styles.css?v=12">
+  <link rel="stylesheet" href="css/motion.css?v=12">
   <script>
     (function () {
       var root = document.documentElement, pref = null, tema = null;
@@ -58,6 +58,8 @@
     <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
     <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10"/></symbol>
     <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></symbol>
+    <symbol id="i-som" viewBox="0 0 24 24"><path d="M4.5 9.5h3.5L13 5.5v13l-5-4H4.5z"/><path d="M16.5 9a4.2 4.2 0 0 1 0 6M18.8 6.8a7.4 7.4 0 0 1 0 10.4"/></symbol>
+    <symbol id="i-mudo" viewBox="0 0 24 24"><path d="M4.5 9.5h3.5L13 5.5v13l-5-4H4.5z"/><path d="m16.5 9.5 5 5M21.5 9.5l-5 5"/></symbol>
     <symbol id="i-trash" viewBox="0 0 24 24"><path d="M5 7h14M10 7V5h4v2M7 7l1 13h8l1-13"/></symbol>
     <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="1.5"/><path d="M16 8V5.5A1.5 1.5 0 0 0 14.5 4h-9A1.5 1.5 0 0 0 4 5.5v9A1.5 1.5 0 0 0 5.5 16H8"/></symbol>
     <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
@@ -98,6 +100,7 @@
       <p class="demo-bar__txt"><span class="demo-tag">Demo</span> Proposta de site para a Drysul <span class="hide-sm">· preços e disponibilidade confirmados no atendimento</span></p>
       <div class="demo-bar__actions">
         <button class="demo-btn" type="button" data-open="sobre-demo" aria-label="Sobre a demo"><svg class="ic"><use href="#i-info"/></svg><span>Sobre a demo</span></button>
+        <button class="demo-btn" type="button" id="som-toggle" aria-pressed="true" aria-label="Desligar os sons dos cliques"><svg class="ic"><use href="#i-som"/></svg><span>Som</span></button>
         <button class="demo-btn" type="button" id="motion-toggle" aria-label="Pausar efeitos"><svg class="ic"><use href="#i-pause"/></svg><span>Pausar efeitos</span></button>
       </div>
     </div>
@@ -116,10 +119,16 @@
           <li><a href="#como-funciona">Como funciona</a></li>
           <li><a href="#a-drysul">A Drysul</a></li>
           <li><a href="#contato">Contato</a></li>
+          <li class="nav__tema-item"><button class="nav__tema" type="button" data-theme-toggle><svg class="ic ic-moon" aria-hidden="true"><use href="#i-moon"/></svg><svg class="ic ic-sun" aria-hidden="true"><use href="#i-sun"/></svg><span>Tema escuro</span></button></li>
         </ul>
       </nav>
       <div class="header-actions">
-        <button class="theme-btn" type="button" id="theme-toggle" aria-pressed="false" aria-label="Ativar tema escuro">
+        <button class="search-bar" type="button" data-open-busca aria-label="Buscar produtos" aria-keyshortcuts="/ Control+K" title="Buscar produtos ( / )">
+          <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
+          <span class="search-bar__txt" aria-hidden="true">Buscar <span class="search-bar__dica" id="search-dica">chapa RU</span><i class="search-bar__caret"></i></span>
+          <kbd aria-hidden="true">/</kbd>
+        </button>
+        <button class="theme-btn" type="button" id="theme-toggle" data-theme-toggle aria-pressed="false" aria-label="Ativar tema escuro">
           <svg class="ic ic-sun" aria-hidden="true"><use href="#i-sun"/></svg><svg class="ic ic-moon" aria-hidden="true"><use href="#i-moon"/></svg>
         </button>
         <button class="btn btn--primary btn--sm quote-btn" type="button" data-open-quote data-magnetic>
@@ -518,7 +527,7 @@
           <p class="eyebrow eyebrow--light" data-reveal>10 · Contato</p>
           <h2 class="contact__title" id="contact-title" data-reveal>Sua obra começa <span class="hl">com a lista certa.</span></h2>
           <div class="contact__cta" data-reveal>
-            <a class="btn btn--whats btn--lg" data-store-link="whatsapp" href="https://wa.me/5555992010668" target="_blank" rel="noopener" data-magnetic><svg class="ic"><use href="#i-whats"/></svg><span>Chamar no WhatsApp</span></a>
+            <a class="btn btn--whats btn--lg" data-store-link="whatsapp" data-whats="contato" href="https://wa.me/5555992010668" target="_blank" rel="noopener" data-magnetic><svg class="ic"><use href="#i-whats"/></svg><span>Chamar no WhatsApp</span></a>
             <button class="btn btn--ghost btn--lg" type="button" data-open-quote data-magnetic><svg class="ic"><use href="#i-list"/></svg><span>Enviar minha lista</span></button>
           </div>
         </header>
@@ -706,6 +715,39 @@
   </dialog>
 
   <!-- Diálogo sobre a demo -->
+  <!-- Busca rápida: abre pelo cabeçalho, pela tecla / ou Ctrl+K -->
+  <dialog data-lenis-prevent class="busca-dlg" id="busca-global" aria-labelledby="bg-titulo">
+    <div class="busca" role="search">
+      <h2 class="sr" id="bg-titulo">Buscar produtos</h2>
+      <div class="busca__campo" id="bg-campo">
+        <svg class="ic busca__lupa" aria-hidden="true"><use href="#i-search"/></svg>
+        <input class="busca__input" id="bg-input" type="search" autocomplete="off" spellcheck="false" enterkeyhint="search" placeholder="Buscar chapa, perfil, parafuso, massa…" aria-label="Buscar produtos" aria-describedby="bg-status" aria-controls="bg-lista">
+        <kbd class="busca__esc" aria-hidden="true">Esc</kbd>
+        <button class="icon-btn busca__fechar" type="button" data-close aria-label="Fechar busca"><svg class="ic"><use href="#i-close"/></svg></button>
+      </div>
+      <div class="busca__corpo">
+        <p class="busca__status" id="bg-status" aria-live="polite"></p>
+        <ul class="busca__lista" id="bg-lista" aria-label="Resultados"></ul>
+        <div class="busca__vazio" id="bg-vazio" hidden>
+          <svg class="busca__vazio-ic" viewBox="0 0 120 90" aria-hidden="true"><use href="#p-caixa"/></svg>
+          <p class="busca__vazio-t">Nada encontrado para <b id="bg-termo"></b>.</p>
+          <p class="busca__vazio-d">A loja pode ter o material mesmo assim. Pergunte direto para a equipe:</p>
+          <a class="btn btn--whats" id="bg-whats" href="https://wa.me/5555992010668" target="_blank" rel="noopener"><svg class="ic"><use href="#i-whats"/></svg><span>Perguntar no WhatsApp</span></a>
+        </div>
+        <div class="busca__sugestoes" id="bg-sugestoes">
+          <p class="busca__rotulo">Categorias</p>
+          <div class="busca__chips" id="bg-cats"></div>
+          <p class="busca__rotulo">Mais procurados</p>
+          <div class="busca__chips" id="bg-populares"></div>
+        </div>
+      </div>
+      <div class="busca__rodape">
+        <span class="busca__teclas" aria-hidden="true"><kbd>↑</kbd><kbd>↓</kbd> navegar <kbd>Enter</kbd> abrir</span>
+        <button class="busca__pedido" type="button" data-open-quote><svg class="ic"><use href="#i-bag"/></svg>Ver pedido <span class="quote-count" data-quote-count>0</span></button>
+      </div>
+    </div>
+  </dialog>
+
   <dialog data-lenis-prevent class="sheet sheet--center" id="sobre-demo" aria-labelledby="about-demo-title">
     <div class="sheet__in">
       <header class="sheet__head">
@@ -722,17 +764,19 @@
           <li>Logotipo, cores, padrão gráfico e fotos do manual da marca</li>
           <li>Endereço, telefone/WhatsApp e Instagram da loja</li>
           <li>Preços e fotos da linha Drysul (fita, parafusos e massa), preços informados em 30/09/2026</li>
-          <li>Cinco ofertas publicadas no Instagram, com link para cada publicação</li>
+          <li>Sete ofertas publicadas no Instagram, com link para a publicação ou o perfil da loja</li>
         </ul>
         <h3>Para a versão final</h3>
         <ul class="todo-list">
-          <li>Fotos dos demais produtos (os desenhos técnicos são provisórios)</li>
+          <li>Fotos reais das chapas e dos perfis (hoje são imagens ilustrativas)</li>
           <li>Catálogo completo com preços, marcas e medidas</li>
           <li>Cidade/CEP, horário de atendimento e área de entrega</li>
           <li>Pagamento real: conta no provedor (ex.: Mercado Pago ou PagBank) no CNPJ da loja e um pequeno servidor que confere preços e confirma pagamentos</li>
           <li>Comprovante emitido pelo servidor só após a confirmação do provedor, com código assinado e cópia por e-mail</li>
           <li>Domínio próprio (ex.: drysul.com.br) e publicação definitiva</li>
         </ul>
+        <h3>Créditos das imagens</h3>
+        <p class="muted">Chapas: modelo 3D com a textura da foto <a href="https://commons.wikimedia.org/wiki/File:Stapel_Gipskartonplatten.jpg" target="_blank" rel="noopener">“Stapel Gipskartonplatten”</a>, de RossKur (Wikimedia Commons), licença <a href="https://creativecommons.org/licenses/by/4.0/deed.pt-br" target="_blank" rel="noopener">CC BY 4.0</a>, modificada (recorte, cores RU e RF). Perfis: modelos 3D ilustrativos.</p>
         <p class="muted">Nesta demonstração nenhum pagamento é cobrado e nenhum dado é enviado. Na versão final, o cartão é digitado apenas no ambiente seguro do provedor de pagamento.</p>
       </div>
     </div>
@@ -740,13 +784,14 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script defer src="js/data.js?v=11"></script>
-  <script defer src="js/calculator-model.js?v=11"></script>
-  <script defer src="js/checkout-model.js?v=11"></script>
-  <script defer src="js/app.js?v=11"></script>
-  <script defer src="js/receipt.js?v=11"></script>
-  <script defer src="js/checkout.js?v=11"></script>
+  <script defer src="js/data.js?v=12"></script>
+  <script defer src="js/calculator-model.js?v=12"></script>
+  <script defer src="js/checkout-model.js?v=12"></script>
+  <script defer src="js/app.js?v=12"></script>
+  <script defer src="js/receipt.js?v=12"></script>
+  <script defer src="js/checkout.js?v=12"></script>
   <script defer src="js/vendor/lenis.min.js?v=1"></script>
-  <script defer src="js/motion.js?v=11"></script>
+  <script defer src="js/motion.js?v=12"></script>
+  <script defer src="js/som.js?v=12"></script>
 </body>
 </html>

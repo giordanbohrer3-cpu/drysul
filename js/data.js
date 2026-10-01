@@ -1,6 +1,7 @@
 /* Drysul — dados da loja, categorias, produtos e ofertas.
    Fonte única: contato, preços e ofertas são lidos daqui por toda a página.
-   Preço null = "sob consulta". Foto real: `foto` (800 px, 4:3) e `fotoMini` (400 px); sem foto, aparece o desenho técnico. */
+   Preço null = "sob consulta". Foto real: `foto` (800 px, 4:3) e `fotoMini` (400 px); sem foto, aparece o desenho técnico.
+   `ilustrativa: true` marca imagens que não são do produto da loja (aparece o selo "Imagem ilustrativa"). */
 (function (root) {
   'use strict';
 
@@ -72,26 +73,27 @@
       link: loja.instagramUrl,
       detalhe: 'Fixa chapas de drywall nos perfis leves da estrutura, com ponta agulha.' },
 
-    // Referências de catálogo — sob consulta
-    { id: 'chapa-st', nome: 'Chapa de drywall ST', cat: 'chapas', icone: 'p-chapa',
+    // Referências de catálogo — sob consulta. Imagens ilustrativas: chapas em 3D com a textura de uma foto do
+    // Wikimedia Commons ("Stapel Gipskartonplatten", RossKur, CC BY 4.0, modificada); perfis em 3D.
+    { id: 'chapa-st', foto: 'assets/img/prod-chapa-st-800.webp', fotoMini: 'assets/img/prod-chapa-st-400.webp', ilustrativa: true, nome: 'Chapa de drywall ST', cat: 'chapas', icone: 'p-chapa',
       emb: 'Chapa', un: 'chapa', preco: null,
       detalhe: 'Standard — paredes, forros e revestimentos em áreas secas.' },
-    { id: 'chapa-ru', nome: 'Chapa de drywall RU', cat: 'chapas', icone: 'p-chapa',
+    { id: 'chapa-ru', foto: 'assets/img/prod-chapa-ru-800.webp', fotoMini: 'assets/img/prod-chapa-ru-400.webp', ilustrativa: true, nome: 'Chapa de drywall RU', cat: 'chapas', icone: 'p-chapa',
       emb: 'Chapa', un: 'chapa', preco: null,
       detalhe: 'Resistente à umidade — banheiros, cozinhas e áreas molháveis.' },
-    { id: 'chapa-rf', nome: 'Chapa de drywall RF', cat: 'chapas', icone: 'p-chapa',
+    { id: 'chapa-rf', foto: 'assets/img/prod-chapa-rf-800.webp', fotoMini: 'assets/img/prod-chapa-rf-400.webp', ilustrativa: true, nome: 'Chapa de drywall RF', cat: 'chapas', icone: 'p-chapa',
       emb: 'Chapa', un: 'chapa', preco: null,
       detalhe: 'Resistente ao fogo — áreas que pedem proteção passiva.' },
-    { id: 'montante-70', nome: 'Montante 70', cat: 'perfis', icone: 'p-perfil',
+    { id: 'montante-70', foto: 'assets/img/prod-montante-70-800.webp', fotoMini: 'assets/img/prod-montante-70-400.webp', ilustrativa: true, nome: 'Montante 70', cat: 'perfis', icone: 'p-perfil',
       emb: 'Barra', un: 'barra', preco: null,
       detalhe: 'Perfil vertical da estrutura de paredes e revestimentos.' },
-    { id: 'guia-70', nome: 'Guia 70', cat: 'perfis', icone: 'p-perfil',
+    { id: 'guia-70', foto: 'assets/img/prod-guia-70-800.webp', fotoMini: 'assets/img/prod-guia-70-400.webp', ilustrativa: true, nome: 'Guia 70', cat: 'perfis', icone: 'p-perfil',
       emb: 'Barra', un: 'barra', preco: null,
       detalhe: 'Perfil de piso e teto que recebe os montantes.' },
-    { id: 'perfil-forro', nome: 'Perfil para forro', cat: 'perfis', icone: 'p-perfil',
+    { id: 'perfil-forro', foto: 'assets/img/prod-perfil-forro-800.webp', fotoMini: 'assets/img/prod-perfil-forro-400.webp', ilustrativa: true, nome: 'Perfil para forro', cat: 'perfis', icone: 'p-perfil',
       emb: 'Barra', un: 'barra', preco: null,
       detalhe: 'Estrutura de forro com reguladores e uniões.' },
-    { id: 'cantoneira', nome: 'Cantoneira para forro', cat: 'perfis', icone: 'p-perfil',
+    { id: 'cantoneira', foto: 'assets/img/prod-cantoneira-800.webp', fotoMini: 'assets/img/prod-cantoneira-400.webp', ilustrativa: true, nome: 'Cantoneira para forro', cat: 'perfis', icone: 'p-perfil',
       emb: 'Barra', un: 'barra', preco: null,
       detalhe: 'Arremate de perímetro do forro junto às paredes.' }
   ];

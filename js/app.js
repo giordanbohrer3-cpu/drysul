@@ -27,7 +27,8 @@
   function midia(p, cls) {
     if (!p.foto) return ill(p.icone, cls);
     return '<img src="' + esc(p.foto) + '"' + (p.fotoMini ? ' srcset="' + esc(p.fotoMini) + ' 400w, ' + esc(p.foto) + ' 800w" sizes="(max-width: 720px) 50vw, 400px"' : '') +
-      ' width="800" height="600" alt="' + esc(p.nome + ' — ' + p.emb.toLowerCase()) + '" loading="lazy" decoding="async">';
+      ' width="800" height="600" alt="' + esc(p.nome + ' — ' + p.emb.toLowerCase() + (p.ilustrativa ? ' (imagem ilustrativa)' : '')) + '" loading="lazy" decoding="async">' +
+      (p.ilustrativa ? '<span class="foto-nota" aria-hidden="true">Imagem ilustrativa</span>' : '');
   }
   function mini(p) {
     if (!p.foto) return ill(p.icone);
@@ -112,9 +113,38 @@
     });
   }
 
+  /* ---------- WhatsApp com mensagem pronta ----------
+     Toda conversa já abre com saudação pelo horário (e o nome, se a pessoa preencheu no pedido) e o motivo do contato. */
+  function saudacao() { var h = new Date().getHours(); return h >= 5 && h < 12 ? 'Bom dia' : h < 18 && h >= 12 ? 'Boa tarde' : 'Boa noite'; }
+  function abertura() {
+    var nome = (q.nome || '').trim().split(/\s+/)[0];
+    return saudacao() + ', Drysul!' + (nome ? ' Aqui é ' + nome + '.' : '');
+  }
+  function linkWhats(texto) { return loja.whatsUrl + '?text=' + encodeURIComponent(texto); }
+  var MSG_WHATS = {
+    contato: function () { return abertura() + ' Vim pelo site e gostaria de atendimento.'; },
+    produto: function (p) {
+      return abertura() + ' Vi no site o produto “' + p.nome + '” (' + p.emb.toLowerCase() + ').' +
+        (p.preco == null ? ' Pode me passar preço e disponibilidade?' : ' Ainda está disponível?');
+    },
+    busca: function (termo) { return abertura() + ' Procurei por “' + termo + '” no site e não encontrei. Vocês trabalham com esse material?'; }
+  };
+  function hrefWhats(el) {
+    var pid = el.getAttribute('data-whats-produto'), termo = el.getAttribute('data-whats-busca');
+    if (pid && produtoPorId[pid]) return linkWhats(MSG_WHATS.produto(produtoPorId[pid]));
+    if (termo) return linkWhats(MSG_WHATS.busca(termo));
+    return linkWhats(MSG_WHATS.contato());
+  }
+  // o link é montado na hora do clique (a saudação acompanha o relógio) e também já fica pronto no href
+  function prepararWhats(raiz) { $$('[data-whats], [data-whats-produto], [data-whats-busca]', raiz).forEach(function (a) { a.href = hrefWhats(a); }); }
+  document.addEventListener('click', function (ev) {
+    var a = ev.target.closest && ev.target.closest('[data-whats], [data-whats-produto], [data-whats-busca]');
+    if (a) a.href = hrefWhats(a);
+  }, true);
+
   /* ---------- mensagem para WhatsApp ---------- */
   function mensagem() {
-    var L = ['Olá, Drysul! Gostaria de um orçamento.'];
+    var L = [saudacao() + ', Drysul! Gostaria de um orçamento.'];
     if (q.itens.length) {
       L.push('', '*Materiais*');
       q.itens.forEach(function (i) {
@@ -310,7 +340,7 @@
       '<svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg><span>Adicionar</span></button>';
   }
   function cardProduto(p) {
-    return '<article class="prod-card" data-tilt>' +
+    return '<article class="prod-card" data-tilt data-prod="' + esc(p.id) + '">' +
       '<div class="prod-card__media">' + badge(p) + midia(p) + '</div>' +
       '<div class="prod-card__body">' +
         '<p class="prod-card__cat">' + esc(catPorId[p.cat].nome) + '</p>' +
@@ -318,6 +348,7 @@
         '<p class="prod-card__emb">' + esc(p.emb) + '</p>' +
         '<p class="prod-card__detail">' + esc(p.detalhe) + '</p>' +
         (p.link ? '<a class="prod-card__src" href="' + esc(p.link) + '" target="_blank" rel="noopener">' + icon('i-insta') + 'Ver publicação</a>' : '') +
+        (p.preco == null ? '<a class="prod-card__src prod-card__whats" data-whats-produto="' + esc(p.id) + '" href="' + esc(linkWhats(MSG_WHATS.produto(p))) + '" target="_blank" rel="noopener">' + icon('i-whats') + 'Perguntar<span class="hide-sm"> no WhatsApp</span></a>' : '') +
         '<div class="prod-card__foot">' + precoHtml(p) + botaoAdd(p) + '</div>' +
       '</div></article>';
   }
@@ -427,6 +458,135 @@
 
   renderChips();
   renderCatalogo();
+  prepararWhats();
+
+  /* ==========================================================================
+     Busca rápida — abre pelo cabeçalho, pela tecla / ou por Ctrl+K.
+     Resultados na hora (sem acento e em qualquer ordem), com foto, preço, adicionar e WhatsApp.
+     ========================================================================== */
+  var bDlg = $('#busca-global'), bIn = $('#bg-input'), bCampo = $('#bg-campo'), bLista = $('#bg-lista'), bStatus = $('#bg-status');
+  var bVazio = $('#bg-vazio'), bTermo = $('#bg-termo'), bWhats = $('#bg-whats'), bSug = $('#bg-sugestoes');
+  var POPULARES = ['chapa RU', 'parafuso', 'massa', 'montante 70', 'fita'];
+  function marcar(texto, termos) {
+    // norm() mantém o comprimento dos nomes do catálogo, então as posições valem para o texto original
+    var n = norm(texto), m = [];
+    termos.forEach(function (t) { for (var i = n.indexOf(t); i !== -1; i = n.indexOf(t, i + t.length)) m.push([i, i + t.length]); });
+    if (!m.length) return esc(texto);
+    m.sort(function (a, b) { return a[0] - b[0]; });
+    var out = '', pos = 0;
+    m.forEach(function (r) { if (r[0] < pos) r[0] = pos; if (r[1] <= r[0]) return; out += esc(texto.slice(pos, r[0])) + '<mark>' + esc(texto.slice(r[0], r[1])) + '</mark>'; pos = r[1]; });
+    return out + esc(texto.slice(pos));
+  }
+  function buscarProdutos(texto) {
+    var termos = norm(texto).split(/\s+/).filter(Boolean);
+    if (!termos.length) return { termos: termos, lista: [] };
+    var lista = D.produtos.map(function (p, i) {
+      var nome = norm(p.nome), resto = norm([p.detalhe, p.emb, catPorId[p.cat].nome].join(' '));
+      if (!termos.every(function (t) { return nome.indexOf(t) !== -1 || resto.indexOf(t) !== -1; })) return null;
+      var nota = termos.reduce(function (s, t) { var k = nome.indexOf(t); return s + (k === 0 ? 3 : k > 0 ? 2 : 0); }, 0);
+      return { p: p, nota: nota, i: i };
+    }).filter(Boolean).sort(function (a, b) { return b.nota - a.nota || a.i - b.i; });
+    return { termos: termos, lista: lista.map(function (x) { return x.p; }) };
+  }
+  function itemBusca(p, termos, i) {
+    var preco = p.preco != null ? '<b>' + BRL.format(p.preco).replace(/\u00a0/g, ' ') + '</b><small>por ' + esc(p.un) + '</small>' : '<b class="is-consulta">Sob consulta</b><small>por ' + esc(p.un) + '</small>';
+    return '<li class="bres" style="--i:' + Math.min(i, 8) + '">' +
+      '<button class="bres__main" type="button" data-ir-produto="' + esc(p.id) + '">' +
+        '<span class="bres__img">' + mini(p) + '</span>' +
+        '<span class="bres__txt"><span class="bres__nome">' + marcar(p.nome, termos) + '</span><small>' + esc(catPorId[p.cat].nome) + ' · ' + esc(p.emb) + '</small></span>' +
+        '<span class="bres__preco">' + preco + '</span>' +
+      '</button>' +
+      '<div class="bres__acoes">' + botaoAdd(p, 'btn--outline bres__add') +
+        '<a class="bres__whats" data-whats-produto="' + esc(p.id) + '" href="' + esc(linkWhats(MSG_WHATS.produto(p))) + '" target="_blank" rel="noopener" aria-label="Perguntar sobre ' + esc(p.nome) + ' no WhatsApp" title="Perguntar no WhatsApp">' + icon('i-whats') + '</a>' +
+      '</div></li>';
+  }
+  var bTimer = 0;
+  function renderBusca() {
+    var texto = bIn.value.trim(), r = buscarProdutos(texto);
+    bSug.hidden = !!texto;
+    bVazio.hidden = !texto || r.lista.length > 0;
+    bLista.innerHTML = r.lista.map(function (p, i) { return itemBusca(p, r.termos, i); }).join('');
+    if (texto && !r.lista.length) { bTermo.textContent = '“' + texto + '”'; bWhats.setAttribute('data-whats-busca', texto); bWhats.href = linkWhats(MSG_WHATS.busca(texto)); }
+    bStatus.textContent = !texto ? '' : r.lista.length ? r.lista.length + (r.lista.length > 1 ? ' produtos encontrados' : ' produto encontrado') : 'Nenhum produto encontrado';
+    atualizarBotoes();
+    // a linha laranja corre por baixo do campo a cada busca
+    bCampo.classList.remove('is-buscando'); void bCampo.offsetWidth; bCampo.classList.add('is-buscando');
+  }
+  $('#bg-cats').innerHTML = D.categorias.map(function (c) {
+    return '<button class="chip" type="button" data-bg-cat="' + c.id + '"><svg class="chip__ic" viewBox="0 0 120 90" aria-hidden="true"><use href="#' + c.icone + '"/></svg>' + esc(c.nome) + '</button>';
+  }).join('');
+  $('#bg-populares').innerHTML = POPULARES.map(function (t) { return '<button class="chip" type="button" data-bg-termo="' + esc(t) + '">' + icon('i-search') + esc(t) + '</button>'; }).join('');
+
+  function abrirBusca(origem, texto) {
+    if (!bDlg) return;
+    bDlg._retorno = origem instanceof Element ? origem : document.activeElement;
+    fecharMenu();
+    if (typeof texto === 'string') bIn.value = texto;
+    renderBusca();
+    if (typeof bDlg.showModal === 'function') bDlg.showModal(); else bDlg.setAttribute('open', '');
+    document.documentElement.classList.add('dialog-open');
+    bIn.focus(); bIn.select();
+  }
+  function irProduto(id) {
+    bDlg._retorno = null; // o foco vai para o produto, não de volta ao botão da busca
+    fecharDialogo(bDlg);
+    filtro.q = ''; inBusca.value = ''; selOrdem.value = 'padrao'; filtro.ordem = 'padrao'; setCategoria('todas');
+    var card = grid.querySelector('[data-prod="' + id + '"]');
+    if (!card) return;
+    // o cartão fica no meio da tela (abaixo do cabeçalho)
+    var y = Math.max(0, card.getBoundingClientRect().top + window.scrollY - Math.max(90, (window.innerHeight - card.offsetHeight) / 2));
+    if (window.DrysulMotion && window.DrysulMotion.rolarAte) window.DrysulMotion.rolarAte(y);
+    else window.scrollTo({ top: y, behavior: 'auto' });
+    card.classList.remove('is-achado'); void card.offsetWidth; card.classList.add('is-achado');
+    setTimeout(function () { card.classList.remove('is-achado'); }, 2400);
+    var botao = $('[data-add]', card); if (botao) setTimeout(function () { botao.focus({ preventScroll: true }); }, 60);
+  }
+  if (bDlg) {
+    bIn.addEventListener('input', function () { clearTimeout(bTimer); bTimer = setTimeout(renderBusca, 90); });
+    bDlg.addEventListener('click', function (ev) {
+      var ir = ev.target.closest('[data-ir-produto]'); if (ir) { irProduto(ir.getAttribute('data-ir-produto')); return; }
+      var cat = ev.target.closest('[data-bg-cat]');
+      if (cat) { bDlg._retorno = null; fecharDialogo(bDlg); irParaCategoria(cat.getAttribute('data-bg-cat')); return; }
+      var termo = ev.target.closest('[data-bg-termo]');
+      if (termo) { bIn.value = termo.getAttribute('data-bg-termo'); renderBusca(); bIn.focus(); return; }
+      if (ev.target.closest('[data-open-quote]')) { bDlg._retorno = null; fecharDialogo(bDlg); }
+    });
+    // setas: do campo para a lista e entre os resultados; Enter no campo abre o primeiro
+    bDlg.addEventListener('keydown', function (ev) {
+      var itens = $$('.bres__main', bLista), i = itens.indexOf(document.activeElement);
+      if (ev.key === 'ArrowDown' && itens.length) { ev.preventDefault(); (itens[i + 1] || itens[0]).focus(); }
+      else if (ev.key === 'ArrowUp' && itens.length) { ev.preventDefault(); if (i <= 0) bIn.focus(); else itens[i - 1].focus(); }
+      else if (ev.key === 'Enter' && document.activeElement === bIn && itens.length) { ev.preventDefault(); irProduto(itens[0].getAttribute('data-ir-produto')); }
+    });
+  }
+  document.addEventListener('click', function (ev) {
+    var b = ev.target.closest && ev.target.closest('[data-open-busca]');
+    if (b) { ev.preventDefault(); abrirBusca(b); }
+  });
+  document.addEventListener('keydown', function (ev) {
+    if (!bDlg || bDlg.open || document.querySelector('dialog[open]')) return;
+    var t = ev.target, digitando = t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName));
+    if ((ev.key === '/' && !digitando && !ev.ctrlKey && !ev.metaKey && !ev.altKey) || ((ev.ctrlKey || ev.metaKey) && (ev.key === 'k' || ev.key === 'K'))) {
+      ev.preventDefault(); abrirBusca(document.activeElement);
+    }
+  });
+
+  // dica digitada na barra do cabeçalho (só com efeitos; para quando a aba some ou a busca está aberta)
+  (function dicaDigitada() {
+    var el = $('#search-dica'); if (!el) return;
+    var frases = ['chapa RU', 'parafuso GN25', 'massa 25 kg', 'montante 70', 'fita de papel', 'perfil para forro'], f = 0, n = el.textContent.length, apagando = false;
+    var larga = window.matchMedia('(min-width: 1240px)'); // abaixo disso a barra vira só a lupa e a dica fica escondida
+    function passo() {
+      var ativo = larga.matches && document.documentElement.classList.contains('motion-on') && !document.hidden && !(bDlg && bDlg.open);
+      if (!ativo) { el.textContent = frases[f]; setTimeout(passo, 1200); return; }
+      var alvo = frases[f];
+      if (!apagando) { n++; el.textContent = alvo.slice(0, n); if (n >= alvo.length) { apagando = true; return setTimeout(passo, 1900); } return setTimeout(passo, 85); }
+      n--; el.textContent = alvo.slice(0, Math.max(0, n));
+      if (n <= 0) { apagando = false; f = (f + 1) % frases.length; return setTimeout(passo, 380); }
+      setTimeout(passo, 40);
+    }
+    setTimeout(passo, 2600);
+  })();
 
   /* ==========================================================================
      Calculadora
@@ -610,25 +770,29 @@
   /* ==========================================================================
      Tema claro / escuro — a escolha fica salva; sem escolha, segue o aparelho
      ========================================================================== */
-  var raiz = document.documentElement, temaBtn = $('#theme-toggle');
+  var raiz = document.documentElement, temaBtns = $$('[data-theme-toggle]');
   var mqEscuro = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
   function temaSalvo() { try { return localStorage.getItem('drysul-tema'); } catch (e) { return null; } }
+  // há dois botões de tema: o do cabeçalho e, em telas bem estreitas, um item dentro do menu
   function marcarTema() {
     var escuro = raiz.getAttribute('data-theme') === 'dark';
-    if (!temaBtn) return;
-    temaBtn.setAttribute('aria-pressed', String(escuro));
-    temaBtn.setAttribute('aria-label', escuro ? 'Ativar tema claro' : 'Ativar tema escuro');
-    temaBtn.title = escuro ? 'Tema claro' : 'Tema escuro';
+    temaBtns.forEach(function (b) {
+      b.setAttribute('aria-pressed', String(escuro));
+      if (b.id === 'theme-toggle') { b.setAttribute('aria-label', escuro ? 'Ativar tema claro' : 'Ativar tema escuro'); b.title = escuro ? 'Tema claro' : 'Tema escuro'; }
+      var t = $('span', b); if (t) t.textContent = escuro ? 'Tema claro' : 'Tema escuro';
+    });
   }
   function aplicarTema(t) {
     var trocar = function () { raiz.setAttribute('data-theme', t); marcarTema(); };
     // transição suave entre os temas onde o navegador suporta (View Transitions); senão, troca direta
     if (document.startViewTransition && raiz.classList.contains('motion-on')) document.startViewTransition(trocar); else trocar();
   }
-  if (temaBtn) temaBtn.addEventListener('click', function () {
-    var t = raiz.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-    try { localStorage.setItem('drysul-tema', t); } catch (e) {}
-    aplicarTema(t);
+  temaBtns.forEach(function (b) {
+    b.addEventListener('click', function () {
+      var t = raiz.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      try { localStorage.setItem('drysul-tema', t); } catch (e) {}
+      aplicarTema(t);
+    });
   });
   if (mqEscuro) {
     var seguirAparelho = function () { if (!temaSalvo()) aplicarTema(mqEscuro.matches ? 'dark' : 'light'); };

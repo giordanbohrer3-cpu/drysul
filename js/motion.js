@@ -101,7 +101,8 @@
   function rolarAte(el) {
     if (!el) return;
     var y = 0;
-    if (el !== 'topo') {
+    if (typeof el === 'number') y = Math.max(0, el); // destino já em pixels
+    else if (el !== 'topo') {
       var hdr = document.querySelector('.site-header');
       var hAgora = hdr ? hdr.offsetHeight : 0;
       var base = el.getBoundingClientRect().top + window.scrollY;
@@ -109,7 +110,7 @@
       y = Math.max(0, base - (hAgora && hdr.classList.contains('is-compact') ? 0 : hAgora - hFim) - hFim - 12);
     }
     if (lenis) lenis.scrollTo(y, { lerp: 0.1 });
-    else if (el === 'topo') window.scrollTo({ top: 0, behavior: on ? 'smooth' : 'auto' });
+    else if (el === 'topo' || typeof el === 'number') window.scrollTo({ top: y, behavior: on ? 'smooth' : 'auto' });
     else el.scrollIntoView({ block: 'start', behavior: on ? 'smooth' : 'auto' });
   }
   // links internos (#secao) com a rolagem suave ligada: o próprio motion.js leva até o destino

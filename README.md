@@ -18,7 +18,7 @@ Proposta de site para a **Drysul — gesso e acabamento**. HTML, CSS e JavaScrip
 | `js/checkout-model.js` | Regras da central de vendas: canal (site x WhatsApp), limite, validações (testável no Node) |
 | `js/checkout.js` | Central de vendas: pedido → entrega → pagamento (Pix, crédito, débito, WhatsApp) → confirmação |
 | `js/motion.js` | Hero fixo que desmonta a parede em 4 etapas (fita, chapa, parafusos, estrutura), escrita animada dos títulos, rolagem suave no computador (Lenis), canvas técnico, fundos que andam com a rolagem, pausa de efeitos; anima só o que está perto da tela |
-| `js/som.js` | Sons de clique bem suaves, sintetizados no navegador (sem arquivos); botão "Som" liga e desliga |
+| `js/som.js` | Sons sintetizados no navegador (sem arquivos), todos bem baixos: clique, passar o mouse nos botões, papel na rolagem (segue a velocidade), virada de página nas etapas do topo e trilha de cordas lenta ao fundo. Começam no primeiro clique/toque; o botão "Som" liga e desliga tudo |
 | `js/vendor/lenis.min.js` | Lenis 1.3.26 (MIT, licença em `js/vendor/LENIS-LICENSE.txt`); só no computador com mouse/trackpad |
 | `css/styles.css` | Design system (tokens semânticos com tema claro e escuro, componentes, seções, responsivo) |
 | `css/motion.css` | Animações; estados ocultos só existem com efeitos ativos. 3D na rolagem em CSS (`animation-timeline`), com as entradas normais como alternativa em navegadores sem suporte |

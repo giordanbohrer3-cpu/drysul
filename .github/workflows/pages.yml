@@ -1,7 +1,7 @@
 name: Publicar no GitHub Pages
 
-# O Pages deste repositório publica a branch gh-pages.
-# A cada push na main, os testes rodam e, se passarem, a gh-pages recebe o mesmo commit.
+# O Pages deste repositório usa a fonte "GitHub Actions": a cada push na main,
+# os testes rodam e, se passarem, o site é enviado direto para o Pages.
 
 on:
   push:
@@ -9,26 +9,29 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
   pages: write
+  id-token: write
 
 concurrency:
   group: pages
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
       - name: Testes (calculadora e central de vendas)
         run: node --test tests/calculator.test.js tests/checkout.test.js
-      - name: Atualizar a branch gh-pages
-        run: git push origin HEAD:refs/heads/gh-pages
-      # o push costuma disparar o build do Pages sozinho, mas nem sempre: o pedido explícito garante a publicação
-      - name: Pedir o build do Pages
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: gh api -X POST "repos/${{ github.repository }}/pages/builds" || echo "Pedido de build recusado; o push acima ainda pode disparar a publicação."
+      - uses: actions/configure-pages@v5
+      - name: Empacotar o site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+      - name: Publicar
+        id: deployment
+        uses: actions/deploy-pages@v4

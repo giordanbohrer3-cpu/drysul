@@ -28,6 +28,7 @@
 
   var PRECO_LOJA = 'Preço informado pela loja em 30/09/2026';
   var PRECO_INSTA = 'Oferta publicada no Instagram em 09/09/2026';
+  var PRECO_INSTA_SEM_DATA = 'Oferta publicada no Instagram da loja';
 
   var produtos = [
     // Linha Drysul — preços informados pela loja (30/09/2026)
@@ -42,26 +43,34 @@
       detalhe: 'Tratamento de juntas e acabamento de superfícies em drywall.' },
 
     // Ofertas publicadas no Instagram (09/09/2026)
-    { id: 'ancorador', nome: 'Ancorador', cat: 'fixacao', icone: 'p-ancora',
+    { id: 'ancorador', foto: 'assets/img/prod-ancorador-800.webp', fotoMini: 'assets/img/prod-ancorador-400.webp', publicada: '09/09/2026', nome: 'Ancorador', cat: 'fixacao', icone: 'p-ancora',
       emb: 'Por unidade', un: 'un.', preco: 19.90, fonte: PRECO_INSTA, oferta: true,
       link: 'https://www.instagram.com/drysul.loja/p/DdFD94yn_6Y/',
       detalhe: 'Ancoragem de cargas. Especificação confirmada no atendimento.' },
-    { id: 'parafuso-metal', nome: 'Parafuso metal/steel 4,8 × 19', cat: 'fixacao', icone: 'p-caixa',
+    { id: 'parafuso-metal', foto: 'assets/img/prod-parafuso-metal-800.webp', fotoMini: 'assets/img/prod-parafuso-metal-400.webp', publicada: '09/09/2026', nome: 'Parafuso metal/steel 4,8 × 19', cat: 'fixacao', icone: 'p-caixa',
       emb: 'Caixa com 200 unidades', un: 'caixa', preco: 24.90, fonte: PRECO_INSTA, oferta: true,
       link: 'https://www.instagram.com/drysul.loja/p/DdFDOiJnxd1/',
       detalhe: 'Fixação metal com metal na estrutura.' },
-    { id: 'parafuso-glassroc', nome: 'Parafuso Glassroc 35 × 3,5 mm', cat: 'fixacao', icone: 'p-caixa',
+    { id: 'parafuso-glassroc', foto: 'assets/img/prod-parafuso-glassroc-800.webp', fotoMini: 'assets/img/prod-parafuso-glassroc-400.webp', publicada: '09/09/2026', nome: 'Parafuso Glassroc 35 × 3,5 mm', cat: 'fixacao', icone: 'p-caixa',
       emb: 'Caixa com 500 unidades', un: 'caixa', preco: 119.00, fonte: PRECO_INSTA, oferta: true,
       link: 'https://www.instagram.com/drysul.loja/p/DdFCqS8Hx-O/',
       detalhe: 'Para placas cimentícias Glassroc.' },
-    { id: 'parafuso-costura', nome: 'Parafuso de costura 4,8 × 19 sextavado', cat: 'fixacao', icone: 'p-caixa',
+    { id: 'parafuso-costura', foto: 'assets/img/prod-parafuso-costura-800.webp', fotoMini: 'assets/img/prod-parafuso-costura-400.webp', publicada: '09/09/2026', nome: 'Parafuso de costura 4,8 × 19 sextavado', cat: 'fixacao', icone: 'p-caixa',
       emb: 'Caixa com 500 unidades', un: 'caixa', preco: 137.90, fonte: PRECO_INSTA, oferta: true,
       link: 'https://www.instagram.com/drysul.loja/p/DdFBrSUnxJV/',
       detalhe: 'Cabeça sextavada para união de perfis.' },
-    { id: 'parabolt', nome: 'Parabolt zincado 1/2 × 4', cat: 'fixacao', icone: 'p-ancora',
+    { id: 'parabolt', foto: 'assets/img/prod-parabolt-800.webp', fotoMini: 'assets/img/prod-parabolt-400.webp', publicada: '09/09/2026', nome: 'Parabolt zincado 1/2 × 4', cat: 'fixacao', icone: 'p-ancora',
       emb: 'Por unidade', un: 'un.', preco: 4.90, fonte: PRECO_INSTA, oferta: true,
       link: 'https://www.instagram.com/drysul.loja/p/DdFBMFan2vL/',
       detalhe: 'Chumbador para fixação em concreto.' },
+    { id: 'gn25-broca', foto: 'assets/img/prod-gn25-broca-800.webp', fotoMini: 'assets/img/prod-gn25-broca-400.webp', nome: 'Parafuso GN25 ponta broca 3,5 × 25', cat: 'fixacao', icone: 'p-caixa',
+      emb: 'Caixa com 1.000 unidades', un: 'caixa', preco: 84.90, fonte: PRECO_INSTA_SEM_DATA, oferta: true,
+      link: loja.instagramUrl,
+      detalhe: 'Fixa chapas de drywall na estrutura; a ponta broca vence perfis de aço mais espessos.' },
+    { id: 'gn25-agulha', foto: 'assets/img/prod-gn25-agulha-800.webp', fotoMini: 'assets/img/prod-gn25-agulha-400.webp', nome: 'Parafuso GN25 ponta agulha 3,5 × 25', cat: 'fixacao', icone: 'p-caixa',
+      emb: 'Caixa com 1.000 unidades', un: 'caixa', preco: 59.90, fonte: PRECO_INSTA_SEM_DATA, oferta: true,
+      link: loja.instagramUrl,
+      detalhe: 'Fixa chapas de drywall nos perfis leves da estrutura, com ponta agulha.' },
 
     // Referências de catálogo — sob consulta
     { id: 'chapa-st', nome: 'Chapa de drywall ST', cat: 'chapas', icone: 'p-chapa',

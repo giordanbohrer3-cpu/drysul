@@ -5,7 +5,7 @@ Site da **Drysul — gesso e acabamento** (proposta em demonstração).
 **No ar:** https://giordanbohrer3-cpu.github.io/drysul/
 
 
-Proposta de site para a **Drysul — gesso e acabamento**. HTML, CSS e JavaScript puros: sem build e sem dependências. A demonstração é publicada pelo GitHub Pages.
+Proposta de site para a **Drysul — gesso e acabamento**. HTML, CSS e JavaScript puros, sem build. Única biblioteca: o Lenis (rolagem suave, licença MIT), copiado em `js/vendor/`. A demonstração é publicada pelo GitHub Pages.
 
 ## Estrutura
 
@@ -17,8 +17,9 @@ Proposta de site para a **Drysul — gesso e acabamento**. HTML, CSS e JavaScrip
 | `js/app.js` | Catálogo, busca, filtros, pedido/orçamento, WhatsApp, calculadora, menu |
 | `js/checkout-model.js` | Regras da central de vendas: canal (site x WhatsApp), limite, validações (testável no Node) |
 | `js/checkout.js` | Central de vendas: pedido → entrega → pagamento (Pix, crédito, débito, WhatsApp) → confirmação |
-| `js/motion.js` | Canvas técnico (congela durante rolagem e toques), entradas ao rolar, parallax, parede 3D do hero, ponteiro, pausa de efeitos; liga o 3D só nos blocos perto da tela |
-| `css/styles.css` | Design system (tokens, componentes, seções, responsivo) |
+| `js/motion.js` | Hero fixo que desmonta a parede em 4 etapas (fita, chapa, parafusos, estrutura), escrita animada dos títulos, rolagem suave no computador (Lenis), canvas técnico, fundos que andam com a rolagem, pausa de efeitos; anima só o que está perto da tela |
+| `js/vendor/lenis.min.js` | Lenis 1.3.26 (MIT, licença em `js/vendor/LENIS-LICENSE.txt`); só no computador com mouse/trackpad |
+| `css/styles.css` | Design system (tokens semânticos com tema claro e escuro, componentes, seções, responsivo) |
 | `css/motion.css` | Animações; estados ocultos só existem com efeitos ativos. 3D na rolagem em CSS (`animation-timeline`), com as entradas normais como alternativa em navegadores sem suporte |
 | `assets/` | Logo e padrão vetoriais (do arquivo oficial da marca), fotos do manual em WebP, fonte Archivo (OFL) |
 | `tests/calculator.test.js` | Casos conferidos com a calculadora de referência |
@@ -30,6 +31,7 @@ Proposta de site para a **Drysul — gesso e acabamento**. HTML, CSS e JavaScrip
 - **Foto real de produto:** imagem 4:3 em `assets/img/` e, no produto, `foto` (800 px) e `fotoMini` (400 px). Sem foto, aparece o desenho técnico.
 - **Telefone, endereço, Instagram:** objeto `loja` em `js/data.js` (rodapé, contato e WhatsApp leem dali).
 - **Limite da compra pelo site:** `vendas.limiteOnline` em `js/data.js` (atual: R$ 1.000).
+- **Tema claro/escuro:** botão no cabeçalho; a escolha fica salva no navegador e, sem escolha, segue o aparelho. Cores em `:root` e `[data-theme="dark"]` no `css/styles.css`.
 
 ## Central de vendas
 

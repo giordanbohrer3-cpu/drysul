@@ -43,6 +43,8 @@
   var links = { whatsapp: loja.whatsUrl, tel: loja.telUrl, instagram: loja.instagramUrl, maps: loja.mapsUrl };
   $$('[data-store]').forEach(function (el) { el.textContent = loja[el.getAttribute('data-store')] || ''; });
   $$('[data-store-link]').forEach(function (el) { el.href = links[el.getAttribute('data-store-link')]; });
+  // preços citados fora do catálogo (ex.: peças do hero) também vêm do data.js
+  $$('[data-preco-id]').forEach(function (el) { var p = produtoPorId[el.getAttribute('data-preco-id')]; if (p && p.preco != null) el.textContent = BRL.format(p.preco); });
 
   /* ---------- toast ---------- */
   var toastEl = $('#toast'), toastTimer;
@@ -375,9 +377,12 @@
   $('#limpar').addEventListener('click', function () {
     inBusca.value = ''; filtro.q = ''; selOrdem.value = 'padrao'; filtro.ordem = 'padrao'; setCategoria('todas'); inBusca.focus();
   });
+  function rolar(el) {
+    if (window.DrysulMotion && window.DrysulMotion.rolarAte) window.DrysulMotion.rolarAte(el); else el.scrollIntoView({ block: 'start' });
+  }
   function irParaCategoria(cat) {
     setCategoria(cat);
-    document.getElementById('produtos').scrollIntoView({ block: 'start' });
+    rolar(document.getElementById('produtos'));
   }
   $$('[data-filter-link]').forEach(function (a) {
     a.addEventListener('click', function (ev) { ev.preventDefault(); irParaCategoria(a.getAttribute('data-filter-link')); });
@@ -410,12 +415,14 @@
   /* Ofertas */
   $('#offer-grid').innerHTML = D.produtos.filter(function (p) { return p.oferta; }).map(function (p) {
     var pr = precoPartes(p.preco);
-    return '<article class="offer" data-reveal>' +
-      '<div class="offer__top"><span class="tag">Oferta</span><span class="offer__date">Publicada em 09/09/2026</span></div>' +
-      '<div><div class="offer__main">' + ill(p.icone) + '<div><h3 class="offer__name">' + esc(p.nome) + '</h3><p class="offer__emb">' + esc(p.emb) + '</p></div></div></div>' +
-      '<div><p class="offer__price"><small>' + pr.moeda + '</small><strong>' + pr.valor + '</strong><span>/ ' + esc(p.un) + '</span></p>' +
-      '<div class="offer__actions"><a class="prod-card__src" href="' + esc(p.link) + '" target="_blank" rel="noopener">' + icon('i-insta') + 'Ver publicação</a>' + botaoAdd(p) + '</div></div>' +
-      '</article>';
+    return '<article class="offer" data-reveal data-tilt>' +
+      '<div class="offer__media"><span class="tag tag--orange">Oferta</span>' + midia(p) + '</div>' +
+      '<div class="offer__body">' +
+        '<p class="offer__date">' + (p.publicada ? 'Publicada em ' + esc(p.publicada) : 'Publicada no Instagram') + '</p>' +
+        '<h3 class="offer__name">' + esc(p.nome) + '</h3><p class="offer__emb">' + esc(p.emb) + '</p>' +
+        '<p class="offer__price"><small>' + pr.moeda + '</small><strong>' + pr.valor + '</strong><span>/ ' + esc(p.un) + '</span></p>' +
+        '<div class="offer__actions"><a class="prod-card__src" href="' + esc(p.link) + '" target="_blank" rel="noopener">' + icon('i-insta') + 'Ver publicação</a>' + botaoAdd(p) + '</div>' +
+      '</div></article>';
   }).join('');
 
   renderChips();
@@ -429,6 +436,7 @@
 
   tabs.innerHTML = C.SISTEMAS.map(function (s, i) {
     return '<button class="calc-tab" type="button" id="tab-' + s.id + '" aria-controls="calc-form" data-sys="' + s.id + '" aria-pressed="' + (s.id === calc.sistema) + '">' +
+      '<svg class="calc-tab__ic" viewBox="0 0 48 36" aria-hidden="true" focusable="false"><use href="#s-' + s.id + '"/></svg>' +
       '<small>' + String(i + 1).padStart(2, '0') + '</small>' + esc(s.curto) + '</button>';
   }).join('');
 
@@ -449,15 +457,71 @@
       ? campoHtml('altura', 'Altura', 'm', 'Máximo de ' + fmt(s.alturaMax) + ' m para este sistema.') + campoHtml('comprimento', 'Comprimento', 'm', 'Soma dos trechos, em metros.')
       : campoHtml('area', 'Área do forro', 'm²', 'Comprimento × largura do ambiente.');
     if (calc.resultado && calc.resultado.sistema !== s.id) marcarDesatualizado();
+    renderViz();
+  }
+
+  /* Desenho técnico ao vivo: elevação (paredes e revestimentos) ou planta (forros), em escala com as medidas */
+  var vizEl = $('#calc-viz'), vizCap = $('#calc-viz-cap');
+  function medida(v) { var n = C.parseNumero(v); return isFinite(n) && n > 0 ? n : null; }
+  function r1(n) { return Math.round(n * 10) / 10; }
+  function renderViz() {
+    if (!vizEl) return;
+    var s = C.sistema(calc.sistema), W = 360, H = 210, g = '', exemplo = false, legenda;
+    if (s.entrada === 'dimensoes') {
+      var A = medida(calc.valores.altura), L = medida(calc.valores.comprimento);
+      if (!A || !L) { exemplo = true; A = A || Math.min(2.8, s.alturaMax); L = L || 4; }
+      var Ad = Math.min(A, s.alturaMax * 2), Ld = Math.min(L, 40);
+      var k = Math.min((W - 84) / Ld, (H - 58) / Ad), w = Ld * k, h = Ad * k;
+      var x0 = 56 + ((W - 84) - w) / 2, y0 = 14 + ((H - 58) - h) / 2;
+      if (s.id !== 'parede') g += '<rect class="v-wall" x="' + r1(x0 - 9) + '" y="' + r1(y0 - 7) + '" width="' + r1(w + 18) + '" height="' + r1(h + 14) + '"/>';
+      var n = 0;
+      for (var px = 0; px < Ld - 1e-6; px += 1.2) {
+        var pw = Math.min(1.2, Ld - px) * k;
+        g += '<rect class="v-plate" style="--n:' + (n++) + '" x="' + r1(x0 + px * k) + '" y="' + r1(y0) + '" width="' + r1(pw) + '" height="' + r1(h) + '"/>';
+      }
+      if (s.id === 'parede' || s.id === 'estruturado') {
+        var passo = Ld / 0.6 > 60 ? 1.2 : 0.6;
+        for (var sx = 0; sx <= Ld + 1e-6; sx += passo) g += '<line class="v-stud" x1="' + r1(x0 + sx * k) + '" y1="' + r1(y0) + '" x2="' + r1(x0 + sx * k) + '" y2="' + r1(y0 + h) + '"/>';
+        g += '<line class="v-guide" x1="' + r1(x0) + '" y1="' + r1(y0) + '" x2="' + r1(x0 + w) + '" y2="' + r1(y0) + '"/><line class="v-guide" x1="' + r1(x0) + '" y1="' + r1(y0 + h) + '" x2="' + r1(x0 + w) + '" y2="' + r1(y0 + h) + '"/>';
+      } else {
+        var pd = Math.max(0.4, Math.sqrt(Ld * Ad / 320), 9 / k); // pontos de cola: no máximo ~320 e nunca colados uns nos outros no desenho
+        for (var cx = pd * 0.75; cx < Ld; cx += pd) for (var cy = pd * 0.75; cy < Ad; cy += pd) g += '<circle class="v-dot" cx="' + r1(x0 + cx * k) + '" cy="' + r1(y0 + cy * k) + '" r="1.6"/>';
+      }
+      var yb = y0 + h + 18;
+      g += '<path class="v-dim" d="M' + r1(x0) + ' ' + r1(yb) + 'H' + r1(x0 + w) + 'M' + r1(x0) + ' ' + r1(yb - 5) + 'v10M' + r1(x0 + w) + ' ' + r1(yb - 5) + 'v10"/>' +
+        '<text class="v-txt" x="' + r1(x0 + w / 2) + '" y="' + r1(yb + 15) + '" text-anchor="middle">' + fmt(L) + ' m</text>';
+      var xl = x0 - 20;
+      g += '<path class="v-dim" d="M' + r1(xl) + ' ' + r1(y0) + 'V' + r1(y0 + h) + 'M' + r1(xl - 5) + ' ' + r1(y0) + 'h10M' + r1(xl - 5) + ' ' + r1(y0 + h) + 'h10"/>' +
+        '<text class="v-txt" x="' + r1(xl - 8) + '" y="' + r1(y0 + h / 2) + '" text-anchor="middle" transform="rotate(-90 ' + r1(xl - 8) + ' ' + r1(y0 + h / 2) + ')">' + fmt(A) + ' m</text>';
+      legenda = exemplo ? 'Exemplo: ' + s.curto.toLowerCase() + ' de ' + fmt(L) + ' × ' + fmt(A) + ' m. Digite as medidas para ver a sua.' :
+        s.nome + ': ' + fmt(L) + ' m × ' + fmt(A) + ' m' + (A > s.alturaMax ? ' (acima do limite de ' + fmt(s.alturaMax) + ' m)' : '');
+    } else {
+      var Ar = medida(calc.valores.area); if (!Ar) { exemplo = true; Ar = 12; }
+      var lado = Math.sqrt(Math.min(Ar, 3000)), kk = Math.min((W - 60) / lado, (H - 40) / lado), sz = lado * kk;
+      var qx = (W - sz) / 2, qy = (H - sz) / 2 - 4;
+      g += '<rect class="v-plate" style="--n:0" x="' + r1(qx) + '" y="' + r1(qy) + '" width="' + r1(sz) + '" height="' + r1(sz) + '"/>';
+      var pas = s.id === 'fge' ? 0.6 : 1.2;
+      if (lado / pas > 30) pas = lado / 30;
+      for (var gy = pas; gy < lado - 1e-6; gy += pas) g += '<line class="' + (s.id === 'fge' ? 'v-stud' : 'v-seam') + '" x1="' + r1(qx) + '" y1="' + r1(qy + gy * kk) + '" x2="' + r1(qx + sz) + '" y2="' + r1(qy + gy * kk) + '"/>';
+      var ph = Math.max(1.2, lado / 11); // pendurais: no máximo ~11 × 11 no desenho
+      if (s.id === 'fge') for (var hx = ph / 2; hx < lado; hx += ph) for (var hy = ph / 2; hy < lado; hy += ph) g += '<circle class="v-hang" cx="' + r1(qx + hx * kk) + '" cy="' + r1(qy + hy * kk) + '" r="2.4"/>';
+      g += '<text class="v-txt v-txt--big" x="' + r1(W / 2) + '" y="' + r1(qy + sz / 2 + 7) + '" text-anchor="middle">' + fmt(Ar) + ' m²</text>';
+      legenda = exemplo ? 'Exemplo: forro de ' + fmt(Ar) + ' m², visto de cima. Digite a área para ver o seu.' : s.nome + ': ' + fmt(Ar) + ' m², visto de cima';
+    }
+    vizEl.innerHTML = '<svg class="viz' + (exemplo ? ' is-exemplo' : '') + '" viewBox="0 0 ' + W + ' ' + H + '" focusable="false">' + g + '</svg>';
+    if (vizCap) vizCap.textContent = legenda;
   }
   function selecionarSistema(id, foco) {
     calc.sistema = id; renderSistema();
+    var box = vizEl && vizEl.parentNode;
+    if (box) { box.classList.remove('is-novo'); void box.offsetWidth; box.classList.add('is-novo'); clearTimeout(box._t); box._t = setTimeout(function () { box.classList.remove('is-novo'); }, 1200); }
     if (foco) { var f = $('input', campos); if (f) f.focus({ preventScroll: true }); }
   }
   tabs.addEventListener('click', function (ev) { var b = ev.target.closest('[data-sys]'); if (b) selecionarSistema(b.getAttribute('data-sys')); });
   campos.addEventListener('input', function (ev) {
     if (!ev.target.name) return;
     calc.valores[ev.target.name] = ev.target.value;
+    renderViz();
     if (ev.target.getAttribute('aria-invalid') === 'true') limparErro(ev.target);
     if (calc.resultado) marcarDesatualizado();
   });
@@ -490,16 +554,35 @@
     res.innerHTML =
       '<div class="res__head"><div><p class="res__sys">' + esc(r.nome) + '</p><p class="res__dims">' +
         (r.dims ? fmt(r.dims.altura) + ' m × ' + fmt(r.dims.comprimento) + ' m' : 'Área informada') + '</p></div>' +
-        '<p class="res__area">' + fmt(r.area) + '<small>m²</small></p></div>' +
+        '<p class="res__area">' + conta(r.area) + '<small>m²</small></p></div>' +
       '<p class="stale-note">Medidas alteradas — calcule novamente para atualizar.</p>' +
       '<ul class="res__list">' + r.itens.map(function (i, n) {
-        return '<li style="--i:' + n + '"><span>' + esc(i.nome) + '</span><b>' + fmt(i.qtd) + '<small>' + esc(i.unidade) + '</small></b></li>';
+        return '<li style="--i:' + n + '">' + ill(ICONE_ITEM[i.id] || 'p-caixa', 'res__ic') + '<span>' + esc(i.nome) + '</span><b>' + conta(i.qtd) + '<small>' + esc(i.unidade) + '</small></b></li>';
       }).join('') + '</ul>' +
       '<div class="res__actions">' +
         '<button class="btn btn--primary" type="button" data-res-action="orcamento">' + icon('i-list') + '<span>Levar ao orçamento</span></button>' +
         '<button class="btn btn--outline" type="button" data-res-action="copiar">' + icon('i-copy') + '<span>Copiar estimativa</span></button>' +
       '</div>';
+    contarNumeros(res);
   }
+  // números do resultado sobem de 0 até o valor (só com efeitos; o texto final é sempre o valor exato).
+  // O número que anda fica oculto para leitores de tela; eles leem só o valor final, sem a contagem.
+  function conta(v) { return '<span data-conta="' + v + '" aria-hidden="true">' + fmt(v) + '</span><span class="sr">' + fmt(v) + ' </span>'; }
+  function contarNumeros(box) {
+    if (!document.documentElement.classList.contains('motion-on')) return;
+    var els = $$('[data-conta]', box), t0 = performance.now(), dur = 750;
+    (function passo(t) {
+      var k = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - k, 3);
+      els.forEach(function (el) {
+        var v = +el.getAttribute('data-conta');
+        el.textContent = k < 1 ? fmt(v % 1 === 0 ? Math.round(v * e) : Math.round(v * e * 10) / 10) : fmt(v);
+      });
+      if (k < 1) requestAnimationFrame(passo);
+    })(t0);
+  }
+  var ICONE_ITEM = { chapa: 'p-chapa', guia: 'p-perfil', montante: 'p-perfil', s47: 'p-perfil', cantoneira: 'p-perfil', nervura: 'p-perfil',
+    la: 'p-parafuso', ta: 'p-parafuso', massa: 'p-balde', cola: 'p-balde', fita: 'p-fita', 'la-mineral': 'p-la',
+    regulador: 'p-peca', uniao: 'p-peca', juncao: 'p-peca', arame: 'p-arame' };
   res.addEventListener('click', function (ev) {
     var b = ev.target.closest('[data-res-action]'); if (!b || b.disabled || !calc.resultado) return;
     var r = calc.resultado;
@@ -518,11 +601,40 @@
   $$('[data-calc-system]').forEach(function (b) {
     b.addEventListener('click', function () {
       selecionarSistema(b.getAttribute('data-calc-system'));
-      document.getElementById('calculadora').scrollIntoView({ block: 'start' });
+      rolar(document.getElementById('calculadora'));
       setTimeout(function () { var f = $('input', campos); if (f) f.focus({ preventScroll: true }); }, 500);
     });
   });
   renderSistema();
+
+  /* ==========================================================================
+     Tema claro / escuro — a escolha fica salva; sem escolha, segue o aparelho
+     ========================================================================== */
+  var raiz = document.documentElement, temaBtn = $('#theme-toggle');
+  var mqEscuro = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+  function temaSalvo() { try { return localStorage.getItem('drysul-tema'); } catch (e) { return null; } }
+  function marcarTema() {
+    var escuro = raiz.getAttribute('data-theme') === 'dark';
+    if (!temaBtn) return;
+    temaBtn.setAttribute('aria-pressed', String(escuro));
+    temaBtn.setAttribute('aria-label', escuro ? 'Ativar tema claro' : 'Ativar tema escuro');
+    temaBtn.title = escuro ? 'Tema claro' : 'Tema escuro';
+  }
+  function aplicarTema(t) {
+    var trocar = function () { raiz.setAttribute('data-theme', t); marcarTema(); };
+    // transição suave entre os temas onde o navegador suporta (View Transitions); senão, troca direta
+    if (document.startViewTransition && raiz.classList.contains('motion-on')) document.startViewTransition(trocar); else trocar();
+  }
+  if (temaBtn) temaBtn.addEventListener('click', function () {
+    var t = raiz.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    try { localStorage.setItem('drysul-tema', t); } catch (e) {}
+    aplicarTema(t);
+  });
+  if (mqEscuro) {
+    var seguirAparelho = function () { if (!temaSalvo()) aplicarTema(mqEscuro.matches ? 'dark' : 'light'); };
+    if (mqEscuro.addEventListener) mqEscuro.addEventListener('change', seguirAparelho); else if (mqEscuro.addListener) mqEscuro.addListener(seguirAparelho);
+  }
+  marcarTema();
 
   /* ==========================================================================
      Navegação, cabeçalho, progresso, etapas e botão flutuante
@@ -548,18 +660,24 @@
     if (header.classList.contains('menu-open') && !header.contains(ev.target)) { fecharMenu(); $('use', menuBtn).setAttribute('href', '#i-menu'); }
   });
 
-  var pend = false;
+  // a altura da página fica guardada (medida só quando algo muda de tamanho): ler scrollHeight a cada
+  // quadro forçava um layout extra no meio da rolagem
+  var pend = false, maxRolagem = 0, compacto = null;
+  function medirPagina() { maxRolagem = document.documentElement.scrollHeight - window.innerHeight; }
   function onScroll() {
     if (pend) return; pend = true;
     requestAnimationFrame(function () {
       pend = false;
-      var y = window.scrollY, max = document.documentElement.scrollHeight - window.innerHeight;
-      header.classList.toggle('is-compact', y > 24);
-      bar.style.transform = 'scaleX(' + (max > 0 ? Math.min(1, y / max) : 0).toFixed(4) + ')';
+      var y = window.scrollY, c = y > 24;
+      if (c !== compacto) { compacto = c; header.classList.toggle('is-compact', c); }
+      bar.style.transform = 'scaleX(' + (maxRolagem > 0 ? Math.min(1, y / maxRolagem) : 0).toFixed(4) + ')';
     });
   }
   window.addEventListener('scroll', onScroll, { passive: true });
-  window.addEventListener('resize', onScroll);
+  window.addEventListener('resize', function () { medirPagina(); onScroll(); });
+  // a primeira medida vem do próprio ResizeObserver, depois do layout normal (medir já na carga forçava um layout extra)
+  if ('ResizeObserver' in window) new ResizeObserver(function () { medirPagina(); onScroll(); }).observe(document.body);
+  else window.addEventListener('load', function () { medirPagina(); onScroll(); });
   onScroll();
 
   if ('IntersectionObserver' in window) {

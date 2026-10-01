@@ -10,6 +10,7 @@ on:
 
 permissions:
   contents: write
+  pages: write
 
 concurrency:
   group: pages
@@ -26,3 +27,8 @@ jobs:
         run: node --test tests/calculator.test.js tests/checkout.test.js
       - name: Atualizar a branch gh-pages
         run: git push origin HEAD:refs/heads/gh-pages
+      # o push costuma disparar o build do Pages sozinho, mas nem sempre: o pedido explícito garante a publicação
+      - name: Pedir o build do Pages
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api -X POST "repos/${{ github.repository }}/pages/builds" || echo "Pedido de build recusado; o push acima ainda pode disparar a publicação."

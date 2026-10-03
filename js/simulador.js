@@ -41,7 +41,7 @@
     { id: 'placa3d', nome: 'Placa 3D de gesso', desc: 'Relevo em ondas, placas de 50 cm', tons: TINTA, sup: ['parede', 'teto'], padrao: true },
     { id: 'ripado', nome: 'Ripado de madeira', desc: 'Ripas de 4,5 cm com frestas', tons: MADEIRA, sup: ['parede', 'teto'], padrao: true },
     { id: 'lambri', nome: 'Lambri de madeira', desc: 'Réguas de 12 cm encaixadas', tons: MADEIRA, sup: ['parede', 'teto'], padrao: true },
-    { id: 'cimento', nome: 'Cimento queimado', desc: 'Efeito com massa sobre o drywall', tons: CIMENTO, sup: ['parede', 'teto'], padrao: false }
+    { id: 'cimento', nome: 'Cimento queimado', desc: 'Efeito com massa sobre o drywall', tons: CIMENTO, sup: ['parede', 'teto'], calc: { parede: 'colado', teto: 'fge' }, padrao: false }
   ];
   function acab(id) { for (var i = 0; i < ACABS.length; i++) if (ACABS[i].id === id) return ACABS[i]; return ACABS[0]; }
 
@@ -735,6 +735,7 @@
   }
   function carregarExemplo() {
     S.exemplo = true; S.modo = 'cantos'; S.sup = 'parede'; S.acab = 'liso'; S.tom = 0;
+    aplicarPedido('parede'); // a foto de exemplo é de parede
     carregarImagem(EXEMPLO.url, { cantos: EXEMPLO.cantos, protegidas: EXEMPLO.protegidas }, EXEMPLO.credito);
   }
 
@@ -767,7 +768,19 @@
     var a = acab(S.acab), sis = a.calc && a.calc[S.sup]; if (!sis) return;
     fechar();
     var alvo = document.querySelector('.sim-calc[data-calc-system="' + sis + '"]');
-    if (alvo) setTimeout(function () { alvo.click(); }, 60);
+    if (!alvo) return;
+    // o acabamento escolhido segue para a calculadora e, de lá, para o pedido
+    alvo.setAttribute('data-calc-acab', a.nome + ' · ' + a.tons[Math.min(S.tom, a.tons.length - 1)][0]);
+    alvo.setAttribute('data-calc-acab-id', a.id);
+    setTimeout(function () { alvo.click(); }, 60);
+  }
+  // acabamento pedido de fora (a calculadora entendeu "acabamento em madeira"): vale para a foto aberta e as próximas
+  var pedidoAcab = null;
+  function aplicarPedido(sup) {
+    if (!pedidoAcab) return;
+    var a = acab(pedidoAcab.acab);
+    S.sup = sup || pedidoAcab.sup;
+    if (a.sup.indexOf(S.sup) !== -1) { S.acab = a.id; S.tom = 0; texChave = ''; }
   }
 
   /* ---------- abrir / fechar ---------- */
@@ -777,6 +790,7 @@
     document.documentElement.classList.add('dialog-open');
     if (!gl) return;
     op = op || {};
+    if (op.acabamento) { pedidoAcab = { acab: op.acabamento, sup: op.sup === 'teto' ? 'teto' : 'parede' }; aplicarPedido(); }
     if (op.arquivo) carregarArquivo(op.arquivo);
     else if (op.exemplo) carregarExemplo();
     else if (S.foto) { renderPainel(); ajustarTamanho(); render(); }

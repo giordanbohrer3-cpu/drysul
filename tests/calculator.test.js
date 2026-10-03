@@ -72,3 +72,41 @@ test('embalagem nunca é zero e arredonda para cima', () => {
   r.itens.forEach((i) => assert.ok(i.qtdCompra >= 1));
   assert.deepEqual(compras(C.calcular('fge', { area: '20' })), [8, 12, 8, 25, 20, 2, 1, 1, 1, 1, 2]);
 });
+
+// Atalho "descreva a obra"
+const ent = (t) => C.entender(t);
+test('entende a frase do cliente: parede 4 × 2,8 m com madeira', () => {
+  const r = ent('Quero fazer uma parede de drywall, gesso, acabamento em madeira... de 4 × 2,8 m.');
+  assert.equal(r.sistema, 'parede');
+  assert.deepEqual(r.valores, { altura: '2,8', comprimento: '4' });
+  assert.deepEqual(r.faltando, []);
+  assert.equal(r.acabamento.id, 'ripado');
+  assert.equal(r.rotulo, 'Parede drywall · 4 × 2,8 m');
+  assert.equal(C.calcular(r.sistema, r.valores).area, 11.2);
+});
+test('forros: área direta, par de medidas e aramado', () => {
+  assert.deepEqual(ent('forro de gesso 12 m²').valores, { area: '12' });
+  assert.equal(ent('forro de gesso 12 m²').sistema, 'fge');
+  const t = ent('lambri de madeira no teto 3x4');
+  assert.deepEqual([t.sistema, t.valores.area, t.acabamento.id], ['fge', '12', 'lambri']);
+  assert.deepEqual([ent('forro aramado de 20 metros quadrados').sistema, ent('forro aramado de 20 metros quadrados').valores.area], ['fga', '20']);
+});
+test('revestimento, rótulos de altura e centímetros', () => {
+  const c = ent('cobrir parede de tijolo 3 por 2,7 com cimento queimado');
+  assert.deepEqual([c.sistema, c.valores.altura, c.valores.comprimento, c.acabamento.id], ['colado', '2,7', '3', 'cimento']);
+  assert.deepEqual(ent('parede com 2,80 m de altura e 5 m de comprimento').valores, { altura: '2,8', comprimento: '5' });
+  assert.deepEqual(ent('parede altura de 2,6 e comprimento de 7').valores, { altura: '2,6', comprimento: '7' });
+  assert.deepEqual(ent('parede 280 cm x 4 m').valores, { altura: '2,8', comprimento: '4' });
+  assert.equal(ent('revestimento estruturado 2,5 x 6').sistema, 'estruturado');
+});
+test('falta medida: pede só o que falta', () => {
+  assert.deepEqual(ent('parede de 4 metros').faltando, ['altura']);
+  assert.deepEqual(ent('parede').faltando, ['altura', 'comprimento']);
+  assert.deepEqual(ent('forro').faltando, ['area']);
+});
+test('busca de produto não vira obra', () => {
+  for (const t of ['drywall', 'gesso', 'chapa ru', 'parafuso 4,8 x 19', 'chapa de drywall 1,20 x 2,40', 'massa 25 kg', 'montante 70', '']) {
+    assert.equal(ent(t), null, `"${t}" não é obra`);
+  }
+  assert.equal(ent('4x2,8').sistema, 'parede');
+});

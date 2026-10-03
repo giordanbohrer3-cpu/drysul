@@ -11,6 +11,8 @@
 
   var produtoPorId = {};
   D.produtos.forEach(function (p) { produtoPorId[p.id] = p; });
+  // o que aparece no catálogo e na busca; os itens `catalogo: false` só entram na lista pela calculadora
+  var catalogo = D.produtos.filter(function (p) { return p.catalogo !== false; });
   var catPorId = {};
   D.categorias.forEach(function (c) { catPorId[c.id] = c; });
 
@@ -49,8 +51,10 @@
 
   /* ---------- toast ---------- */
   var toastEl = $('#toast'), toastTimer;
-  function toast(msg, acao) {
+  // alto: sobe o aviso para não cobrir os botões presos no pé da tela (resultado da calculadora)
+  function toast(msg, acao, alto) {
     clearTimeout(toastTimer);
+    toastEl.classList.toggle('is-alto', !!alto);
     toastEl.innerHTML = '<span>' + esc(msg) + '</span>' + (acao ? '<button type="button">' + esc(acao.label) + '</button>' : '');
     if (acao) $('button', toastEl).addEventListener('click', function () { hideToast(); acao.run(); });
     requestAnimationFrame(function () { toastEl.classList.add('is-on'); });
@@ -64,13 +68,24 @@
   var KEY = 'drysul-orcamento';
   var q = carregar();
 
+  /* itens: [{id, qtd}] (catálogo e materiais da calculadora); calculos: medidas que geraram itens, para a loja conferir */
   function carregar() {
-    var vazio = { itens: [], estimativa: null, nome: '', obs: '' };
+    var vazio = { itens: [], calculos: [], nome: '', obs: '' };
     try {
       var s = JSON.parse(sessionStorage.getItem(KEY));
       if (!s || !Array.isArray(s.itens)) return vazio;
       s.itens = s.itens.filter(function (i) { return produtoPorId[i.id] && i.qtd > 0; });
-      return { itens: s.itens, estimativa: s.estimativa || null, nome: s.nome || '', obs: s.obs || '' };
+      var calculos = Array.isArray(s.calculos) ? s.calculos : [];
+      // pedido salvo antes desta versão: a estimativa (bloco único) vira linhas da lista
+      if (s.estimativa && Array.isArray(s.estimativa.itens)) {
+        s.estimativa.itens.forEach(function (i) {
+          if (i.opcional || !produtoPorId[i.ref] || !(i.qtdCompra > 0)) return;
+          var l = s.itens.filter(function (x) { return x.id === i.ref; })[0];
+          if (l) l.qtd = Math.min(999, l.qtd + i.qtdCompra); else s.itens.push({ id: i.ref, qtd: Math.min(999, i.qtdCompra) });
+        });
+        calculos.push({ sistema: s.estimativa.sistema, nome: s.estimativa.nome, dims: s.estimativa.dims, area: s.estimativa.area, acabamento: '' });
+      }
+      return { itens: s.itens, calculos: s.itens.length ? calculos : [], nome: s.nome || '', obs: s.obs || '' };
     } catch (e) { return vazio; }
   }
   function salvar() { try { sessionStorage.setItem(KEY, JSON.stringify(q)); } catch (e) { /* sem armazenamento: segue em memória */ } }
@@ -90,10 +105,11 @@
   }
   function remover(id) { q.itens = q.itens.filter(function (i) { return i.id !== id; }); mudou(); }
   function mudou(bump) {
+    if (!q.itens.length) q.calculos = []; // sem itens, as medidas guardadas não têm mais a que se referir
     salvar(); atualizarContadores(bump); atualizarBotoes(); atualizarFab();
     if (dlg.open) renderOrcamento();
   }
-  function totalLinhas() { return q.itens.length + (q.estimativa ? 1 : 0); }
+  function totalLinhas() { return q.itens.length; }
 
   function atualizarContadores(bump) {
     var n = totalLinhas();
@@ -104,13 +120,25 @@
   }
 
   function atualizarBotoes() {
-    $$('[data-add]').forEach(function (b) {
+    $$('.btn-add').forEach(function (b) {
       var l = linha(b.getAttribute('data-add'));
       b.classList.toggle('is-added', !!l);
       var label = $('span', b);
-      if (label) label.textContent = l ? 'Na lista · ' + l.qtd : 'Adicionar';
+      if (label) label.textContent = l ? 'Na lista · ' + l.qtd : b.getAttribute('data-rotulo') || 'Adicionar';
       $('use', b).setAttribute('href', l ? '#i-check' : '#i-plus');
     });
+    // nos cartões, depois de adicionar, o botão vira − quantidade + (sem abrir o pedido)
+    $$('.add-box').forEach(function (box) {
+      var l = linha(box.getAttribute('data-box'));
+      box.classList.toggle('is-na-lista', !!l);
+      $('output', box).textContent = l ? l.qtd : '';
+    });
+  }
+  function diminuir(id) {
+    var l = linha(id); if (!l) return;
+    if (l.qtd > 1) { definirQtd(id, l.qtd - 1); return; }
+    remover(id);
+    toast(produtoPorId[id].nome + ' saiu da lista', { label: 'Desfazer', run: function () { adicionar(id); } });
   }
 
   /* ---------- WhatsApp com mensagem pronta ----------
@@ -153,10 +181,9 @@
         L.push('• ' + i.qtd + ' × ' + p.nome + ' — ' + p.emb.toLowerCase() + ' (' + preco + ')');
       });
     }
-    if (q.estimativa) {
-      var e = q.estimativa;
-      L.push('', '*Estimativa da calculadora* — ' + e.nome + ', ' + descMedidas(e));
-      e.itens.forEach(function (i) { L.push('• ' + i.nome + ': ' + qtdEstimativa(i)); });
+    if (q.calculos.length) {
+      L.push('', '*Calculado no site* (quantidades estimadas, para a equipe conferir)');
+      q.calculos.forEach(function (c) { L.push('• ' + linhaContexto(c)); });
     }
     var sub = subtotal();
     if (sub.total > 0) L.push('', 'Subtotal de referência (itens com preço): ' + BRL.format(sub.total) + ' — a confirmar');
@@ -170,15 +197,16 @@
     return i.qtdCompra + ' ' + i.unCompra + (i.detCompra ? ' ' + i.detCompra : '') + ' (consumo ' + fmt(i.qtd) + ' ' + i.unidade + ')';
   }
   function descMedidas(e) {
-    return e.dims ? fmt(e.dims.altura) + ' × ' + fmt(e.dims.comprimento) + ' m (' + fmt(e.area) + ' m²)' : fmt(e.area) + ' m²';
+    return e.dims ? fmt(e.dims.comprimento) + ' m de comprimento × ' + fmt(e.dims.altura) + ' m de altura (' + fmt(e.area) + ' m²)' : fmt(e.area) + ' m²';
   }
   function subtotal() {
-    var total = 0, consulta = 0;
+    var total = 0, consulta = 0, media = 0, nMedia = 0;
     q.itens.forEach(function (i) {
-      var p = produtoPorId[i.id];
-      if (p.preco != null) total += p.preco * i.qtd; else consulta++;
+      var p = produtoPorId[i.id], m = D.precosMedios && D.precosMedios.precos[i.id];
+      if (p.preco != null) total += Math.round(p.preco * 100) * i.qtd;
+      else { consulta++; if (m != null) { media += Math.round(m * 100) * i.qtd; nMedia++; } }
     });
-    return { total: Math.round(total * 100) / 100, consulta: consulta };
+    return { total: total / 100, consulta: consulta, media: media / 100, nMedia: nMedia };
   }
 
   /* ---------- diálogo ---------- */
@@ -213,8 +241,8 @@
 
   function renderOrcamento() {
     elItens.innerHTML = q.itens.length ? '<ul class="q-list">' + q.itens.map(function (i) {
-      var p = produtoPorId[i.id];
-      var preco = p.preco != null ? BRL.format(p.preco) + ' / ' + p.un : 'Sob consulta';
+      var p = produtoPorId[i.id], m = D.precosMedios && D.precosMedios.precos[p.id];
+      var preco = p.preco != null ? BRL.format(p.preco) + ' / ' + p.un : m != null ? 'média ≈ ' + BRL.format(m) : 'Sob consulta';
       return '<li class="q-item" data-id="' + esc(p.id) + '">' + mini(p) +
         '<div><p class="q-item__name">' + esc(p.nome) + '</p><p class="q-item__meta">' + esc(p.emb) + ' · ' + preco + '</p></div>' +
         '<div class="q-item__ctrl">' +
@@ -225,28 +253,23 @@
         '</div></li>';
     }).join('') + '</ul>' : '';
 
-    if (q.estimativa) {
-      var e = q.estimativa;
-      elEst.innerHTML = '<div class="q-est"><div class="q-est__head"><div><p class="q-est__t">Estimativa · ' + esc(e.nome) + '</p>' +
-        '<p class="q-est__s">' + esc(descMedidas(e)) + ' — materiais estimados</p></div>' +
-        '<button type="button" class="q-rm" data-q="rm-est" aria-label="Remover estimativa">' + icon('i-trash') + '</button></div>' +
-        '<ul>' + e.itens.map(function (i) {
-          return '<li><span>' + esc(i.nome) + '</span><b>' + (i.qtdCompra != null ? i.qtdCompra + ' ' + esc(i.unCompra) : fmt(i.qtd) + ' ' + esc(i.unidade)) + '</b></li>';
-        }).join('') + '</ul>' +
-        (e.total > 0 ? '<p class="q-est__total"><span>Estimativa no site<small>preços médios, confirmados pela loja</small></span><b>≈ ' + BRL.format(e.total) + '</b></p>' : '') +
-        '</div>';
-    } else elEst.innerHTML = '';
+    elEst.innerHTML = q.calculos.length ? '<div class="q-calc">' + icon('i-calc') + '<div><p class="q-calc__t">Calculado no site</p><ul>' +
+      q.calculos.map(function (c) { return '<li>' + esc(linhaContexto(c)) + '</li>'; }).join('') +
+      '</ul><p class="q-calc__s">As quantidades vieram da calculadora; ajuste à vontade. A equipe confere antes de fechar.</p></div></div>' : '';
 
     var vazio = totalLinhas() === 0;
     elVazio.hidden = !vazio;
     var sub = subtotal();
-    elSoma.hidden = sub.total <= 0;
-    if (sub.total > 0) {
-      var extra = [];
-      if (sub.consulta) extra.push(sub.consulta + (sub.consulta > 1 ? ' itens sob consulta' : ' item sob consulta'));
-      if (q.estimativa) extra.push('estimativa da calculadora');
+    elSoma.hidden = sub.total <= 0 && sub.media <= 0;
+    if (sub.media > 0) {
+      // há itens sem preço da loja mas com preço médio de mercado: total estimado, como na calculadora
+      var semRef = sub.consulta - sub.nMedia;
+      elSoma.innerHTML = '<span>Total estimado da lista</span><strong>≈ ' + BRL.format(sub.total + sub.media) + '</strong>' +
+        '<span>' + (sub.total > 0 ? BRL.format(sub.total) + ' com preço da loja + ' : '') + '≈ ' + BRL.format(sub.media) + ' por preço médio de mercado' +
+        (semRef > 0 ? '. Fora da soma: ' + semRef + (semRef > 1 ? ' itens sob consulta' : ' item sob consulta') : '') + '. Valores confirmados pela equipe.</span>';
+    } else if (sub.total > 0) {
       elSoma.innerHTML = '<span>Subtotal dos itens com preço publicado</span><strong>' + BRL.format(sub.total) + '</strong>' +
-        '<span>Valor de referência, confirmado pela equipe' + (extra.length ? '. Fora da soma: ' + extra.join(' e ') : '') + '.</span>';
+        '<span>Valor de referência, confirmado pela equipe' + (sub.consulta ? '. Fora da soma: ' + sub.consulta + (sub.consulta > 1 ? ' itens sob consulta' : ' item sob consulta') : '') + '.</span>';
     }
     inNome.value = q.nome; inObs.value = q.obs;
     atualizarEnvio();
@@ -284,7 +307,20 @@
   document.addEventListener('click', function (ev) {
     var t = ev.target;
     var add = t.closest('[data-add]');
-    if (add) { adicionar(add.getAttribute('data-add')); return; }
+    if (add) {
+      adicionar(add.getAttribute('data-add'));
+      // o "Adicionar" do cartão some (vira − n +): o foco passa para o "+", sem se perder
+      var box = add.classList.contains('btn-add') && add.closest('.add-box');
+      if (box && document.activeElement === add) { var mais = $('.qtd-step [data-add]', box); if (mais) mais.focus({ preventScroll: true }); }
+      return;
+    }
+    var menos = t.closest('[data-menos]');
+    if (menos) {
+      var caixa = menos.closest('.add-box');
+      diminuir(menos.getAttribute('data-menos'));
+      if (caixa && !caixa.classList.contains('is-na-lista') && document.activeElement === menos) $('.btn-add', caixa).focus({ preventScroll: true });
+      return;
+    }
     if (t.closest('[data-open-quote]')) { ev.preventDefault(); abrirOrcamento(); return; }
     var op = t.closest('[data-open]');
     if (op) {
@@ -306,9 +342,6 @@
   });
   elItens.addEventListener('change', function (ev) {
     if (ev.target.matches('input')) definirQtd(ev.target.closest('.q-item').getAttribute('data-id'), ev.target.value);
-  });
-  elEst.addEventListener('click', function (ev) {
-    if (ev.target.closest('[data-q="rm-est"]')) { q.estimativa = null; mudou(); toast('Estimativa removida'); }
   });
   inNome.addEventListener('input', function () { q.nome = inNome.value; salvar(); atualizarEnvio(); });
   inObs.addEventListener('input', function () { q.obs = inObs.value; salvar(); atualizarEnvio(); });
@@ -344,10 +377,23 @@
     if (p.preco == null) return '<p class="price price--consult"><strong>Sob consulta</strong><span>por ' + esc(p.un) + '</span></p>';
     return '<p class="price"><strong>' + BRL.format(p.preco) + '</strong><span>por ' + esc(p.un) + '</span></p>';
   }
-  function botaoAdd(p, cls) {
-    return '<button class="btn btn--sm btn-add ' + (cls || 'btn--outline') + '" type="button" data-add="' + esc(p.id) + '" aria-label="Adicionar ' + esc(p.nome) + ' ao orçamento">' +
-      '<svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg><span>Adicionar</span></button>';
+  function botaoAdd(p, cls, rotulo) {
+    return '<button class="btn btn--sm btn-add ' + (cls || 'btn--outline') + '" type="button" data-add="' + esc(p.id) + '"' + (rotulo ? ' data-rotulo="' + esc(rotulo) + '"' : '') +
+      ' aria-label="Adicionar ' + esc(p.nome) + ' à lista">' +
+      '<svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg><span>' + esc(rotulo || 'Adicionar') + '</span></button>';
   }
+  // cartão: "Adicionar"; já na lista: − quantidade + (o "+" usa o mesmo data-add, o "−" tira uma unidade)
+  function caixaAdd(p, cls, rotulo) {
+    return '<div class="add-box" data-box="' + esc(p.id) + '">' + botaoAdd(p, cls, rotulo) +
+      '<div class="qtd-step" role="group" aria-label="Quantidade de ' + esc(p.nome) + ' na lista">' +
+        '<button type="button" data-menos="' + esc(p.id) + '" aria-label="Tirar uma unidade de ' + esc(p.nome) + '">' + icon('i-minus') + '</button>' +
+        '<output aria-live="polite"></output>' +
+        '<button type="button" data-add="' + esc(p.id) + '" aria-label="Mais uma unidade de ' + esc(p.nome) + '">' + icon('i-plus') + '</button>' +
+      '</div></div>';
+  }
+  // materiais que a calculadora sabe contar: o cartão oferece "Calcular quantidade" no sistema certo
+  var CALC_DE = { 'chapa-st': 'parede', 'chapa-ru': 'parede', 'chapa-rf': 'parede', 'montante-70': 'parede', 'guia-70': 'parede',
+    'perfil-forro': 'fge', cantoneira: 'fge', massa: 'parede', fita: 'parede', parafuso: 'parede', 'parafuso-metal': 'parede' };
   function cardProduto(p) {
     return '<article class="prod-card" data-tilt data-prod="' + esc(p.id) + '">' +
       '<div class="prod-card__media">' + badge(p) + midia(p) + '</div>' +
@@ -357,21 +403,26 @@
         '<p class="prod-card__emb">' + esc(p.emb) + '</p>' +
         '<p class="prod-card__detail">' + esc(p.detalhe) + '</p>' +
         (p.link ? '<a class="prod-card__src" href="' + esc(p.link) + '" target="_blank" rel="noopener">' + icon('i-insta') + 'Ver publicação</a>' : '') +
-        (p.preco == null ? '<a class="prod-card__src prod-card__whats" data-whats-produto="' + esc(p.id) + '" href="' + esc(linkWhats(MSG_WHATS.produto(p))) + '" target="_blank" rel="noopener">' + icon('i-whats') + 'Perguntar<span class="hide-sm"> no WhatsApp</span></a>' : '') +
-        '<div class="prod-card__foot">' + precoHtml(p) + botaoAdd(p) + '</div>' +
+        (CALC_DE[p.id] ? '<button class="prod-card__src prod-card__calc" type="button" data-calc-system="' + CALC_DE[p.id] + '">' + icon('i-calc') + 'Calcular quantidade</button>' : '') +
+        (p.preco == null ? '<a class="prod-card__src prod-card__whats" data-whats-produto="' + esc(p.id) + '" href="' + esc(linkWhats(MSG_WHATS.produto(p))) + '" target="_blank" rel="noopener">' + icon('i-whats') + 'Perguntar<span class="hide-sm">no WhatsApp</span></a>' : '') +
+        '<div class="prod-card__foot">' + precoHtml(p) + caixaAdd(p) + '</div>' +
       '</div></article>';
   }
 
   function rank(p) { return p.destaque ? 0 : p.oferta ? 1 : 2; }
+  // com busca, a ordem "Destaques primeiro" vira ordem de relevância (o nome que bate vem antes)
+  var aproximado = false;
   function listaFiltrada() {
-    var termos = norm(filtro.q).split(/\s+/).filter(Boolean);
-    var lista = D.produtos.filter(function (p) {
-      if (filtro.cat !== 'todas' && p.cat !== filtro.cat) return false;
-      if (!termos.length) return true;
-      var alvo = norm([p.nome, p.detalhe, p.emb, catPorId[p.cat].nome].join(' '));
-      return termos.every(function (t) { return alvo.indexOf(t) !== -1; });
-    });
-    var ix = {}; D.produtos.forEach(function (p, i) { ix[p.id] = i; });
+    var base = catalogo.filter(function (p) { return filtro.cat === 'todas' || p.cat === filtro.cat; });
+    aproximado = false;
+    if (filtro.q.trim()) {
+      var r = buscarProdutos(filtro.q, base);
+      aproximado = r.aproximado;
+      if (filtro.ordem === 'padrao') return r.lista;
+      base = r.lista;
+    }
+    var lista = base;
+    var ix = {}; catalogo.forEach(function (p, i) { ix[p.id] = i; });
     var cmp = {
       padrao: function (a, b) { return rank(a) - rank(b) || ix[a.id] - ix[b.id]; },
       az: function (a, b) { return a.nome.localeCompare(b.nome, 'pt-BR'); },
@@ -390,13 +441,14 @@
     vazioEl.hidden = lista.length > 0;
     var cat = filtro.cat === 'todas' ? '' : ' em ' + catPorId[filtro.cat].nome;
     info.textContent = lista.length
-      ? lista.length + (lista.length > 1 ? ' materiais' : ' material') + cat + (filtro.q ? ' para “' + filtro.q.trim() + '”' : '')
+      ? (aproximado ? 'Nada com todos os termos. Mais próximos de “' + filtro.q.trim() + '”: ' + lista.length : lista.length + (lista.length > 1 ? ' materiais' : ' material') + cat + (filtro.q.trim() ? ' para “' + filtro.q.trim() + '”' : ''))
       : '';
     atualizarBotoes();
+    sugerirCalculo($('#calc-sugestao'), filtro.q);
   }
   function renderChips() {
-    var todos = [{ id: 'todas', nome: 'Todos', n: D.produtos.length }].concat(D.categorias.map(function (c) {
-      return { id: c.id, nome: c.nome, n: D.produtos.filter(function (p) { return p.cat === c.id; }).length };
+    var todos = [{ id: 'todas', nome: 'Todos', n: catalogo.length }].concat(D.categorias.map(function (c) {
+      return { id: c.id, nome: c.nome, n: catalogo.filter(function (p) { return p.cat === c.id; }).length };
     }));
     chipsEl.innerHTML = todos.map(function (c) {
       return '<button class="chip" type="button" data-cat="' + c.id + '" aria-pressed="' + (filtro.cat === c.id) + '">' + esc(c.nome) + ' <small>' + c.n + '</small></button>';
@@ -430,7 +482,7 @@
 
   /* Categorias */
   $('#cat-grid').innerHTML = D.categorias.map(function (c, i) {
-    var n = D.produtos.filter(function (p) { return p.cat === c.id; }).length;
+    var n = catalogo.filter(function (p) { return p.cat === c.id; }).length;
     return '<button class="cat-card" type="button" data-reveal data-tilt data-cat-go="' + c.id + '">' +
       '<span class="cat-card__n">' + String(i + 1).padStart(2, '0') + '</span>' + ill(c.icone) +
       '<span class="cat-card__t">' + esc(c.nome) + '</span><span class="cat-card__d">' + esc(c.desc) + '</span>' +
@@ -439,7 +491,7 @@
   $('#cat-grid').addEventListener('click', function (ev) { var b = ev.target.closest('[data-cat-go]'); if (b) irParaCategoria(b.getAttribute('data-cat-go')); });
 
   /* Destaques */
-  $('#dest-grid').innerHTML = D.produtos.filter(function (p) { return p.destaque; }).map(function (p) {
+  $('#dest-grid').innerHTML = catalogo.filter(function (p) { return p.destaque; }).map(function (p) {
     var pr = precoPartes(p.preco);
     return '<article class="dest-card" data-reveal data-tilt>' +
       '<div class="dest-card__media"><span class="tag tag--orange">Linha Drysul</span>' + midia(p) + '</div>' +
@@ -448,12 +500,12 @@
         '<p class="dest-card__emb">' + esc(p.emb) + '</p>' +
         '<p class="dest-card__price"><small>' + pr.moeda + '</small><strong>' + pr.valor + '</strong><span>/ ' + esc(p.un) + '</span></p>' +
         '<p class="dest-card__detail">' + esc(p.detalhe) + '</p>' +
-        botaoAdd(p, 'btn--primary') +
+        caixaAdd(p, 'btn--primary', 'Adicionar à lista') +
       '</div></article>';
   }).join('');
 
   /* Ofertas */
-  $('#offer-grid').innerHTML = D.produtos.filter(function (p) { return p.oferta; }).map(function (p) {
+  $('#offer-grid').innerHTML = catalogo.filter(function (p) { return p.oferta; }).map(function (p) {
     var pr = precoPartes(p.preco);
     return '<article class="offer" data-reveal data-tilt>' +
       '<div class="offer__media"><span class="tag tag--orange">Oferta</span>' + midia(p) + '</div>' +
@@ -461,7 +513,7 @@
         '<p class="offer__date">' + (p.publicada ? 'Publicada em ' + esc(p.publicada) : 'Publicada no Instagram') + '</p>' +
         '<h3 class="offer__name">' + esc(p.nome) + '</h3><p class="offer__emb">' + esc(p.emb) + '</p>' +
         '<p class="offer__price"><small>' + pr.moeda + '</small><strong>' + pr.valor + '</strong><span>/ ' + esc(p.un) + '</span></p>' +
-        '<div class="offer__actions"><a class="prod-card__src" href="' + esc(p.link) + '" target="_blank" rel="noopener">' + icon('i-insta') + 'Ver publicação</a>' + botaoAdd(p) + '</div>' +
+        '<div class="offer__actions"><a class="prod-card__src" href="' + esc(p.link) + '" target="_blank" rel="noopener">' + icon('i-insta') + 'Ver publicação</a>' + caixaAdd(p) + '</div>' +
       '</div></article>';
   }).join('');
 
@@ -475,7 +527,7 @@
      ========================================================================== */
   var bDlg = $('#busca-global'), bIn = $('#bg-input'), bCampo = $('#bg-campo'), bLista = $('#bg-lista'), bStatus = $('#bg-status');
   var bVazio = $('#bg-vazio'), bTermo = $('#bg-termo'), bWhats = $('#bg-whats'), bSug = $('#bg-sugestoes');
-  var POPULARES = ['chapa RU', 'parafuso', 'massa', 'montante 70', 'fita'];
+  var POPULARES = ['parede 4 × 2,8 m', 'forro 12 m²', 'chapa RU', 'parafuso', 'massa', 'montante 70'];
   function marcar(texto, termos) {
     // norm() mantém o comprimento dos nomes do catálogo, então as posições valem para o texto original
     var n = norm(texto), m = [];
@@ -486,16 +538,53 @@
     m.forEach(function (r) { if (r[0] < pos) r[0] = pos; if (r[1] <= r[0]) return; out += esc(texto.slice(pos, r[0])) + '<mark>' + esc(texto.slice(r[0], r[1])) + '</mark>'; pos = r[1]; });
     return out + esc(texto.slice(pos));
   }
-  function buscarProdutos(texto) {
-    var termos = norm(texto).split(/\s+/).filter(Boolean);
-    if (!termos.length) return { termos: termos, lista: [] };
-    var lista = D.produtos.map(function (p, i) {
-      var nome = norm(p.nome), resto = norm([p.detalhe, p.emb, catPorId[p.cat].nome].join(' '));
-      if (!termos.every(function (t) { return nome.indexOf(t) !== -1 || resto.indexOf(t) !== -1; })) return null;
-      var nota = termos.reduce(function (s, t) { var k = nome.indexOf(t); return s + (k === 0 ? 3 : k > 0 ? 2 : 0); }, 0);
-      return { p: p, nota: nota, i: i };
-    }).filter(Boolean).sort(function (a, b) { return b.nota - a.nota || a.i - b.i; });
-    return { termos: termos, lista: lista.map(function (x) { return x.p; }) };
+  /* Busca do catálogo e da busca rápida: sem acento, em qualquer ordem, entende plural ("parafusos", "perfis") e os
+     nomes do balcão ("gesso", "placa", "bucha", "massa corrida"). Todos os termos precisam bater; se nenhum produto tem
+     todos, aparecem os que batem mais termos (aproximado). Nome conta mais que descrição. */
+  var PARADAS = { de: 1, da: 1, do: 1, das: 1, dos: 1, para: 1, pra: 1, com: 1, e: 1, a: 1, o: 1, as: 1, os: 1, em: 1, no: 1, na: 1,
+    um: 1, uma: 1, quero: 1, preciso: 1, comprar: 1, x: 1, por: 1 };
+  var SINONIMOS = { gesso: ['chapa', 'drywall'], acartonado: ['chapa', 'drywall'], placa: ['chapa', 'placa'], bucha: ['ancorador', 'parabolt'],
+    chumbador: ['parabolt', 'ancorador'], corrida: ['massa'], teto: ['forro'], divisoria: ['drywall'] };
+  function variantes(t) {
+    var v = [t], sing = t;
+    if (t.length > 3) {
+      if (/is$/.test(t)) v.push(sing = t.slice(0, -2) + 'il');     // perfis → perfil (e não "perfi", que acha "superfície")
+      else if (/oes$/.test(t)) v.push(sing = t.slice(0, -3) + 'ao'); // ...ões → ...ão
+      else if (/s$/.test(t)) v.push(sing = t.slice(0, -1));        // parafusos → parafuso
+    }
+    return v.concat(SINONIMOS[t] || SINONIMOS[sing] || []);
+  }
+  // "forro de gesso 4x3": as medidas servem ao cálculo; para os produtos, a busca usa só "forro de gesso"
+  var MEDIDA = '\\d+(?:[.,]\\d+)?\\s*(?:cm|m2|m²|metros?|m)?';
+  var RE_PAR = new RegExp(MEDIDA + '\\s*(?:x|×|\\*|por)\\s*' + MEDIDA, 'gi'), RE_MEDIDA = new RegExp(MEDIDA + '(?![a-z])', 'gi');
+  function semMedidas(texto) {
+    return C.entender(texto) ? String(texto).replace(RE_PAR, ' ').replace(RE_MEDIDA, ' ') : texto;
+  }
+  function buscarProdutos(texto, universo) {
+    var termos = norm(semMedidas(texto)).split(/\s+/).map(function (t) { return t.replace(/^[^a-z0-9]+|[^a-z0-9]+$/g, ''); })
+      .filter(function (t) { return t && !PARADAS[t]; });
+    if (!termos.length) return { termos: [], lista: [], aproximado: false };
+    var grupos = termos.map(variantes), todas = [].concat.apply([], grupos);
+    var achados = (universo || catalogo).map(function (p, i) {
+      var nome = norm(p.nome), cat = norm(catPorId[p.cat].nome), resto = norm(p.detalhe + ' ' + p.emb), bate = 0, nota = 0;
+      var forte = false;
+      grupos.forEach(function (vs, g) {
+        var melhor = 0;
+        // nome começa com o termo 5, palavra do nome 4, dentro do nome 3, categoria 2, descrição ou embalagem 1
+        vs.forEach(function (t) {
+          var k = nome.indexOf(t);
+          melhor = Math.max(melhor, k === 0 ? 5 : k > 0 && nome[k - 1] === ' ' ? 4 : k > 0 ? 3 : cat.indexOf(t) !== -1 ? 2 : resto.indexOf(t) !== -1 ? 1 : 0);
+        });
+        if (melhor) { bate++; nota += melhor; if (termos[g].length > 2) forte = true; }
+      });
+      return bate ? { p: p, bate: bate, nota: nota, i: i, forte: forte } : null;
+    }).filter(Boolean);
+    // aproximado: só o que bate com algum termo de verdade (2 letras, como "lã", aparecem em tudo)
+    var todos = achados.filter(function (x) { return x.bate === grupos.length; });
+    if (!todos.length) achados = achados.filter(function (x) { return x.forte; });
+    var aprox = !todos.length && achados.length > 0;
+    var lista = (aprox ? achados : todos).sort(function (a, b) { return b.bate - a.bate || b.nota - a.nota || a.i - b.i; });
+    return { termos: todas, lista: lista.map(function (x) { return x.p; }), aproximado: aprox };
   }
   function itemBusca(p, termos, i) {
     var preco = p.preco != null ? '<b>' + BRL.format(p.preco).replace(/\u00a0/g, ' ') + '</b><small>por ' + esc(p.un) + '</small>' : '<b class="is-consulta">Sob consulta</b><small>por ' + esc(p.un) + '</small>';
@@ -509,14 +598,26 @@
         '<a class="bres__whats" data-whats-produto="' + esc(p.id) + '" href="' + esc(linkWhats(MSG_WHATS.produto(p))) + '" target="_blank" rel="noopener" aria-label="Perguntar sobre ' + esc(p.nome) + ' no WhatsApp" title="Perguntar no WhatsApp">' + icon('i-whats') + '</a>' +
       '</div></li>';
   }
-  var bTimer = 0;
+  var bTimer = 0, bObra = null;
+  // "parede 4 × 2,8 m" na busca: o primeiro resultado é o cálculo da obra, com a lista de materiais
+  function itemCalculo(obra) {
+    var falta = obra.faltando.length;
+    return '<li class="bres bres--calc" style="--i:0"><button class="bres__main" type="button" data-calc-obra>' +
+      '<span class="bres__img bres__img--calc">' + icon('i-calc') + '</span>' +
+      '<span class="bres__txt"><span class="bres__nome">Calcular ' + esc(obra.rotulo) + '</span>' +
+      '<small>' + (falta ? 'Informe as medidas e veja materiais e quantidades' : 'Materiais, quantidades e preço estimado') + (obra.acabamento ? ' · ' + esc(obra.acabamento.nome) : '') + '</small></span>' +
+      '<span class="bres__preco"><b>Calcular</b>' + icon('i-arrow') + '</span></button></li>';
+  }
   function renderBusca() {
     var texto = bIn.value.trim(), r = buscarProdutos(texto);
+    bObra = C.entender(texto);
+    var n = r.lista.length;
     bSug.hidden = !!texto;
-    bVazio.hidden = !texto || r.lista.length > 0;
-    bLista.innerHTML = r.lista.map(function (p, i) { return itemBusca(p, r.termos, i); }).join('');
-    if (texto && !r.lista.length) { bTermo.textContent = '“' + texto + '”'; bWhats.setAttribute('data-whats-busca', texto); bWhats.href = linkWhats(MSG_WHATS.busca(texto)); }
-    bStatus.textContent = !texto ? '' : r.lista.length ? r.lista.length + (r.lista.length > 1 ? ' produtos encontrados' : ' produto encontrado') : 'Nenhum produto encontrado';
+    bVazio.hidden = !texto || n > 0 || !!bObra;
+    bLista.innerHTML = (bObra ? itemCalculo(bObra) : '') + r.lista.map(function (p, i) { return itemBusca(p, r.termos, i + (bObra ? 1 : 0)); }).join('');
+    if (texto && !n) { bTermo.textContent = '“' + texto + '”'; bWhats.setAttribute('data-whats-busca', texto); bWhats.href = linkWhats(MSG_WHATS.busca(texto)); }
+    bStatus.textContent = !texto ? '' : (bObra ? 'Cálculo da obra' + (n ? ' e ' : '') : '') +
+      (n ? (r.aproximado ? 'resultados aproximados: ' : '') + n + (n > 1 ? ' produtos' : ' produto') : bObra ? '' : 'Nenhum produto encontrado');
     atualizarBotoes();
     // a linha laranja corre por baixo do campo a cada busca
     bCampo.classList.remove('is-buscando'); void bCampo.offsetWidth; bCampo.classList.add('is-buscando');
@@ -553,6 +654,7 @@
   if (bDlg) {
     bIn.addEventListener('input', function () { clearTimeout(bTimer); bTimer = setTimeout(renderBusca, 90); });
     bDlg.addEventListener('click', function (ev) {
+      if (ev.target.closest('[data-calc-obra]')) { bDlg._retorno = null; fecharDialogo(bDlg); calcularObra(bObra); return; }
       var ir = ev.target.closest('[data-ir-produto]'); if (ir) { irProduto(ir.getAttribute('data-ir-produto')); return; }
       var cat = ev.target.closest('[data-bg-cat]');
       if (cat) { bDlg._retorno = null; fecharDialogo(bDlg); irParaCategoria(cat.getAttribute('data-bg-cat')); return; }
@@ -565,7 +667,7 @@
       var itens = $$('.bres__main', bLista), i = itens.indexOf(document.activeElement);
       if (ev.key === 'ArrowDown' && itens.length) { ev.preventDefault(); (itens[i + 1] || itens[0]).focus(); }
       else if (ev.key === 'ArrowUp' && itens.length) { ev.preventDefault(); if (i <= 0) bIn.focus(); else itens[i - 1].focus(); }
-      else if (ev.key === 'Enter' && document.activeElement === bIn && itens.length) { ev.preventDefault(); irProduto(itens[0].getAttribute('data-ir-produto')); }
+      else if (ev.key === 'Enter' && document.activeElement === bIn && itens.length) { ev.preventDefault(); itens[0].click(); }
     });
   }
   document.addEventListener('click', function (ev) {
@@ -583,7 +685,7 @@
   // dica digitada na barra do cabeçalho (só com efeitos; para quando a aba some ou a busca está aberta)
   (function dicaDigitada() {
     var el = $('#search-dica'); if (!el) return;
-    var frases = ['chapa RU', 'parafuso GN25', 'massa 25 kg', 'montante 70', 'fita de papel', 'perfil para forro'], f = 0, n = el.textContent.length, apagando = false;
+    var frases = ['chapa RU', 'parede 4 × 2,8 m', 'parafuso GN25', 'massa 25 kg', 'forro 12 m²', 'montante 70', 'fita de papel'], f = 0, n = el.textContent.length, apagando = false;
     var larga = window.matchMedia('(min-width: 1240px)'); // abaixo disso a barra vira só a lupa e a dica fica escondida
     function passo() {
       var ativo = larga.matches && document.documentElement.classList.contains('motion-on') && !document.hidden && !(bDlg && bDlg.open);
@@ -600,7 +702,7 @@
   /* ==========================================================================
      Calculadora
      ========================================================================== */
-  var calc = { sistema: 'parede', valores: { altura: '', comprimento: '', area: '' }, resultado: null };
+  var calc = { sistema: 'parede', valores: { altura: '', comprimento: '', area: '' }, resultado: null, acabamento: null, naLista: false };
   var tabs = $('#calc-systems'), form = $('#calc-form'), campos = $('#calc-fields'), desc = $('#calc-desc'), res = $('#calc-result');
 
   tabs.innerHTML = C.SISTEMAS.map(function (s, i) {
@@ -703,8 +805,8 @@
     $$('[data-res-action]', res).forEach(function (b) { b.disabled = true; });
   }
 
-  form.addEventListener('submit', function (ev) {
-    ev.preventDefault();
+  form.addEventListener('submit', function (ev) { ev.preventDefault(); calcularAgora(); });
+  function calcularAgora() {
     var r = C.calcular(calc.sistema, calc.valores);
     $$('input', campos).forEach(function (inp) {
       var m = $('#' + inp.id + '-msg');
@@ -713,10 +815,74 @@
       if (erro) { inp.setAttribute('aria-invalid', 'true'); m.className = 'field__err'; m.textContent = erro; }
       else { inp.removeAttribute('aria-invalid'); m.className = 'field__hint'; m.textContent = m.getAttribute('data-hint'); }
     });
-    if (!r.ok) { var f = $('[aria-invalid="true"]', campos); if (f) f.focus(); return; }
-    calc.resultado = r;
+    if (!r.ok) { var f = $('[aria-invalid="true"]', campos); if (f) f.focus(); return false; }
+    calc.resultado = r; calc.naLista = false;
     calc.orcamento = C.orcar(r, precoCalc);
     renderResultado(r, calc.orcamento);
+    return true;
+  }
+  // depois de calcular, a tela vai até o resultado: no computador, o painel inteiro (medidas, desenho e lista);
+  // no celular, direto na lista de materiais. A posição vem do layout (offsetTop), e não da tela: as entradas
+  // animadas e o 3D da rolagem deslocam o painel enquanto ele ainda está chegando.
+  function topoReal(el) { var y = 0; for (var e = el; e; e = e.offsetParent) y += e.offsetTop; return y; }
+  function irParaCalc(el) {
+    var cel = window.matchMedia('(max-width: 1023px)').matches, y = Math.max(0, topoReal(el) - (cel ? 58 : 62) - 12);
+    if (window.DrysulMotion && window.DrysulMotion.rolarAte) window.DrysulMotion.rolarAte(y); else window.scrollTo({ top: y });
+  }
+  function mostrarResultado() { irParaCalc(window.matchMedia('(max-width: 1023px)').matches ? res : $('.calc__panel')); }
+
+  /* ---------- atalho "descreva a obra": texto → sistema e medidas → cálculo → lista ----------
+     Vem do topo da página, do topo da calculadora, da busca rápida e da busca do catálogo. */
+  function calcularObra(obra) {
+    if (!obra) return;
+    calc.sistema = obra.sistema;
+    calc.valores = { altura: obra.valores.altura || '', comprimento: obra.valores.comprimento || '', area: obra.valores.area || '' };
+    calc.acabamento = obra.acabamento || null;
+    renderSistema();
+    if (obra.faltando.length) {
+      irParaCalc($('#atalho-calc') || document.getElementById('calculadora'));
+      var nomes = { altura: 'a altura', comprimento: 'o comprimento', area: 'a área' };
+      atalhoMsg('Falta ' + obra.faltando.map(function (k) { return nomes[k]; }).join(' e ') + ' para calcular ' + obra.nome.toLowerCase() + '.');
+      setTimeout(function () { var f = $('[name="' + obra.faltando[0] + '"]', campos); if (f) f.focus({ preventScroll: true }); }, 450);
+      return;
+    }
+    atalhoMsg('');
+    if (calcularAgora()) setTimeout(mostrarResultado, 30);
+    else irParaCalc($('.calc__panel'));
+  }
+  function atalhoMsg(t) { var m = $('#atalho-calc-msg'); if (m) m.textContent = t; }
+  $$('[data-atalho-form]').forEach(function (f) {
+    var inp = $('input', f);
+    f.addEventListener('submit', function (ev) {
+      ev.preventDefault();
+      var texto = inp.value.trim();
+      if (!texto) { inp.focus(); return; }
+      var obra = C.entender(texto);
+      if (obra) { inp.blur(); calcularObra(obra); return; }
+      // não é obra: vira busca de produto
+      inp.blur(); abrirBusca(f, texto);
+    });
+  });
+  $$('[data-atalho]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var f = b.closest('[data-atalho-form]'), inp = f && $('input', f);
+      if (inp) inp.value = b.getAttribute('data-atalho');
+      calcularObra(C.entender(b.getAttribute('data-atalho')));
+    });
+  });
+  // busca do catálogo com cara de obra ("parede 4x2,8"): oferece o cálculo acima dos produtos
+  function sugerirCalculo(el, texto) {
+    if (!el) return;
+    var obra = texto && texto.trim() ? C.entender(texto) : null;
+    el.hidden = !obra;
+    if (!obra) { el.innerHTML = ''; return; }
+    el._obra = obra;
+    el.innerHTML = icon('i-calc') + '<span>Parece uma obra: <b>' + esc(obra.rotulo) + '</b>. Calcule os materiais e as quantidades de uma vez.</span>' +
+      '<button class="btn btn--primary btn--sm" type="button" data-sugestao-calc><span>Calcular materiais</span>' + icon('i-arrow') + '</button>';
+  }
+  document.addEventListener('click', function (ev) {
+    var b = ev.target.closest && ev.target.closest('[data-sugestao-calc]');
+    if (b) calcularObra(b.parentNode._obra);
   });
 
   // preço de cada material na estimativa: o da loja (produto com preço) ou o médio de mercado (data.js)
@@ -730,7 +896,7 @@
     res.classList.remove('is-stale');
     res.innerHTML =
       '<div class="res__head"><div><p class="res__sys">' + esc(r.nome) + '</p><p class="res__dims">' +
-        (r.dims ? fmt(r.dims.altura) + ' m × ' + fmt(r.dims.comprimento) + ' m' : 'Área informada') + '</p></div>' +
+        (r.dims ? fmt(r.dims.comprimento) + ' m × ' + fmt(r.dims.altura) + ' m de altura' : 'Área informada') + '</p></div>' +
         '<p class="res__area">' + conta(r.area) + '<small>m²</small></p></div>' +
       '<p class="stale-note">Medidas alteradas — calcule novamente para atualizar.</p>' +
       '<ul class="res__list">' + o.itens.map(function (i, n) {
@@ -744,11 +910,50 @@
           '<span class="res__preco">' + preco + '</span></li>';
       }).join('') + '</ul>' +
       totalResultado(o) +
+      (calc.acabamento ? '<p class="res__acab">' + icon('i-spark') + '<span>Acabamento desejado: <b>' + esc(calc.acabamento.nome) + '</b>. Vai junto no pedido.</span>' +
+        (calc.acabamento.id ? '<button class="link-arrow" type="button" data-res-action="simular">Ver como fica ' + icon('i-arrow') + '</button>' : '') + '</p>' : '') +
+      (o.itens.some(function (i) { return i.opcional; }) ? '<label class="res__opc"><input type="checkbox" data-res-opc> Incluir os opcionais na lista (' +
+        esc(o.itens.filter(function (i) { return i.opcional; }).map(function (i) { return i.nome.replace(/\s*\(opcional\)/, '').toLowerCase(); }).join(', ')) + ')</label>' : '') +
       '<div class="res__actions">' +
-        '<button class="btn btn--primary" type="button" data-res-action="orcamento">' + icon('i-list') + '<span>Levar ao orçamento</span></button>' +
-        '<button class="btn btn--outline" type="button" data-res-action="copiar">' + icon('i-copy') + '<span>Copiar estimativa</span></button>' +
+        '<button class="btn btn--primary" type="button" data-res-action="lista">' + icon('i-list') + '<span>Adicionar à lista</span></button>' +
+        '<a class="btn btn--whats" data-res-action="whats" href="' + esc(linkWhats(mensagemCalculo())) + '" target="_blank" rel="noopener">' + icon('i-whats') + '<span>Enviar pelo WhatsApp</span></a>' +
+        '<button class="btn btn--outline btn--icone" type="button" data-res-action="copiar" aria-label="Copiar a lista de materiais" title="Copiar a lista">' + icon('i-copy') + '</button>' +
       '</div>';
     contarNumeros(res);
+  }
+  // botão principal do resultado: "Adicionar à lista" → depois de adicionar, "Ver lista e pedir orçamento"
+  function marcarNaLista() {
+    var b = $('[data-res-action="lista"], [data-res-action="ver"]', res); if (!b) return;
+    b.setAttribute('data-res-action', calc.naLista ? 'ver' : 'lista');
+    b.innerHTML = calc.naLista ? icon('i-check') + '<span>Ver lista e pedir orçamento</span>' : icon('i-list') + '<span>Adicionar à lista</span>';
+  }
+  // mensagem só deste cálculo (sem preços: quem confirma valores é a loja)
+  function contextoCalculo(r) {
+    return { sistema: r.sistema, nome: r.nome, dims: r.dims, area: r.area, acabamento: calc.acabamento ? calc.acabamento.nome : '' };
+  }
+  function linhaContexto(c) { return c.nome + ' — ' + descMedidas(c) + (c.acabamento ? ' · acabamento: ' + c.acabamento : ''); }
+  function mensagemCalculo() {
+    var r = calc.resultado; if (!r) return MSG_WHATS.contato();
+    var L = [abertura() + ' Fiz o cálculo no site e gostaria de um orçamento.', '', '*' + linhaContexto(contextoCalculo(r)) + '*'];
+    r.itens.forEach(function (i) { L.push('• ' + i.nome + ': ' + qtdEstimativa(i)); });
+    L.push('', 'Quantidades estimadas pela calculadora do site, para a equipe conferir.');
+    return L.join('\n');
+  }
+  // todos os materiais do cálculo viram linhas da lista (somando com o que já estava), com a medida guardada no pedido
+  function adicionarCalculo() {
+    var r = calc.resultado; if (!r) return;
+    var opc = !!$('[data-res-opc]:checked', res), n = 0;
+    r.itens.forEach(function (i) {
+      if ((i.opcional && !opc) || !produtoPorId[i.ref]) return;
+      var l = linha(i.ref);
+      if (l) l.qtd = Math.min(999, l.qtd + i.qtdCompra); else q.itens.push({ id: i.ref, qtd: Math.min(999, i.qtdCompra) });
+      n++;
+    });
+    q.calculos.push(contextoCalculo(r));
+    calc.naLista = true;
+    mudou(true);
+    marcarNaLista();
+    toast(n + ' materiais de ' + r.nome.toLowerCase() + ' na lista', { label: 'Ver lista', run: abrirOrcamento }, true);
   }
   function totalResultado(o) {
     var fora = [], media = o.itens.some(function (i) { return i.fonte === 'media'; });
@@ -779,26 +984,28 @@
     regulador: 'p-peca', uniao: 'p-peca', juncao: 'p-peca', arame: 'p-arame' };
   res.addEventListener('click', function (ev) {
     var b = ev.target.closest('[data-res-action]'); if (!b || b.disabled || !calc.resultado) return;
-    var r = calc.resultado;
-    if (b.getAttribute('data-res-action') === 'orcamento') {
-      var substituiu = !!q.estimativa;
-      var o = calc.orcamento || C.orcar(r, precoCalc);
-      q.estimativa = { sistema: r.sistema, nome: r.nome, dims: r.dims, area: r.area, itens: o.itens, total: o.total };
-      mudou(true);
-      toast(substituiu ? 'Estimativa atualizada no pedido' : 'Estimativa adicionada ao pedido', { label: 'Ver pedido', run: abrirOrcamento });
-    } else {
+    if (res.classList.contains('is-stale')) { ev.preventDefault(); return; } // medidas mudaram: calcule de novo
+    var r = calc.resultado, acao = b.getAttribute('data-res-action');
+    if (acao === 'lista') adicionarCalculo();
+    else if (acao === 'ver') abrirOrcamento(b);
+    else if (acao === 'whats') b.href = linkWhats(mensagemCalculo());
+    else if (acao === 'simular') abrirSim({ acabamento: calc.acabamento.id, sup: C.sistema(calc.sistema).entrada === 'area' ? 'teto' : 'parede' });
+    else {
       var txt = ['Estimativa Drysul — ' + r.nome + ', ' + descMedidas(r)].concat(r.itens.map(function (i) {
         return '• ' + i.nome + ': ' + qtdEstimativa(i);
       })).join('\n');
       copiar(txt, 'Estimativa copiada.');
     }
   });
-  $$('[data-calc-system]').forEach(function (b) {
-    b.addEventListener('click', function () {
-      selecionarSistema(b.getAttribute('data-calc-system'));
-      rolar(document.getElementById('calculadora'));
-      setTimeout(function () { var f = $('input', campos); if (f) f.focus({ preventScroll: true }); }, 500);
-    });
+  document.addEventListener('click', function (ev) {
+    var b = ev.target.closest && ev.target.closest('[data-calc-system]'); if (!b) return;
+    // o simulador manda junto o acabamento escolhido ("Ripado de madeira · Freijó"), que vai para o pedido
+    var ac = b.getAttribute('data-calc-acab');
+    calc.acabamento = ac ? { id: b.getAttribute('data-calc-acab-id') || '', nome: ac } : null; // de outro lugar: sem acabamento
+    b.removeAttribute('data-calc-acab');
+    selecionarSistema(b.getAttribute('data-calc-system'));
+    rolar(document.getElementById('calculadora'));
+    setTimeout(function () { var f = $('input', campos); if (f) f.focus({ preventScroll: true }); }, 500);
   });
   renderSistema();
 
@@ -810,7 +1017,7 @@
     if (window.DrysulSim) return Promise.resolve(window.DrysulSim);
     if (!simCarregando) simCarregando = new Promise(function (ok, erro) {
       var sc = document.createElement('script');
-      sc.src = 'js/simulador.js?v=16'; sc.async = true;
+      sc.src = 'js/simulador.js?v=17'; sc.async = true;
       sc.onload = function () { ok(window.DrysulSim); };
       sc.onerror = function () { simCarregando = null; sc.remove(); erro(new Error('simulador')); };
       document.head.appendChild(sc);
@@ -1022,26 +1229,27 @@
     }, { rootMargin: '-45% 0px -45% 0px' });
     steps.forEach(function (s) { stepIO.observe(s); });
 
-    var heroVisivel = true, contatoVisivel = false;
+    var heroVisivel = true, contatoVisivel = false, resVisivel = false;
     var fabIO = new IntersectionObserver(function (es) {
       es.forEach(function (e) {
         if (e.target.id === 'inicio') heroVisivel = e.isIntersecting;
         if (e.target.id === 'contato') contatoVisivel = e.isIntersecting;
+        if (e.target.id === 'calc-result') resVisivel = e.isIntersecting;
       });
       atualizarFab();
     }, { threshold: 0.05 });
-    fabIO.observe($('#inicio')); fabIO.observe($('#contato'));
+    fabIO.observe($('#inicio')); fabIO.observe($('#contato')); fabIO.observe(res);
     atualizarFab = function () {
       var fab = $('#fab');
       fab.hidden = false;
       var co = document.getElementById('checkout');
-      fab.classList.toggle('is-hidden', heroVisivel || contatoVisivel || dlg.open || (co && co.open) || totalLinhas() === 0);
+      fab.classList.toggle('is-hidden', heroVisivel || contatoVisivel || (resVisivel && !!calc.resultado) || dlg.open || (co && co.open) || totalLinhas() === 0);
     };
   }
   atualizarContadores();
   atualizarBotoes();
   function limparPedido() {
-    q.itens = []; q.estimativa = null; q.obs = '';
+    q.itens = []; q.calculos = []; q.obs = '';
     mudou();
   }
   window.DrysulApp = {

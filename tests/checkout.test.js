@@ -80,3 +80,9 @@ test('comprovante: código de verificação muda com qualquer alteração', () =
   assert.notEqual(c1, V.codigoVerificacao(V.conteudoComprovante({ ...base, total: 175.98 })));
   assert.notEqual(c1, V.codigoVerificacao(V.conteudoComprovante({ ...base, itens: [{ id: 'fita', qtd: 2, unit: 65 }, base.itens[1]] })));
 });
+
+test('itens vindos da calculadora (calculos) vão para o WhatsApp', () => {
+  const r = V.avaliar({ itens: [{ id: 'massa', qtd: 1 }], calculos: [{ nome: 'Parede drywall', area: 11.2 }] }, produtos, cfg);
+  assert.equal(r.canal, 'whatsapp');
+  assert.deepEqual(r.motivos, ['calculo']);
+});

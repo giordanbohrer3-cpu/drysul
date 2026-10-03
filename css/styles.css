@@ -805,7 +805,7 @@ html:not(.pin-on) .wl-label { opacity: 1; }
 .offer__actions { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 12px; }
 
 /* ---------- Calculadora ---------- */
-.calc__panel { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.08fr); background: var(--surface); border: 1px solid var(--line-strong); border-radius: var(--r-m); box-shadow: var(--sh-2); overflow: hidden; }
+.calc__panel { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.08fr); background: var(--surface); border: 1px solid var(--line-strong); border-radius: var(--r-m); box-shadow: var(--sh-2); overflow: hidden; overflow: clip; } /* clip: corta os cantos sem virar área de rolagem (os botões do resultado podem grudar no pé da tela) */
 .calc__systems { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); border-bottom: 1px solid var(--line); overflow-x: auto; scrollbar-width: none; }
 .calc__systems::-webkit-scrollbar { display: none; }
 .calc-tab {
@@ -913,10 +913,82 @@ html:not(.pin-on) .wl-label { opacity: 1; }
   .res__preco { grid-column: 2; display: flex; justify-content: space-between; align-items: baseline; gap: 4px 10px; flex-wrap: wrap; text-align: left; }
   .res__preco small { white-space: normal; }
 }
-.res__actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px; }
+/* os botões do resultado ficam presos no pé da tela enquanto a lista de materiais passa (lista longa, celular) */
+.res__actions { position: sticky; bottom: 0; z-index: 2; display: flex; flex-wrap: wrap; gap: 10px; margin: 4px -4px 0; padding: 10px 4px;
+  background: var(--surface-2); box-shadow: 0 -14px 18px -16px rgba(16, 22, 43, .45); }
 .calc__result.is-stale .res__list, .calc__result.is-stale .res__head { opacity: .35; }
 .stale-note { display: none; font-size: 13.5px; font-weight: 700; color: var(--orange-text); }
 .calc__result.is-stale .stale-note { display: block; }
+
+/* ---------- Jornada: atalho "descreva a obra", cálculo → lista, quantidade no cartão ---------- */
+.atalho { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 10px; align-items: center; }
+.atalho__campo { display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 0 16px; background: var(--surface); border: 1.5px solid var(--line-strong);
+  border-radius: var(--r-s); transition: border-color var(--t), box-shadow var(--t); }
+.atalho__campo:focus-within { border-color: var(--fg); box-shadow: 0 0 0 4px rgba(239, 80, 35, .18); }
+.atalho__campo .ic { flex: none; color: var(--orange-text); }
+.atalho__campo input { flex: 1; min-width: 0; height: 48px; border: 0; outline: 0; background: transparent; color: inherit; font-size: 16px; }
+.atalho__campo input::placeholder { color: var(--muted); opacity: 1; }
+.atalho > .btn { min-height: 52px; }
+.atalho__dica, .atalho__msg { grid-column: 1 / -1; font-size: 13.5px; color: var(--muted); }
+.atalho__dica button { padding: 2px 0; color: var(--orange-text); font-weight: 700; text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 3px; }
+.atalho__msg { font-weight: 700; color: var(--orange-text); }
+.atalho__msg:empty { display: none; }
+.calc .atalho { margin-bottom: clamp(16px, 2vw, 22px); }
+/* no topo escuro: mesmo desenho da busca do cabeçalho */
+.atalho--hero { max-width: 560px; margin-top: 36px; }
+.atalho--hero .atalho__campo { background: rgba(255, 255, 255, .06); border-color: var(--line-dark); color: var(--on-dark); }
+.atalho--hero .atalho__campo:focus-within { border-color: var(--orange); }
+.atalho--hero .atalho__campo .ic { color: var(--orange); }
+.atalho--hero .atalho__campo input::placeholder { color: var(--on-dark-muted); }
+.atalho--hero .atalho__dica { color: var(--on-dark-muted); }
+.atalho--hero .atalho__dica button { color: var(--orange-on-dark); }
+@media (max-width: 560px) {
+  .atalho { grid-template-columns: minmax(0, 1fr); }
+  .atalho > .btn { width: 100%; }
+  /* celular: o principal ocupa a linha; embaixo, WhatsApp e copiar */
+  .res__actions [data-res-action="lista"], .res__actions [data-res-action="ver"] { flex: 1 1 100%; }
+  .res__actions [data-res-action="whats"] { flex: 1 1 auto; }
+}
+/* busca do catálogo com cara de obra */
+.calc-sugestao { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin: -4px 0 18px; padding: 12px 14px; font-size: 14.5px;
+  border: 1.5px solid var(--orange); border-left-width: 4px; border-radius: var(--r-s); background: var(--surface); }
+.calc-sugestao > .ic { flex: none; color: var(--orange-text); }
+.calc-sugestao > span { flex: 1 1 260px; }
+/* resultado do cálculo: acabamento, opcionais e copiar */
+.res__acab { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; font-size: 14px; }
+.res__acab > .ic { flex: none; width: 18px; height: 18px; color: var(--orange-text); }
+.res__acab > span { flex: 1 1 220px; }
+.res__acab .link-arrow { margin-top: 0; font-size: 14px; }
+.res__opc { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--muted); cursor: pointer; }
+.res__opc input { width: 18px; height: 18px; accent-color: var(--orange); flex: none; }
+.btn--icone { width: var(--bh); padding: 0; }
+.calc__result.is-stale .res__actions, .calc__result.is-stale .res__opc { opacity: .4; pointer-events: none; }
+/* lista: medidas que vieram da calculadora */
+.q-calc { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 10px; margin-top: 12px; padding: 12px 14px; border: 1px solid var(--line-strong);
+  border-left: 3px solid var(--orange); border-radius: var(--r-s); background: var(--surface-2); font-size: 13.5px; }
+.q-calc > .ic { width: 20px; height: 20px; color: var(--orange-text); margin-top: 1px; }
+.q-calc__t { font-weight: 800; font-size: 14px; }
+.q-calc li { padding: 2px 0; }
+.q-calc__s { margin-top: 4px; font-size: 12.5px; color: var(--muted); }
+/* busca rápida: o cálculo da obra aparece primeiro */
+.bres--calc .bres__main { border: 1.5px solid var(--orange); }
+.bres__img.bres__img--calc { display: grid; place-items: center; background: var(--orange); color: var(--ink); }
+.bres__img--calc .ic { width: 26px; height: 26px; }
+.bres--calc .bres__txt small { white-space: normal; }
+.bres--calc .bres__preco { display: inline-flex; align-items: center; gap: 6px; color: var(--orange-text); }
+/* cartão: "Adicionar" vira − quantidade + depois que o produto está na lista */
+.add-box { display: contents; }
+.add-box:not(.is-na-lista) .qtd-step, .add-box.is-na-lista .btn-add { display: none; }
+.qtd-step { display: inline-flex; align-items: center; justify-content: space-between; min-height: 40px; border: 1.5px solid var(--orange); border-radius: var(--r-s);
+  background: var(--surface); color: var(--orange-text); }
+.qtd-step button { display: grid; place-items: center; width: 38px; height: 37px; color: var(--fg); transition: background-color var(--t-fast); }
+.qtd-step button:hover { background: rgba(239, 80, 35, .12); }
+.qtd-step .ic { width: 16px; height: 16px; }
+.qtd-step output { min-width: 28px; text-align: center; font-weight: 800; font-variant-numeric: tabular-nums; }
+.dest-card .qtd-step { width: 100%; margin-top: 8px; min-height: 48px; }
+.prod-card__calc { color: var(--fg); }
+.prod-card__calc .ic { color: var(--orange-text); }
+@media (max-width: 720px) { .prod-card__foot .qtd-step { width: 100%; } }
 
 /* ---------- Como funciona ---------- */
 .story__grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(32px, 6vw, 96px); }
@@ -1348,6 +1420,7 @@ a.info-card:hover { border-color: var(--orange); background: rgba(239, 80, 35, .
   transform: translate(-50%, 24px); opacity: 0; pointer-events: none; transition: transform var(--t) var(--ease), opacity var(--t);
 }
 .toast.is-on { transform: translate(-50%, 0); opacity: 1; pointer-events: auto; }
+@media (max-width: 560px) { .toast.is-alto { bottom: calc(150px + env(safe-area-inset-bottom)); } }
 .toast:empty { display: none; }
 .toast button { color: var(--orange); font-weight: 800; padding: 6px 8px; border-radius: var(--r-s); }
 .toast button:hover { background: rgba(255, 255, 255, .08); }
@@ -1389,7 +1462,7 @@ a.info-card:hover { border-color: var(--orange); background: rgba(239, 80, 35, .
   .pin-on .hero__art { order: -1; height: 100%; max-width: none; }
   .pin-on .wall { height: 100%; --k: .62; }
   .pin-on .hero__left { align-items: start; align-content: start; }
-  .pin-on .hero__facts, .pin-on .hero__hint { display: none; }
+  .pin-on .hero__facts, .pin-on .hero__hint, .pin-on .atalho--hero { display: none; } /* no celular o atalho fica no topo da calculadora */
   .pin-on .hero__title { font-size: clamp(2.3rem, 9.6vw, 3.8rem); margin: 12px 0; }
   .pin-on .hero__lead { font-size: 15.5px; }
   .pin-on .hero__actions { margin-top: 20px; }

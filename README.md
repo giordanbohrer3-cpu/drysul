@@ -13,8 +13,8 @@ Site da **Drysul — gesso e acabamento**. HTML, CSS e JavaScript puros, sem bui
 |---|---|
 | `index.html` | Página única: hero, categorias, linha Drysul, catálogo, ofertas, calculadora, simulador, como funciona, soluções, inspiração, a Drysul, contato |
 | `js/data.js` | **Fonte única de dados**: contato, categorias, produtos, preços e ofertas |
-| `js/calculator-model.js` | Coeficientes, validação, embalagens de compra e orçamento da calculadora (sem DOM, testável no Node) |
-| `js/app.js` | Catálogo, busca, filtros, pedido/orçamento, WhatsApp, calculadora, menu |
+| `js/calculator-model.js` | Coeficientes, validação, embalagens de compra e orçamento da calculadora, e o atalho `entender()` que lê "parede de 4 × 2,8 m com madeira" (sem DOM, testável no Node) |
+| `js/app.js` | Catálogo, busca (sinônimos de balcão, plural, relevância), filtros, pedido/lista, WhatsApp, calculadora e atalho "descreva a obra", menu |
 | `js/checkout-model.js` | Regras da central de vendas: canal (site x WhatsApp), limite, validações (testável no Node) |
 | `js/checkout.js` | Central de vendas: pedido → entrega → pagamento (Pix, crédito, débito, WhatsApp) → confirmação |
 | `js/motion.js` | Hero fixo que desmonta a parede em 4 etapas (fita, chapa, parafusos, estrutura), escrita animada dos títulos, rolagem suave no computador (Lenis), canvas técnico, fundos que andam com a rolagem, pausa de efeitos; anima só o que está perto da tela |
@@ -32,6 +32,12 @@ Site da **Drysul — gesso e acabamento**. HTML, CSS e JavaScript puros, sem bui
 - **Preço, produto ou oferta:** edite `js/data.js`. `preco: null` mostra "Sob consulta".
 - **Foto real de produto:** imagem 4:3 em `assets/img/` e, no produto, `foto` (800 px) e `fotoMini` (400 px). Sem foto, aparece o desenho técnico.
 - **Telefone, endereço, Instagram:** objeto `loja` em `js/data.js` (rodapé, contato e WhatsApp leem dali).
+- **Jornada curta:** a pessoa descreve a obra no topo, na calculadora ou na busca ("parede de drywall 4 × 2,8 m com ripado") →
+  o site escolhe o sistema, preenche as medidas e calcula → "Adicionar à lista" põe todos os materiais na lista, com quantidade
+  editável (somando com o que já estava) → "Ver lista e pedir orçamento" ou "Enviar pelo WhatsApp" direto do resultado.
+  As medidas e o acabamento vão juntos na mensagem ("Calculado no site"). Materiais que só a calculadora usa (cola, lã, arame,
+  regulador…) estão em `js/data.js` com `catalogo: false`: entram na lista, mas não no catálogo nem na busca.
+- **Sinônimos da busca:** `SINONIMOS` no `js/app.js` (gesso → chapa/drywall, placa → chapa, bucha → ancorador/parabolt…).
 - **Preços da calculadora:** cada material vira embalagem de compra (`COMPRA` no `js/calculator-model.js`) e usa o preço do produto da loja em `js/data.js`; sem preço da loja, usa a tabela `precosMedios` (médias de mercado de 03/10/2026, marcadas com “≈ média”). Para usar o preço da Drysul, preencha `preco` no produto. A mensagem do WhatsApp leva só os itens, sem preços da estimativa.
 - **Simulador:** acabamentos, cores e tons em `ACABS` no `js/simulador.js`; a foto de exemplo e as áreas protegidas dela em `EXEMPLO`.
 - **Limite da compra pelo site:** `vendas.limiteOnline` em `js/data.js` (atual: R$ 1.000).
@@ -41,7 +47,7 @@ Site da **Drysul — gesso e acabamento**. HTML, CSS e JavaScript puros, sem bui
 
 ## Central de vendas
 
-Pedidos só com itens de preço, sem estimativa da calculadora e até o limite vão para a compra no site
+Pedidos só com itens de preço, sem quantidades vindas da calculadora e até o limite vão para a compra no site
 (retirada na loja; Pix, crédito ou débito). Com cálculo de obra, item sob consulta, valor acima do limite
 ou entrega no endereço, o pedido segue para o WhatsApp com a mensagem pronta.
 

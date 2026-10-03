@@ -20,8 +20,8 @@
   <meta name="twitter:card" content="summary_large_image">
 
   <link rel="preload" href="assets/fonts/archivo-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="css/styles.css?v=16">
-  <link rel="stylesheet" href="css/motion.css?v=16">
+  <link rel="stylesheet" href="css/styles.css?v=17">
+  <link rel="stylesheet" href="css/motion.css?v=17">
   <script>
     (function () {
       var root = document.documentElement, pref = null, tema = null;
@@ -160,13 +160,18 @@
               <p class="hero__lead">Chapas, perfis, fixação, massas e fitas para drywall. Monte sua lista, calcule o material pela medida da obra e receba o orçamento pelo WhatsApp.</p>
               <div class="hero__actions">
                 <a class="btn btn--primary btn--lg" href="#produtos" data-magnetic><span>Montar orçamento</span><svg class="ic"><use href="#i-arrow"/></svg></a>
-                <a class="btn btn--ghost btn--lg" href="#calculadora" data-magnetic><svg class="ic"><use href="#i-calc"/></svg><span>Calcular materiais</span></a>
+                <a class="btn btn--ghost btn--lg" href="#atalho-calc" data-magnetic><svg class="ic"><use href="#i-calc"/></svg><span>Calcular materiais</span></a>
               </div>
-              <ul class="hero__facts" aria-label="Destaques">
-                <li><strong>3 produtos</strong><span>com preço da loja</span></li>
-                <li><strong>5 sistemas</strong><span>na calculadora</span></li>
-                <li><strong>WhatsApp</strong><span>atendimento direto</span></li>
-              </ul>
+              <!-- atalho: a pessoa descreve a obra e vai direto para os materiais calculados -->
+              <form class="atalho atalho--hero" data-atalho-form role="search" aria-label="Calcular os materiais da obra">
+                <label class="atalho__campo">
+                  <svg class="ic" aria-hidden="true"><use href="#i-calc"/></svg>
+                  <span class="sr">Descreva a obra</span>
+                  <input type="text" name="obra" enterkeyhint="go" autocomplete="off" placeholder="Descreva a obra: parede de 4 × 2,8 m">
+                </label>
+                <button class="btn btn--primary" type="submit"><span>Calcular</span><svg class="ic"><use href="#i-arrow"/></svg></button>
+                <p class="atalho__dica">Ex.: <button type="button" data-atalho="parede de 4 × 2,8 m">parede 4 × 2,8 m</button> · <button type="button" data-atalho="forro de gesso 12 m²">forro 12 m²</button></p>
+              </form>
             </div>
 
             <div class="hero__parts" id="hero-parts">
@@ -291,7 +296,7 @@
           <label class="search">
             <svg class="ic"><use href="#i-search"/></svg>
             <span class="sr">Buscar material</span>
-            <input type="search" id="busca" placeholder="Busque chapa, perfil, parafuso, massa…" autocomplete="off">
+            <input type="search" id="busca" placeholder="Busque chapa, perfil, parafuso, massa… ou “parede 4 × 2,8 m”" autocomplete="off">
           </label>
           <div class="chips" role="group" aria-label="Filtrar por categoria" id="filtros"></div>
           <label class="sort">
@@ -304,6 +309,7 @@
             </select>
           </label>
         </div>
+        <div class="calc-sugestao" id="calc-sugestao" hidden></div>
         <p class="result-info" id="result-info" aria-live="polite"></p>
         <div class="prod-grid" id="prod-grid"></div>
         <div class="empty" id="empty" hidden>
@@ -338,8 +344,19 @@
           <p class="eyebrow" data-reveal>05 · Calculadora</p>
           <h2 class="sec-title" id="calc-title" data-reveal>Da medida <span class="hl">à lista.</span></h2>
           <span class="rule" data-reveal="line" aria-hidden="true"></span>
-          <p class="sec-lead" data-reveal>Informe as medidas e veja a estimativa de consumo por sistema. Depois, leve a estimativa para o orçamento com um toque.</p>
+          <p class="sec-lead" data-reveal>Escreva a obra do seu jeito ou escolha o sistema e informe as medidas. Os materiais saem com quantidade e preço estimado, e vão para a lista com um toque.</p>
         </header>
+
+        <form class="atalho" data-atalho-form id="atalho-calc" role="search" aria-label="Descreva a obra e calcule" data-reveal>
+          <label class="atalho__campo">
+            <svg class="ic" aria-hidden="true"><use href="#i-spark"/></svg>
+            <span class="sr">Descreva a obra</span>
+            <input id="atalho-calc-in" type="text" name="obra" enterkeyhint="go" autocomplete="off" placeholder="Ex.: parede de drywall de 4 × 2,8 m com ripado de madeira">
+          </label>
+          <button class="btn btn--primary" type="submit"><svg class="ic"><use href="#i-calc"/></svg><span>Calcular</span></button>
+          <p class="atalho__dica">Escreva do seu jeito. Ex.: <button type="button" data-atalho="parede de 4 × 2,8 m">parede 4 × 2,8 m</button> · <button type="button" data-atalho="forro de gesso 12 m²">forro 12 m²</button> · <button type="button" data-atalho="cobrir parede de 3 × 2,6 m com cimento queimado">revestimento 3 × 2,6 m</button></p>
+          <p class="atalho__msg" id="atalho-calc-msg" aria-live="polite"></p>
+        </form>
 
         <div class="calc__panel" data-reveal>
           <div class="calc__systems" role="group" aria-label="Sistema construtivo" id="calc-systems"></div>
@@ -776,7 +793,7 @@
       <h2 class="sr" id="bg-titulo">Buscar produtos</h2>
       <div class="busca__campo" id="bg-campo">
         <svg class="ic busca__lupa" aria-hidden="true"><use href="#i-search"/></svg>
-        <input class="busca__input" id="bg-input" type="search" autocomplete="off" spellcheck="false" enterkeyhint="search" placeholder="Buscar chapa, perfil, parafuso, massa…" aria-label="Buscar produtos" aria-describedby="bg-status" aria-controls="bg-lista">
+        <input class="busca__input" id="bg-input" type="search" autocomplete="off" spellcheck="false" enterkeyhint="search" placeholder="Material ou obra: chapa RU, parede 4 × 2,8 m…" aria-label="Buscar produtos ou calcular uma obra" aria-describedby="bg-status" aria-controls="bg-lista">
         <kbd class="busca__esc" aria-hidden="true">Esc</kbd>
         <button class="icon-btn busca__fechar" type="button" data-close aria-label="Fechar busca"><svg class="ic"><use href="#i-close"/></svg></button>
       </div>
@@ -826,14 +843,14 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script defer src="js/data.js?v=16"></script>
-  <script defer src="js/calculator-model.js?v=16"></script>
-  <script defer src="js/checkout-model.js?v=16"></script>
-  <script defer src="js/app.js?v=16"></script>
-  <script defer src="js/receipt.js?v=16"></script>
-  <script defer src="js/checkout.js?v=16"></script>
+  <script defer src="js/data.js?v=17"></script>
+  <script defer src="js/calculator-model.js?v=17"></script>
+  <script defer src="js/checkout-model.js?v=17"></script>
+  <script defer src="js/app.js?v=17"></script>
+  <script defer src="js/receipt.js?v=17"></script>
+  <script defer src="js/checkout.js?v=17"></script>
   <script defer src="js/vendor/lenis.min.js?v=1"></script>
-  <script defer src="js/motion.js?v=16"></script>
-  <script defer src="js/som.js?v=16"></script>
+  <script defer src="js/motion.js?v=17"></script>
+  <script defer src="js/som.js?v=17"></script>
 </body>
 </html>

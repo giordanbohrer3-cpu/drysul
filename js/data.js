@@ -95,7 +95,26 @@
       detalhe: 'Estrutura de forro com reguladores e uniões.' },
     { id: 'cantoneira', foto: 'assets/img/prod-cantoneira-800.webp', fotoMini: 'assets/img/prod-cantoneira-400.webp', ilustrativa: true, nome: 'Cantoneira para forro', cat: 'perfis', icone: 'p-perfil',
       emb: 'Barra', un: 'barra', preco: null,
-      detalhe: 'Arremate de perímetro do forro junto às paredes.' }
+      detalhe: 'Arremate de perímetro do forro junto às paredes.' },
+
+    // Materiais que só entram pela calculadora (`catalogo: false`: fora do catálogo e da busca). Vão para a lista
+    // com a quantidade calculada e preço sob consulta; o preço médio de referência fica em `precosMedios`.
+    { id: 'regulador', catalogo: false, nome: 'Regulador S47', cat: 'perfis', icone: 'p-peca', emb: 'Unidade', un: 'un.', preco: null,
+      detalhe: 'Regula a altura do forro estruturado.' },
+    { id: 'uniao', catalogo: false, nome: 'União S47', cat: 'perfis', icone: 'p-peca', emb: 'Unidade', un: 'un.', preco: null,
+      detalhe: 'Emenda dos perfis de forro.' },
+    { id: 'arame-10', catalogo: false, nome: 'Arame galvanizado nº 10', cat: 'fixacao', icone: 'p-arame', emb: 'Kg (cerca de 14 m)', un: 'kg', preco: null,
+      detalhe: 'Pendural do forro estruturado.' },
+    { id: 'arame-18', catalogo: false, nome: 'Arame nº 18 encapado', cat: 'fixacao', icone: 'p-arame', emb: 'Kg', un: 'kg', preco: null,
+      detalhe: 'Fixação do forro aramado.' },
+    { id: 'gesso-cola', catalogo: false, nome: 'Cola para drywall', cat: 'acabamento', icone: 'p-balde', emb: 'Saco de 20 kg', un: 'saco', preco: null,
+      detalhe: 'Gesso cola para revestimento colado e forro aramado.' },
+    { id: 'la-vidro', catalogo: false, nome: 'Lã mineral para isolamento', cat: 'acabamento', icone: 'p-la', emb: 'Rolo de 15 m², 50 mm', un: 'rolo', preco: null,
+      detalhe: 'Isolamento acústico e térmico dentro da parede ou sobre o forro.' },
+    { id: 'nervura', catalogo: false, nome: 'Nervura para forro aramado', cat: 'chapas', icone: 'p-chapa', emb: 'm² de chapa em tiras', un: 'm²', preco: null,
+      detalhe: 'Reforço das chapas do forro aramado.' },
+    { id: 'juncao-h', catalogo: false, nome: 'Junção H', cat: 'perfis', icone: 'p-peca', emb: 'Unidade', un: 'un.', preco: null,
+      detalhe: 'Emenda das chapas do forro aramado.' }
   ];
 
   // Central de vendas: pedidos com preço, sem cálculo de obra e até este valor podem ser comprados no site.

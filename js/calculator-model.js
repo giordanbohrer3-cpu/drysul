@@ -174,5 +174,70 @@
     return Number(n).toLocaleString('pt-BR', { maximumFractionDigits: 3 });
   }
 
-  return { SISTEMAS: SISTEMAS, COMPRA: COMPRA, AREA_MAX: AREA_MAX, sistema: sistema, parseNumero: parseNumero, calcular: calcular, orcar: orcar, fmt: fmt };
+  /* Atalho "descreva a obra": "Quero uma parede de drywall de 4 × 2,8 m com acabamento em madeira" →
+     { sistema: 'parede', valores: { altura: '2,8', comprimento: '4' }, faltando: [], acabamento: { id: 'ripado', … } }.
+     Devolve null quando o texto é busca de produto ("chapa RU", "parafuso 4,8 × 19") e não obra.
+     Sem rótulo, a menor medida é a altura; nos sistemas de hoje as quantidades dependem só da área, então trocar
+     altura e comprimento não muda a lista (só o limite de altura e o desenho). */
+  var OBRA = [
+    ['fga', /aramad/, true],
+    ['fge', /\bforro|\bteto|rebaix/, true],
+    ['estruturado', /revestimento estruturad|\bestruturad/, true],
+    ['colado', /revesti|colad|cobrir|parede existente/, true],
+    ['parede', /parede|divisori/, true],
+    ['parede', /drywall|acartonad|gesso/, false] // palavra fraca: sozinha é busca de produto
+  ];
+  var ACABAMENTOS = [
+    ['lambri', 'Lambri de madeira', /lambri/],
+    ['ripado', 'Ripado de madeira', /ripad|\bripas?\b|madeira/],
+    ['placa3d', 'Placa 3D', /\b3 ?d\b/],
+    ['cimento', 'Cimento queimado', /cimento/],
+    ['forro', 'Forro com tabica', /tabica/],
+    ['liso', 'Drywall liso', /\bliso|pintad|pintura/]
+  ];
+  var PRODUTO = /parafus|broca|agulha|bucha|ancor|parabolt|chumbad|fita|massa|chapa|placa|montante|guia|perfil|cantoneir|caixa|unidade|\bmm\b|glassroc|costura|sextavad|gn ?25/;
+  function entender(texto) {
+    var t = String(texto || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
+      .replace(/[×*]/g, ' x ').replace(/²/g, '2').replace(/metros? quadrados?/g, 'm2');
+    var N = '(\\d{1,4}(?:[.,]\\d{1,3})?)\\s*(cm)?', U = '\\s*(?:m|metros?)?\\s*', m;
+    function num(s, cm) { var v = Number(s.replace(',', '.')); return cm ? v / 100 : v; }
+    var sis = null, forte = false, acab = null, i;
+    for (i = 0; i < OBRA.length; i++) if (OBRA[i][1].test(t)) { sis = OBRA[i][0]; forte = OBRA[i][2]; break; }
+    for (i = 0; i < ACABAMENTOS.length; i++) if (ACABAMENTOS[i][2].test(t)) { acab = { id: ACABAMENTOS[i][0], nome: ACABAMENTOS[i][1] }; break; }
+    var a = null, b = null, area = null, alt = null, comp = null, unico = null;
+    if ((m = new RegExp(N + U + '(?:x|por)\\s*' + N).exec(t))) { a = num(m[1], m[2]); b = num(m[3], m[4]); t = t.slice(0, m.index) + ' ' + t.slice(m.index + m[0].length); }
+    if ((m = new RegExp(N + '\\s*m ?2\\b').exec(t)) || (m = new RegExp('area\\s*(?:de\\s*)?' + N).exec(t))) area = num(m[1], m[2]);
+    // "2,8 m de altura" vem antes de "altura 2,8": em "altura e 5 m de comprimento" o 5 não é a altura
+    if ((m = new RegExp(N + U + 'de\\s*(?:altura|alto)').exec(t)) || (m = new RegExp('(?:altura|alto|pe[ -]?direito)\\D{0,14}?' + N).exec(t))) alt = num(m[1], m[2]);
+    if ((m = new RegExp(N + U + 'de\\s*(?:comprimento|largura|extensao|comprido)').exec(t)) || (m = new RegExp('(?:comprimento|largura|extensao)\\D{0,14}?' + N).exec(t))) comp = num(m[1], m[2]);
+    if (a == null && area == null && alt == null && comp == null && (m = new RegExp(N).exec(t))) unico = num(m[1], m[2]);
+    var temMedida = a != null || area != null || alt != null || comp != null;
+    if (!sis) {
+      // sem palavra de obra: só um par de medidas solto ("4 × 2,8") vira parede; especificação de produto não
+      if (a == null || PRODUTO.test(t)) return null;
+      sis = 'parede';
+    } else if (!forte && (!temMedida || PRODUTO.test(t))) return null;
+    if (unico != null && !forte) return null;
+
+    var s = sistema(sis), valores = {}, faltando = [], rot;
+    if (s.entrada === 'area') {
+      var ar = area != null ? area : a != null ? a * b : alt != null && comp != null ? alt * comp : null;
+      if (ar != null && ar > 0) { ar = arred(ar); valores.area = txt(ar); rot = (a != null && area == null ? fmt(a) + ' × ' + fmt(b) + ' m (' + fmt(ar) + ' m²)' : fmt(ar) + ' m²'); }
+      else faltando.push('area');
+    } else {
+      if (a != null) {
+        if (alt == null && comp == null) { alt = Math.min(a, b); comp = Math.max(a, b); }
+        else if (alt == null) alt = comp === a ? b : a;
+        else if (comp == null) comp = alt === a ? b : a;
+      }
+      if (alt == null && comp == null && unico != null) comp = unico;
+      if (alt != null) valores.altura = txt(alt); else faltando.push('altura');
+      if (comp != null) valores.comprimento = txt(comp); else faltando.push('comprimento');
+      if (!faltando.length) rot = fmt(comp) + ' × ' + fmt(alt) + ' m';
+    }
+    return { sistema: sis, nome: s.nome, valores: valores, faltando: faltando, acabamento: acab, rotulo: s.nome + (rot ? ' · ' + rot : '') };
+  }
+  function txt(n) { return String(arred(n)).replace('.', ','); }
+
+  return { SISTEMAS: SISTEMAS, COMPRA: COMPRA, AREA_MAX: AREA_MAX, sistema: sistema, parseNumero: parseNumero, calcular: calcular, orcar: orcar, fmt: fmt, entender: entender };
 });

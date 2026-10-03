@@ -1,6 +1,6 @@
 /* Central de vendas — regras puras (sem DOM), testáveis no Node.
    Decide o canal do pedido:
-   - "online": só itens com preço, sem estimativa da calculadora, subtotal até o limite → compra pelo site
+   - "online": só itens com preço, sem quantidade vinda da calculadora, subtotal até o limite → compra pelo site
    - "whatsapp": tem cálculo de parede/forro, item sob consulta ou valor acima do limite → atendimento
    Na versão final, o servidor refaz este cálculo com o catálogo dele: preço vindo do navegador não é confiável. */
 (function (root, factory) {
@@ -27,10 +27,12 @@
     });
 
     var subtotal = totalC / 100;
-    if (!linhas.length && !pedido.estimativa) return { canal: 'vazio', motivos: [], subtotal: 0, linhas: [] };
+    // calculos: medidas que geraram itens na lista (versão atual); estimativa: bloco único das versões anteriores
+    var calculo = !!pedido.estimativa || !!(pedido.calculos && pedido.calculos.length);
+    if (!linhas.length && !calculo) return { canal: 'vazio', motivos: [], subtotal: 0, linhas: [] };
 
     var motivos = [];
-    if (pedido.estimativa) motivos.push('calculo');
+    if (calculo) motivos.push('calculo');
     if (consulta) motivos.push('consulta');
     if (subtotal > cfg.limiteOnline) motivos.push('limite');
     return { canal: motivos.length ? 'whatsapp' : 'online', motivos: motivos, subtotal: subtotal, linhas: linhas };
@@ -38,7 +40,7 @@
 
   function textoMotivo(m, limite, fmtBRL) {
     return {
-      calculo: 'Tem cálculo de parede, forro ou revestimento: a equipe confere as quantidades e os preços da estimativa.',
+      calculo: 'Tem quantidades da calculadora: a equipe confere as medidas, as quantidades e os preços.',
       consulta: 'Tem itens sob consulta: preço e disponibilidade são confirmados pela equipe.',
       limite: 'Pedido acima de ' + fmtBRL(limite) + ': atendimento para condições e entrega.'
     }[m];

@@ -1,6 +1,7 @@
 /* Central de vendas — compra em 4 etapas: pedido → entrega → pagamento → pronto.
-   DEMONSTRAÇÃO: nenhum pagamento é processado e nenhum dado sai do aparelho.
-   Versão final: a etapa de pagamento pede ao servidor da loja uma cobrança (o servidor recalcula
+   MODO DE TESTE (vendas.demo = true, enquanto o provedor de pagamento não está ligado): nenhum pagamento é
+   processado, nenhum dado sai do aparelho e a central avisa isso ao cliente.
+   Com o provedor ligado: a etapa de pagamento pede ao servidor da loja uma cobrança (o servidor recalcula
    os preços pelo catálogo dele) e leva o cliente ao checkout seguro do provedor (Pix/cartão).
    A confirmação chega por webhook do provedor, nunca pelo navegador. */
 (function () {
@@ -10,6 +11,8 @@
   if (!A || !V || !D) return;
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var TESTE = !!(D.vendas && D.vendas.demo);
+  var aviso = $('#co-teste'); if (aviso) aviso.hidden = !TESTE;
   var BRL = A.BRL, esc = A.esc, loja = D.loja;
 
   var dlg = $('#checkout'), form = $('#co-form');
@@ -114,9 +117,9 @@
       var inFinder = (x < 8 && y < 8) || (x > 16 && y < 8) || (x < 8 && y > 16);
       if (!inFinder && rnd() < 0.48) cells += 'M' + x + ' ' + y + 'h1v1h-1z';
     }
-    return '<svg class="qr" viewBox="-2 -2 29 29" role="img" aria-label="QR Code ilustrativo de demonstração, não pagável">' +
+    return '<svg class="qr" viewBox="-2 -2 29 29" role="img" aria-label="QR Code ilustrativo de teste, não pagável">' +
       '<rect x="-2" y="-2" width="29" height="29" fill="#fff"/><g fill="#10162B">' + finder(0, 0) + finder(18, 0) + finder(0, 18) + '<path d="' + cells + '"/></g>' +
-      '<g transform="rotate(-18 12.5 12.5)"><rect x="3" y="10" width="19" height="5.5" fill="#EF5023"/><text x="12.5" y="14.1" text-anchor="middle" font-size="3.6" font-weight="800" fill="#10162B" font-family="Archivo, sans-serif" letter-spacing=".3">DEMO</text></g></svg>';
+      '<g transform="rotate(-18 12.5 12.5)"><rect x="3" y="10" width="19" height="5.5" fill="#EF5023"/><text x="12.5" y="14.1" text-anchor="middle" font-size="3.6" font-weight="800" fill="#10162B" font-family="Archivo, sans-serif" letter-spacing=".3">TESTE</text></g></svg>';
   }
 
   function comprovante(pago) {
@@ -139,7 +142,7 @@
         'Guarde seu comprovante. ' + (entrega() === 'entrega'
           ? 'A equipe chama você no WhatsApp para combinar a entrega.'
           : 'Na retirada, informe o número do pedido e o código de verificação.') +
-        (valor('email') ? ' Na versão final, uma cópia vai para ' + esc(valor('email')) + '.' : ''));
+        (valor('email') && !TESTE ? ' Uma cópia vai para ' + esc(valor('email')) + '.' : ''));
       return;
     }
     if (pag === 'whatsapp') {
@@ -150,7 +153,7 @@
     if (pag === 'pix') {
       elRes.innerHTML = '<div class="co-pix"><h3 class="co-h" tabindex="-1">Pague com Pix</h3>' +
         '<p>Pedido <b>' + num + '</b> · <b>' + total + '</b></p>' + qrDemo(st.numero) +
-        '<div class="field"><label for="co-pix-code"><span>Pix copia e cola</span></label><input id="co-pix-code" value="Gerado pelo provedor de pagamento na versão final" readonly disabled></div>' +
+        '<div class="field"><label for="co-pix-code"><span>Pix copia e cola</span></label><input id="co-pix-code" value="Liberado com a ativação do pagamento online" readonly disabled></div>' +
         '<ol class="co-howto"><li>Abra o app do seu banco e escolha Pix.</li><li>Leia o QR Code ou cole o código.</li><li>A confirmação chega aqui em segundos.</li></ol>' +
         '<p class="co-demo-note">QR Code ilustrativo: não é pagável.</p></div>';
       return;
@@ -158,9 +161,9 @@
     elRes.innerHTML = '<div class="co-card"><h3 class="co-h" tabindex="-1">Pagamento seguro com ' + esc(NOMES_PAG[pag].toLowerCase()) + '</h3>' +
       '<p>Pedido <b>' + num + '</b> · <b>' + total + '</b></p>' +
       '<div class="co-provider">' + A.icon('i-lock') + '<div><b>Ambiente do provedor de pagamento</b>' +
-      '<span>Na versão final, você é levado à página segura do provedor (ex.: Mercado Pago ou PagBank) para digitar o cartão. ' +
+      '<span>Você é levado à página segura do provedor de pagamento para digitar o cartão. ' +
       'A Drysul não vê nem guarda os dados do cartão.</span></div></div>' +
-      '<p class="co-demo-note">Demonstração: use o botão abaixo para simular a aprovação.</p></div>';
+      '<p class="co-demo-note">Pagamento online em fase de testes: use o botão abaixo para simular a aprovação.</p></div>';
   }
 
   /* ---------- ações ---------- */
@@ -183,7 +186,7 @@
         A.limparPedido();
         renderResultado(); atualizarRodape();
         var h = $('.co-h', elRes); if (h) h.focus({ preventScroll: true });
-        A.toast('Pedido ' + st.numero + ' aprovado (demonstração).');
+        A.toast('Pedido ' + st.numero + ' aprovado' + (TESTE ? ' (teste).' : '.'));
         return;
       }
       if (pagamento() === 'whatsapp') A.limparPedido();

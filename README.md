@@ -1,11 +1,11 @@
 # Drysul — site
 
-Site da **Drysul — gesso e acabamento** (proposta em demonstração).
+Site da **Drysul — gesso e acabamento**.
 
 **No ar:** https://giordanbohrer3-cpu.github.io/drysul/
 
 
-Proposta de site para a **Drysul — gesso e acabamento**. HTML, CSS e JavaScript puros, sem build. Única biblioteca: o Lenis (rolagem suave, licença MIT), copiado em `js/vendor/`. A demonstração é publicada pelo GitHub Pages.
+Site da **Drysul — gesso e acabamento**. HTML, CSS e JavaScript puros, sem build. Única biblioteca: o Lenis (rolagem suave, licença MIT), copiado em `js/vendor/`. Publicado pelo GitHub Pages até a mudança para o domínio da loja.
 
 ## Estrutura
 
@@ -19,7 +19,7 @@ Proposta de site para a **Drysul — gesso e acabamento**. HTML, CSS e JavaScrip
 | `js/checkout.js` | Central de vendas: pedido → entrega → pagamento (Pix, crédito, débito, WhatsApp) → confirmação |
 | `js/motion.js` | Hero fixo que desmonta a parede em 4 etapas (fita, chapa, parafusos, estrutura), escrita animada dos títulos, rolagem suave no computador (Lenis), canvas técnico, fundos que andam com a rolagem, pausa de efeitos; anima só o que está perto da tela |
 | `js/simulador.js` | Simulador de acabamento em passos guiados (foto → cantos → proteger → Simular → resultado): perspectiva pelos 4 cantos, pincel para proteger objetos (verde = fica igual, laranja = muda) e 6 acabamentos gerados no próprio navegador (WebGL 2). Carregado só quando a seção se aproxima; a foto não sai do aparelho. A demonstração animada dos 4 passos fica no `app.js` (`iniciarTutorial`) |
-| `js/som.js` | Sons sintetizados no navegador (sem arquivos), todos bem baixos: clique, passar o mouse nos botões, papel na rolagem (segue a velocidade), virada de página nas etapas do topo e trilha de cordas lenta ao fundo. Começam no primeiro clique/toque; o botão "Som" liga e desliga tudo |
+| `js/som.js` | Sons sintetizados no navegador (sem arquivos): clique, passar o mouse nos botões, sopro de ar na rolagem (segue a velocidade), swoosh nas etapas do topo e trilha de piano generativa (8 frases em ciclos de tamanhos diferentes, à la *Music for Airports*: contínua e sem repetição). Começam no primeiro clique/toque; o ícone de som no canto direito do cabeçalho liga e desliga, e com o som ligado mostra o volume (salvo no aparelho) |
 | `js/vendor/lenis.min.js` | Lenis 1.3.26 (MIT, licença em `js/vendor/LENIS-LICENSE.txt`); só no computador com mouse/trackpad |
 | `css/styles.css` | Design system (tokens semânticos com tema claro e escuro, componentes, seções, responsivo) |
 | `css/motion.css` | Animações; estados ocultos só existem com efeitos ativos. 3D na rolagem em CSS (`animation-timeline`), com as entradas normais como alternativa em navegadores sem suporte |
@@ -45,7 +45,8 @@ Pedidos só com itens de preço, sem estimativa da calculadora e até o limite v
 (retirada na loja; Pix, crédito ou débito). Com cálculo de obra, item sob consulta, valor acima do limite
 ou entrega no endereço, o pedido segue para o WhatsApp com a mensagem pronta.
 
-Na demonstração nenhum pagamento é processado. Para a versão real:
+Enquanto `vendas.demo` (em `js/data.js`) for `true`, a central está em **modo de teste**: nenhum pagamento é processado,
+o cliente vê o aviso "Pagamento online em fase de testes" e o comprovante leva marca d'água. Para ligar a cobrança real:
 
 1. Conta no provedor de pagamento (ex.: Mercado Pago ou PagBank) no CNPJ da loja.
 2. Função no servidor (ex.: Cloudflare Workers) que recebe só `{id, qtd}`, recalcula os preços com o catálogo
@@ -71,11 +72,12 @@ de Kai Kemmann, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/);
 
 Chapas e perfis ainda não têm foto da loja: usam imagens 3D (selo "Imagem ilustrativa"). As chapas levam a textura da foto
 ["Stapel Gipskartonplatten"](https://commons.wikimedia.org/wiki/File:Stapel_Gipskartonplatten.jpg), de RossKur, licença
-[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), modificada (crédito também no diálogo "Sobre a demo").
+[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), modificada (crédito também em "Créditos das imagens", no rodapé).
 Ao receber fotos reais, troque os arquivos `assets/img/prod-<id>-800.webp`/`-400.webp` e remova `ilustrativa: true` em `js/data.js`.
 
 ## Pendências para a versão final
 
 - Fotos originais dos produtos e catálogo completo (preços, marcas, medidas)
-- Cidade/CEP, horário de atendimento e área de entrega
-- Domínio próprio, remover o `noindex` e a barra "Demo", SEO local (Schema.org LocalBusiness)
+- Cidade/CEP e área de entrega (horário já no site: seg. a sex. 8h–18h, sáb. 8h–12h)
+- Pagamento online real (acima) e `vendas.demo: false`
+- Domínio próprio: remover o `noindex`, trocar `og:url`/`og:image`, "© 2026" → "© 2026 Drysul", apagar `proposta/`, SEO local (Schema.org LocalBusiness)

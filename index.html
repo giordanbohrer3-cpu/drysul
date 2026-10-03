@@ -3,16 +3,16 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Drysul — Drywall, gesso e acabamento · Demonstração</title>
-  <meta name="description" content="Proposta de site da Drysul: chapas, perfis, fixação, massas e fitas para drywall. Catálogo com busca, calculadora de materiais e orçamento pelo WhatsApp.">
+  <title>Drysul — Drywall, gesso e acabamento</title>
+  <meta name="description" content="Drysul: chapas, perfis, fixação, massas e fitas para drywall. Catálogo com busca, calculadora de materiais, simulador de acabamento e pedido pelo WhatsApp.">
   <meta name="robots" content="noindex, nofollow">
   <meta name="theme-color" content="#111A38">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 
   <meta property="og:type" content="website">
   <meta property="og:locale" content="pt_BR">
-  <meta property="og:title" content="Drysul — gesso e acabamento · Proposta de site">
-  <meta property="og:description" content="Demonstração navegável: catálogo, calculadora de materiais e orçamento pelo WhatsApp.">
+  <meta property="og:title" content="Drysul — gesso e acabamento">
+  <meta property="og:description" content="Materiais para drywall e gesso: catálogo com busca, calculadora de materiais, simulador de acabamento e pedido pelo WhatsApp.">
   <meta property="og:url" content="https://giordanbohrer3-cpu.github.io/drysul/">
   <meta property="og:image" content="https://giordanbohrer3-cpu.github.io/drysul/assets/img/og-drysul.jpg">
   <meta property="og:image:width" content="1200">
@@ -20,8 +20,8 @@
   <meta name="twitter:card" content="summary_large_image">
 
   <link rel="preload" href="assets/fonts/archivo-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="css/styles.css?v=15">
-  <link rel="stylesheet" href="css/motion.css?v=15">
+  <link rel="stylesheet" href="css/styles.css?v=16">
+  <link rel="stylesheet" href="css/motion.css?v=16">
   <script>
     (function () {
       var root = document.documentElement, pref = null, tema = null;
@@ -98,17 +98,6 @@
 
   <a class="skip" href="#conteudo">Pular para o conteúdo</a>
 
-  <div class="demo-bar" role="region" aria-label="Aviso de demonstração">
-    <div class="wrap demo-bar__in">
-      <p class="demo-bar__txt"><span class="demo-tag">Demo</span> Proposta de site para a Drysul <span class="hide-sm">· preços e disponibilidade confirmados no atendimento</span></p>
-      <div class="demo-bar__actions">
-        <button class="demo-btn" type="button" data-open="sobre-demo" aria-label="Sobre a demo"><svg class="ic"><use href="#i-info"/></svg><span>Sobre a demo</span></button>
-        <button class="demo-btn" type="button" id="som-toggle" aria-pressed="true" aria-label="Desligar os sons dos cliques"><svg class="ic"><use href="#i-som"/></svg><span>Som</span></button>
-        <button class="demo-btn" type="button" id="motion-toggle" aria-label="Pausar efeitos"><svg class="ic"><use href="#i-pause"/></svg><span>Pausar efeitos</span></button>
-      </div>
-    </div>
-  </div>
-
   <header class="site-header" id="topo">
     <div class="wrap site-header__in">
       <a class="brand" href="#top" aria-label="Drysul — gesso e acabamento, início">
@@ -137,6 +126,16 @@
         <button class="btn btn--primary btn--sm quote-btn" type="button" data-open-quote data-magnetic>
           <svg class="ic"><use href="#i-bag"/></svg><span>Pedido</span><span class="quote-count" data-quote-count aria-label="itens no pedido">0</span>
         </button>
+        <!-- som: só o ícone; com o som ligado, o volume aparece embaixo (passando o mouse ou logo depois de ligar) -->
+        <div class="som" id="som" hidden>
+          <button class="som__btn" type="button" id="som-toggle" aria-pressed="true" aria-label="Desligar o som" aria-controls="som-painel">
+            <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 9.5h3.5L13 5.5v13l-5-4H4.5z"/><path class="som__onda som__onda--1" d="M16.5 9a4.2 4.2 0 0 1 0 6"/><path class="som__onda som__onda--2" d="M18.8 6.8a7.4 7.4 0 0 1 0 10.4"/><path class="som__x" d="m16.5 9.5 5 5M21.5 9.5l-5 5"/></svg>
+          </button>
+          <div class="som__painel" id="som-painel">
+            <label class="som__rot" for="som-vol"><span>Volume</span><output id="som-vol-txt" for="som-vol">70%</output></label>
+            <input class="som__vol" id="som-vol" type="range" min="5" max="100" step="1" value="70">
+          </div>
+        </div>
         <button class="menu-btn" type="button" aria-expanded="false" aria-controls="nav" id="menu-btn"><svg class="ic"><use href="#i-menu"/></svg><span class="sr">Abrir menu</span></button>
       </div>
     </div>
@@ -374,18 +373,9 @@
     <!-- SIMULADOR -->
     <section class="section section--paper sim-sec" id="simulador" aria-labelledby="sim-sec-title">
       <div class="wrap">
-        <header class="sec-head sec-head--row sim-sec__head">
-          <div>
-            <p class="eyebrow" data-reveal>06 · Simulador</p>
-            <h2 class="sec-title" id="sim-sec-title" data-reveal>Veja na sua parede <span class="hl">antes de fazer.</span></h2>
-          </div>
-          <div class="sec-side">
-            <p class="sec-lead" data-reveal>Tire uma foto da parede ou do teto e veja como fica com drywall liso, forro com tabica, placa 3D, ripado, lambri ou cimento queimado. Leva menos de um minuto, e a foto não sai do seu celular.</p>
-            <div class="btn-row sim-sec__acoes" data-reveal>
-              <button class="btn btn--primary btn--lg" type="button" data-sim-foto="camera" data-magnetic><svg class="ic"><use href="#i-camera"/></svg><span>Tirar foto e simular</span></button>
-              <button class="btn btn--outline btn--lg" type="button" data-sim-foto="galeria"><svg class="ic"><use href="#i-image"/></svg><span>Escolher foto</span></button>
-            </div>
-          </div>
+        <header class="sec-head sim-sec__head">
+          <p class="eyebrow" data-reveal>06 · Simulador</p>
+          <h2 class="sec-title" id="sim-sec-title" data-reveal>Veja na sua parede <span class="hl">antes de fazer.</span></h2>
         </header>
 
         <div class="sim-tut" data-sim-tut data-passo="1" data-reveal>
@@ -411,9 +401,13 @@
             <li><button type="button" data-tut="4"><b>4</b><span><strong>Toque em Simular</strong>Escolha o acabamento e arraste a linha para comparar.</span><i aria-hidden="true"></i></button></li>
           </ol>
         </div>
-        <div class="btn-row sim-sec__cta-mob">
-          <button class="btn btn--primary btn--lg" type="button" data-sim-foto="camera"><svg class="ic"><use href="#i-camera"/></svg><span>Tirar foto e simular</span></button>
-          <button class="btn btn--outline btn--lg" type="button" data-sim-foto="galeria"><svg class="ic"><use href="#i-image"/></svg><span>Escolher foto</span></button>
+        <!-- depois de ver os 4 passos, a chamada: texto à esquerda, botões à direita (no celular, um embaixo do outro) -->
+        <div class="sim-sec__cta" data-reveal>
+          <p class="sim-sec__lead">Tire uma foto da parede ou do teto e veja como fica com <b>drywall liso, forro com tabica, placa 3D, ripado, lambri ou cimento queimado</b>. Leva menos de um minuto, e a foto não sai do seu celular.</p>
+          <div class="btn-row sim-sec__acoes">
+            <button class="btn btn--primary btn--lg" type="button" data-sim-foto="camera" data-magnetic><svg class="ic"><use href="#i-camera"/></svg><span>Tirar foto e simular</span></button>
+            <button class="btn btn--outline btn--lg" type="button" data-sim-foto="galeria"><svg class="ic"><use href="#i-image"/></svg><span>Escolher foto</span></button>
+          </div>
         </div>
         <p class="sim-sec__rodape" data-reveal>
           <button class="link-arrow" type="button" data-sim-exemplo>Experimentar com esta foto de exemplo <svg class="ic"><use href="#i-arrow"/></svg></button>
@@ -609,11 +603,11 @@
             <span class="info-card__v" data-store="instagram"></span>
             <span class="info-card__a">Ver ofertas <svg class="ic"><use href="#i-ext"/></svg></span>
           </a>
-          <div class="info-card info-card--todo" data-reveal>
+          <div class="info-card" data-reveal>
             <svg class="ic"><use href="#i-clock"/></svg>
-            <span class="info-card__k">Horário e entrega</span>
-            <span class="info-card__v">Horário de atendimento e área de entrega</span>
-            <span class="todo">a definir com a loja</span>
+            <span class="info-card__k">Horário comercial e entregas</span>
+            <span class="info-card__v horario"><span>Segunda a sexta <b>8h às 18h</b></span><span>Sábado <b>8h às 12h</b></span></span>
+            <span class="info-card__a info-card__a--txt">Entregas combinadas pelo WhatsApp</span>
           </div>
         </div>
       </div>
@@ -642,8 +636,11 @@
       </div>
     </div>
     <div class="wrap footer__bottom">
-      <p>© 2026 Drysul · gesso e acabamento</p>
-      <p>Protótipo de demonstração — conteúdo sujeito à aprovação da loja.</p>
+      <p>© 2026</p>
+      <div class="footer__extra">
+        <button class="footer__link" type="button" data-open="creditos">Créditos das imagens</button>
+        <button class="footer__link" type="button" id="motion-toggle" aria-label="Pausar efeitos"><svg class="ic"><use href="#i-pause"/></svg><span>Pausar efeitos</span></button>
+      </div>
       <a class="to-top" href="#top" data-magnetic aria-label="Voltar ao início"><svg class="ic"><use href="#i-arrow"/></svg></a>
     </div>
   </footer>
@@ -703,7 +700,7 @@
         </div>
         <button class="icon-btn" type="button" data-close aria-label="Fechar central de vendas"><svg class="ic"><use href="#i-close"/></svg></button>
       </header>
-      <p class="co-demo"><svg class="ic"><use href="#i-info"/></svg><span><strong>Modo demonstração:</strong> nenhum pagamento é cobrado e nenhum dado sai do seu aparelho.</span></p>
+      <p class="co-demo" id="co-teste"><svg class="ic"><use href="#i-info"/></svg><span><strong>Pagamento online em fase de testes:</strong> nenhum valor é cobrado. Para comprar agora, escolha <b>Conversar no WhatsApp</b> na etapa de pagamento.</span></p>
       <ol class="co-steps" id="co-steps" aria-label="Etapas da compra">
         <li data-s="1"><span>1</span>Pedido</li><li data-s="2"><span>2</span>Entrega</li><li data-s="3"><span>3</span>Pagamento</li><li data-s="4"><span>4</span>Pronto</li>
       </ol>
@@ -773,7 +770,6 @@
     </div>
   </dialog>
 
-  <!-- Diálogo sobre a demo -->
   <!-- Busca rápida: abre pelo cabeçalho, pela tecla / ou Ctrl+K -->
   <dialog data-lenis-prevent class="busca-dlg" id="busca-global" aria-labelledby="bg-titulo">
     <div class="busca" role="search">
@@ -811,51 +807,33 @@
     <div class="sim" id="sim-app"></div>
   </dialog>
 
-  <dialog data-lenis-prevent class="sheet sheet--center" id="sobre-demo" aria-labelledby="about-demo-title">
+  <dialog data-lenis-prevent class="sheet sheet--center" id="creditos" aria-labelledby="creditos-title">
     <div class="sheet__in">
       <header class="sheet__head">
         <div>
-          <p class="eyebrow">Proposta de site</p>
-          <h2 class="sheet__title" id="about-demo-title">Sobre esta demonstração</h2>
+          <p class="eyebrow">Drysul</p>
+          <h2 class="sheet__title" id="creditos-title">Créditos das imagens</h2>
         </div>
         <button class="icon-btn" type="button" data-close aria-label="Fechar"><svg class="ic"><use href="#i-close"/></svg></button>
       </header>
       <div class="sheet__body prose">
-        <p>Versão navegável da proposta de site da Drysul. Tudo aqui funciona: busca, filtros, calculadora, pedido e central de vendas. Pedidos pequenos com preço vão para a compra no site; obras com cálculo, itens sob consulta ou valores maiores seguem para o WhatsApp da loja com a mensagem pronta.</p>
-        <h3>Já com dados reais</h3>
-        <ul class="check">
-          <li>Logotipo, cores, padrão gráfico e fotos do manual da marca</li>
-          <li>Endereço, telefone/WhatsApp e Instagram da loja</li>
-          <li>Preços e fotos da linha Drysul (fita, parafusos e massa), preços informados em 30/09/2026</li>
-          <li>Sete ofertas publicadas no Instagram, com link para a publicação ou o perfil da loja</li>
-        </ul>
-        <h3>Para a versão final</h3>
-        <ul class="todo-list">
-          <li>Fotos reais das chapas e dos perfis (hoje são imagens ilustrativas)</li>
-          <li>Catálogo completo com preços, marcas e medidas</li>
-          <li>Cidade/CEP, horário de atendimento e área de entrega</li>
-          <li>Pagamento real: conta no provedor (ex.: Mercado Pago ou PagBank) no CNPJ da loja e um pequeno servidor que confere preços e confirma pagamentos</li>
-          <li>Comprovante emitido pelo servidor só após a confirmação do provedor, com código assinado e cópia por e-mail</li>
-          <li>Domínio próprio (ex.: drysul.com.br) e publicação definitiva</li>
-        </ul>
-        <h3>Créditos das imagens</h3>
         <p class="muted">Chapas: modelo 3D com a textura da foto <a href="https://commons.wikimedia.org/wiki/File:Stapel_Gipskartonplatten.jpg" target="_blank" rel="noopener">“Stapel Gipskartonplatten”</a>, de RossKur (Wikimedia Commons), licença <a href="https://creativecommons.org/licenses/by/4.0/deed.pt-br" target="_blank" rel="noopener">CC BY 4.0</a>, modificada (recorte, cores RU e RF). Perfis: modelos 3D ilustrativos.</p>
         <p class="muted">Simulador: foto de exemplo <a href="https://commons.wikimedia.org/wiki/File:Unverputzte_Ziegelwand_in_Wohnraum_im_Erdgescho%C3%9F,_Carrer_de_l%27Arquebisbe_Company,_75,_46011_Val%C3%A8ncia,_Valencia,_Spain.jpg" target="_blank" rel="noopener">“Unverputzte Ziegelwand in Wohnraum”</a>, de Kai Kemmann (Wikimedia Commons), licença <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.pt-br" target="_blank" rel="noopener">CC BY-SA 4.0</a>; a imagem “depois” é uma modificação feita pelo simulador, sob a mesma licença. Os acabamentos são gerados pelo próprio site.</p>
-        <p class="muted">Nesta demonstração nenhum pagamento é cobrado e nenhum dado é enviado. Na versão final, o cartão é digitado apenas no ambiente seguro do provedor de pagamento.</p>
+        <p class="muted">Logotipo, cores, padrão gráfico e fotos da loja: Drysul.</p>
       </div>
     </div>
   </dialog>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script defer src="js/data.js?v=15"></script>
-  <script defer src="js/calculator-model.js?v=15"></script>
-  <script defer src="js/checkout-model.js?v=15"></script>
-  <script defer src="js/app.js?v=15"></script>
-  <script defer src="js/receipt.js?v=15"></script>
-  <script defer src="js/checkout.js?v=15"></script>
+  <script defer src="js/data.js?v=16"></script>
+  <script defer src="js/calculator-model.js?v=16"></script>
+  <script defer src="js/checkout-model.js?v=16"></script>
+  <script defer src="js/app.js?v=16"></script>
+  <script defer src="js/receipt.js?v=16"></script>
+  <script defer src="js/checkout.js?v=16"></script>
   <script defer src="js/vendor/lenis.min.js?v=1"></script>
-  <script defer src="js/motion.js?v=15"></script>
-  <script defer src="js/som.js?v=15"></script>
+  <script defer src="js/motion.js?v=16"></script>
+  <script defer src="js/som.js?v=16"></script>
 </body>
 </html>

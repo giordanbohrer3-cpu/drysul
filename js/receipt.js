@@ -1,5 +1,5 @@
 /* Comprovante do pedido: tela, imagem PNG (galeria/WhatsApp), impressão/PDF e compartilhamento.
-   DEMONSTRAÇÃO: o comprovante leva marca d'água e não tem valor. Na versão final ele é emitido pelo
+   MODO DE TESTE (vendas.demo): o comprovante leva marca d'água e não tem valor. Com o provedor ligado, ele é emitido pelo
    servidor da loja só depois da confirmação do provedor de pagamento, com código assinado e cópia por e-mail. */
 (function () {
   'use strict';
@@ -26,7 +26,7 @@
       dataISO: new Date().toISOString(),
       status: o.pago ? 'pago' : 'aguardando',
       pagamento: o.pagamento,
-      transacao: o.pago ? (DEMO ? 'DEMO-' : '') + Math.random().toString(36).slice(2, 10).toUpperCase() : null,
+      transacao: o.pago ? (DEMO ? 'TESTE-' : '') + Math.random().toString(36).slice(2, 10).toUpperCase() : null,
       entrega: o.entrega,
       cliente: { nome: o.nome, telefone: V.mascararTelefone(o.telefone), email: V.mascararEmail(o.email) },
       itens: o.linhas.map(function (l) {
@@ -53,7 +53,7 @@
     return '<article class="rcpt' + (r.demo ? ' rcpt--demo' : '') + '" aria-label="' + esc(titulo(r)) + ' ' + esc(r.numero) + '">' +
       '<header class="rcpt__head"><svg class="logo logo--light" viewBox="0 0 1752.7 556.3" aria-hidden="true"><use href="#logo-drysul"/></svg>' +
         '<p>' + esc(titulo(r)) + '</p></header>' +
-      (r.demo ? '<p class="rcpt__demo">Demonstração · nenhum valor foi cobrado · sem validade</p>' : '') +
+      (r.demo ? '<p class="rcpt__demo">Teste · nenhum valor foi cobrado · sem validade</p>' : '') +
       '<div class="rcpt__status rcpt__status--' + r.status + '">' + A.icon(r.status === 'pago' ? 'i-check' : 'i-clock') + '<span>' + esc(statusTxt(r)) + '</span></div>' +
       '<p class="rcpt__total"><small>' + (r.status === 'pago' ? 'Total pago' : 'Total dos produtos') + '</small><strong>' + BRL.format(r.total) + '</strong></p>' +
       '<dl class="rcpt__meta">' +
@@ -124,7 +124,7 @@
     y = 190;
     if (r.demo) {
       if (!medir) { ctx.fillStyle = '#FFF1B8'; ctx.fillRect(0, y, W, 64); }
-      font(700, 26); texto('DEMONSTRAÇÃO · nenhum valor foi cobrado · sem validade', W / 2, y + 42, '#5B4A00', 'center');
+      font(700, 26); texto('TESTE · nenhum valor foi cobrado · sem validade', W / 2, y + 42, '#5B4A00', 'center');
       y += 64;
     }
     // status e total
@@ -186,7 +186,7 @@
     if (!medir && r.demo) {
       ctx.save(); ctx.translate(W / 2, y / 2 + 80); ctx.rotate(-0.42);
       font(900, 120, 'condensed'); ctx.textAlign = 'center'; ctx.fillStyle = 'rgba(239,80,35,.13)';
-      for (var k = -3; k <= 3; k++) ctx.fillText('DEMONSTRAÇÃO', 0, k * 300);
+      for (var k = -3; k <= 3; k++) ctx.fillText('TESTE', 0, k * 300);
       ctx.restore();
     }
     return y;

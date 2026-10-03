@@ -102,7 +102,7 @@
   // Acima disso, com estimativa da calculadora ou item sob consulta, o pedido segue para o WhatsApp.
   var vendas = {
     limiteOnline: 1000, // R$ — definido em 30/09/2026
-    demo: true          // demonstração: nenhum pagamento é processado
+    demo: true          // modo de teste: enquanto o provedor de pagamento não está ligado, nada é cobrado e a central avisa
   };
 
   // Preços médios de mercado, usados só na estimativa da calculadora enquanto a loja não informa o preço dela.

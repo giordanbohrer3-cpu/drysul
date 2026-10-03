@@ -810,7 +810,7 @@
     if (window.DrysulSim) return Promise.resolve(window.DrysulSim);
     if (!simCarregando) simCarregando = new Promise(function (ok, erro) {
       var sc = document.createElement('script');
-      sc.src = 'js/simulador.js?v=15'; sc.async = true;
+      sc.src = 'js/simulador.js?v=16'; sc.async = true;
       sc.onload = function () { ok(window.DrysulSim); };
       sc.onerror = function () { simCarregando = null; sc.remove(); erro(new Error('simulador')); };
       document.head.appendChild(sc);

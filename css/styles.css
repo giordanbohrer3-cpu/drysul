@@ -245,23 +245,6 @@ ul, ol { padding: 0; list-style: none; }
 .link-arrow .ic { transition: transform var(--t) var(--ease); }
 .link-arrow:hover .ic { transform: translateX(4px); }
 
-/* ---------- Barra de demonstração ---------- */
-.demo-bar { background: var(--navy-night); color: var(--on-dark-muted); font-size: 13px; position: relative; z-index: 61; }
-.demo-bar__in { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 40px; }
-.demo-bar__txt { display: flex; align-items: center; gap: 10px; min-width: 0; }
-.demo-tag {
-  background: var(--orange); color: var(--ink); font-weight: 800; font-size: 10px; letter-spacing: .14em;
-  text-transform: uppercase; padding: 3px 7px; font-stretch: var(--wide); border-radius: 1px;
-}
-.demo-bar__actions { display: flex; gap: 4px; flex: none; }
-.demo-btn {
-  display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; min-height: 32px;
-  border-radius: var(--r-s); color: var(--on-dark); transition: background-color var(--t);
-}
-.demo-btn:hover { background: rgba(255, 255, 255, .08); }
-.demo-btn .ic { width: 16px; height: 16px; }
-.demo-btn[aria-pressed="false"] { color: var(--on-dark-muted); opacity: .8; }
-
 /* ---------- Cabeçalho ---------- */
 .site-header {
   position: sticky; top: 0; z-index: 60;
@@ -308,6 +291,41 @@ ul, ol { padding: 0; list-style: none; }
 .theme-btn .ic-sun { opacity: 0; transform: rotate(-90deg) scale(.5); color: #FFC24A; }
 [data-theme="dark"] .theme-btn .ic-sun { opacity: 1; transform: none; }
 [data-theme="dark"] .theme-btn .ic-moon { opacity: 0; transform: rotate(90deg) scale(.5); }
+/* som: só o ícone, discreto, no canto direito do cabeçalho; com o som ligado, o volume abre logo embaixo */
+.som { position: relative; display: grid; margin-left: 2px; }
+.som__btn { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; color: var(--on-dark-muted); opacity: .7;
+  transition: color var(--t-fast), opacity var(--t-fast), background-color var(--t-fast), transform var(--t-fast) var(--ease); }
+.som__btn:hover, .som__btn:focus-visible, .som.is-aberto .som__btn { color: var(--on-dark); opacity: 1; background: rgba(255, 255, 255, .07); }
+.som__btn:active { transform: scale(.92); }
+.som__btn .ic { width: 20px; height: 20px; overflow: visible; }
+.som__onda, .som__x { transition: opacity 200ms; }
+.som__x { opacity: 0; }
+.som.is-mudo .som__onda { opacity: 0; }
+.som.is-mudo .som__x { opacity: 1; }
+/* tocando: as ondas do ícone "respiram" devagar (só com efeitos ligados) */
+.motion-on .som.is-tocando .som__onda--1 { animation: som-onda 2.6s ease-in-out infinite; }
+.motion-on .som.is-tocando .som__onda--2 { animation: som-onda 2.6s ease-in-out .65s infinite; }
+@keyframes som-onda { 50% { opacity: .3; } }
+.som__painel { position: absolute; top: calc(100% + 10px); right: -4px; z-index: 2; display: grid; gap: 6px; width: 184px; padding: 12px 14px 10px;
+  border: 1px solid var(--line-dark); border-radius: var(--r-m); background: var(--navy-deep); box-shadow: 0 18px 40px -16px rgba(0, 0, 0, .75);
+  opacity: 0; visibility: hidden; transform: translateY(-4px); transition: opacity 180ms var(--ease), transform 180ms var(--ease), visibility 0s linear 180ms; }
+.som__painel::before { content: ""; position: absolute; left: 0; right: 0; top: -12px; height: 12px; } /* ponte: o mouse vai do botão ao painel sem fechar */
+.som.is-aberto .som__painel, .som:not(.is-mudo):has(:focus-visible) .som__painel { opacity: 1; visibility: visible; transform: none; transition-delay: 0s; }
+@media (hover: hover) and (pointer: fine) {
+  .som:not(.is-mudo):hover .som__painel, .som:not(.is-mudo):focus-within .som__painel { opacity: 1; visibility: visible; transform: none; transition-delay: 0s; }
+}
+.som__rot { display: flex; justify-content: space-between; align-items: baseline; font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
+  font-stretch: var(--wide); color: var(--on-dark-muted); }
+.som__rot output { font-size: 12px; letter-spacing: 0; color: var(--on-dark); font-variant-numeric: tabular-nums; }
+.som__vol { --v: 68%; -webkit-appearance: none; appearance: none; width: 100%; height: 24px; margin: 0; background: transparent; cursor: pointer; }
+.som__vol::-webkit-slider-runnable-track { height: 4px; border-radius: 2px; background: linear-gradient(to right, var(--orange) var(--v), rgba(255, 255, 255, .18) var(--v)); }
+.som__vol::-moz-range-track { height: 4px; border-radius: 2px; background: rgba(255, 255, 255, .18); }
+.som__vol::-moz-range-progress { height: 4px; border-radius: 2px; background: var(--orange); }
+.som__vol::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; margin-top: -6px; border: 0; border-radius: 50%; background: #fff; box-shadow: 0 0 0 3px rgba(239, 80, 35, .35); }
+.som__vol::-moz-range-thumb { width: 16px; height: 16px; border: 0; border-radius: 50%; background: #fff; box-shadow: 0 0 0 3px rgba(239, 80, 35, .35); }
+.som__vol:focus-visible { outline: none; }
+.som__vol:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px var(--orange); }
+.som__vol:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 4px var(--orange); }
 ::view-transition-old(root), ::view-transition-new(root) { animation-duration: 420ms; animation-timing-function: var(--ease); }
 /* barra de busca do cabeçalho: abre a busca rápida; a dica de produto é "digitada" pelo app.js */
 .search-bar {
@@ -334,21 +352,16 @@ ul, ol { padding: 0; list-style: none; }
 }
 .menu-btn { display: none; width: 44px; height: 44px; place-items: center; border-radius: var(--r-s); color: var(--on-dark); border: 1.5px solid var(--line-dark); }
 .menu-btn .ic { width: 22px; height: 22px; }
-/* item de tema dentro do menu: só nas telas bem estreitas, onde o botão do cabeçalho sai para caber a busca */
+/* item de tema dentro do menu: só nas telas estreitas, onde o botão do cabeçalho sai para caber a busca e o som */
 .nav__tema-item { display: none; }
 .nav__tema { display: flex; align-items: center; gap: 12px; width: 100%; padding: 16px 4px; color: var(--on-dark); font-size: 1.05rem; font-weight: 700; }
 .nav__tema .ic { width: 22px; height: 22px; }
 .nav__tema .ic-sun { display: none; color: #FFC24A; }
 [data-theme="dark"] .nav__tema .ic-sun { display: block; }
 [data-theme="dark"] .nav__tema .ic-moon { display: none; }
-@media (max-width: 400px) {
+@media (max-width: 460px) {
   .header-actions .theme-btn { display: none; }
   .nav__tema-item { display: block; }
-}
-@media (max-width: 359px) {
-  .site-header__in { gap: 10px; }
-  .header-actions { gap: 6px; }
-  .site-header .logo, .site-header.is-compact .logo { height: 30px; }
 }
 
 .progress { position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: transparent; overflow: hidden; }
@@ -478,8 +491,6 @@ html:not(.pin-on) .part__n { color: var(--orange); -webkit-text-stroke-color: va
 .hero__hint span { position: relative; width: 18px; height: 28px; border: 1.5px solid rgba(216, 217, 210, .45); border-radius: 10px; }
 .hero__hint span::after { content: ""; position: absolute; left: 50%; top: 6px; width: 3px; height: 6px; margin-left: -1.5px; border-radius: 2px; background: var(--orange); }
 html:not(.pin-on) .hero__hint { display: none; }
-/* a faixa DEMO (40px) empurra o palco na carga: a dica sobe junto para aparecer já na primeira tela */
-body:has(.demo-bar) .hero__hint { bottom: 54px; }
 
 /* Parede drywall em 3D — camadas controladas por variáveis (0 → 1) que o motion.js ajusta com a rolagem:
    --rot/--rot2 (giro), --tape/--tapeo (fita sai), --sep (chapas abrem), --scr (parafusos); --rmx/--rmy seguem o mouse.
@@ -1026,9 +1037,10 @@ a.info-card:hover { border-color: var(--orange); background: rgba(239, 80, 35, .
 .info-card__v { font-size: 1.1rem; font-weight: 700; color: var(--white); line-height: 1.35; }
 .info-card__a { display: inline-flex; align-items: center; gap: 6px; margin-top: auto; padding-top: 12px; font-size: 14px; font-weight: 700; color: var(--orange-on-dark); }
 .info-card__a .ic { width: 16px; height: 16px; }
-.info-card--todo { border-style: dashed; }
-.info-card--todo .info-card__v { color: var(--on-dark-muted); font-weight: 600; }
-.todo { justify-self: start; margin-top: auto; font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; font-stretch: var(--wide); color: var(--sand); border: 1px dashed rgba(216, 217, 210, .5); padding: 4px 8px; }
+.horario { display: grid; gap: 4px; }
+.horario > span { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0 12px; }
+.horario b { font-weight: 700; color: var(--orange-on-dark); font-variant-numeric: tabular-nums; }
+.info-card__a--txt { color: var(--on-dark-muted); font-weight: 600; }
 
 /* ---------- Rodapé ---------- */
 .footer { background: var(--navy-night); color: var(--on-dark-muted); padding: 64px 0 28px; font-size: 14.5px; }
@@ -1040,6 +1052,10 @@ a.info-card:hover { border-color: var(--orange); background: rgba(239, 80, 35, .
 .footer__col a:hover { color: var(--white); text-decoration: underline; text-underline-offset: 3px; }
 .footer__k { font-size: 11px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; font-stretch: var(--wide); color: var(--orange); margin-bottom: 4px; }
 .footer__bottom { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px; padding-top: 24px; font-size: 13px; }
+.footer__extra { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 20px; margin-right: auto; }
+.footer__link { display: inline-flex; align-items: center; gap: 6px; min-height: 32px; padding: 4px 0; color: var(--on-dark-muted); font-size: 13px; transition: color var(--t-fast); }
+.footer__link:hover { color: var(--white); }
+.footer__link .ic { width: 15px; height: 15px; }
 .to-top { display: grid; place-items: center; width: 48px; height: 48px; border: 1.5px solid var(--line-dark); border-radius: var(--r-s); color: var(--on-dark); transition: border-color var(--t), background-color var(--t); }
 .to-top .ic { transform: rotate(-90deg); }
 .to-top:hover { border-color: var(--orange); background: rgba(239, 80, 35, .1); }
@@ -1189,7 +1205,6 @@ a.info-card:hover { border-color: var(--orange); background: rgba(239, 80, 35, .
 .prose ul { display: grid; gap: 8px; }
 .prose li { position: relative; padding-left: 26px; }
 .prose .check li::before { content: ""; position: absolute; left: 2px; top: .45em; width: 12px; height: 7px; border-left: 2.5px solid var(--success); border-bottom: 2.5px solid var(--success); transform: rotate(-45deg); }
-.prose .todo-list li::before { content: ""; position: absolute; left: 2px; top: .55em; width: 11px; height: 11px; border: 1.5px dashed var(--orange-text); }
 
 /* ---------- Pedido: canal (site x WhatsApp) ---------- */
 .btn--wide { grid-column: 1 / -1; }
@@ -1403,8 +1418,6 @@ a.info-card:hover { border-color: var(--orange); background: rgba(239, 80, 35, .
 
 @media (max-width: 720px) {
   .hide-sm { display: none; }
-  .demo-btn span { display: none; }
-  .demo-btn { width: 36px; justify-content: center; padding: 6px; }
   .quote-btn > span:not(.quote-count) { display: none; }
   .quote-btn { padding: 0 12px; }
   .hero__facts li { padding-right: 16px; margin-right: 16px; }
@@ -1455,6 +1468,24 @@ a.info-card:hover { border-color: var(--orange); background: rgba(239, 80, 35, .
   .pin-on .part__d { font-size: 14px; }
 }
 
+/* cabeçalho em celulares estreitos: logo, busca, pedido, som e menu cabem sem rolagem lateral (360 e 320 px) */
+@media (max-width: 400px) {
+  .site-header__in { gap: 12px; }
+  .header-actions { gap: 6px; }
+  .site-header .logo, .site-header.is-compact .logo { height: 32px; }
+  .som { margin-left: 0; }
+  .som__btn { width: 32px; }
+}
+@media (max-width: 359px) {
+  .wrap { --gut: 16px; }
+  .site-header__in { gap: 8px; }
+  .header-actions { gap: 4px; }
+  .site-header .logo, .site-header.is-compact .logo { height: 27px; }
+  .header-actions .search-bar { width: 36px; height: 36px; }
+  .quote-btn { padding: 0 9px; }
+  .menu-btn { width: 40px; height: 40px; }
+}
+
 @media (max-width: 380px) {
   .wall { height: 420px; --k: .64; }
   .prod-grid { grid-template-columns: 1fr; }
@@ -1465,9 +1496,7 @@ a.info-card:hover { border-color: var(--orange); background: rgba(239, 80, 35, .
 /* ==========================================================================
    Simulador de acabamento — seção e janela
    ========================================================================== */
-.sim-sec__head { margin-bottom: clamp(28px, 4vw, 48px); }
-.sim-sec__head .sec-side { flex-basis: 480px; }
-.sim-sec__acoes { margin-top: 18px; }
+.sim-sec__head { margin-bottom: clamp(28px, 4vw, 44px); }
 /* demonstração dos 4 passos: palco grande à esquerda, passos sincronizados à direita */
 .sim-tut { display: grid; grid-template-columns: minmax(0, 1fr) minmax(260px, 310px); gap: clamp(18px, 2.6vw, 32px); align-items: stretch; }
 .sim-tut__palco { position: relative; display: block; width: 100%; aspect-ratio: 4 / 3; padding: 0; border: 0; border-radius: var(--r-m); overflow: hidden; isolation: isolate;
@@ -1522,8 +1551,18 @@ a.info-card:hover { border-color: var(--orange); background: rgba(239, 80, 35, .
 .sim-sec__priv { display: inline-flex; align-items: center; gap: 6px; }
 .sim-sec__priv .ic { width: 16px; height: 16px; }
 .sim-sec__cred { margin-left: auto; font-size: 12px; }
-.sim-sec__cta-mob { display: none; }
-@media (max-width: 900px) { .sim-sec__cta-mob { display: flex; margin-top: 18px; } .sim-sec__cta-mob .btn { flex: 1 1 220px; } }
+/* chamada depois da demonstração: texto + botões numa faixa só, logo embaixo do palco e dos passos */
+.sim-sec__cta { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 18px 36px; margin-top: clamp(18px, 2.6vw, 32px);
+  padding: clamp(18px, 2.4vw, 26px) clamp(18px, 2.8vw, 32px); border: 1.5px solid var(--line); border-left: 4px solid var(--orange); border-radius: var(--r-m);
+  background: var(--surface); box-shadow: var(--sh-1); }
+.sim-sec__lead { margin: 0; max-width: 62ch; font-size: clamp(15.5px, 1.25vw, 17px); line-height: 1.55; color: var(--muted); }
+.sim-sec__lead b { color: var(--fg); font-weight: 700; }
+.sim-sec__acoes { flex-wrap: nowrap; }
+@media (max-width: 1100px) {
+  .sim-sec__cta { grid-template-columns: minmax(0, 1fr); }
+  .sim-sec__acoes { flex-wrap: wrap; }
+  .sim-sec__acoes .btn { flex: 1 1 220px; }
+}
 @media (max-width: 900px) {
   .sim-tut { grid-template-columns: minmax(0, 1fr); }
   .sim-tut__passos { grid-template-columns: 1fr 1fr; grid-auto-rows: auto; gap: 8px; }

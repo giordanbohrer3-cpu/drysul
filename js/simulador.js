@@ -49,7 +49,8 @@
   var S = {
     foto: null, W: 0, H: 0, nome: '',
     cantos: null, sup: 'parede', acab: 'liso', tom: 0, escala: 1, girar: false, luz: 0.85, brilho: 1,
-    modo: 'cantos', corte: 0.5, pincel: 1, tracos: [], tracoAtual: null, revela: 1, exemplo: false
+    modo: 'cantos', corte: 0.5, pincel: 1, tracos: [], tracoAtual: null, revela: 1, exemplo: false,
+    passo: 'cantos', simulado: false, comparar: false, mexeu: false
   };
   var dlg, raiz, cv, gl, prog, U = {}, TX = {}, est = null, texChave = '', aniso = null;
   var masc, mctx, MASC_K = 0.5;  // máscara de proteção em meia resolução
@@ -171,7 +172,7 @@
     '#version 300 es',
     'precision highp float;',
     'uniform sampler2D uFoto,uSombra,uMasc,uAcab;',
-    'uniform vec2 uTam;uniform mat3 uHinv;uniform vec2 uC[4];uniform float uSinal,uMedia,uLuz,uExpo,uBrilho,uCorte,uRevela,uVerMasc,uTem;uniform vec3 uTinta;',
+    'uniform vec2 uTam;uniform mat3 uHinv;uniform vec2 uC[4];uniform float uSinal,uMedia,uLuz,uExpo,uBrilho,uCorte,uRevela,uVerMasc,uTem,uSel;uniform vec3 uTinta;',
     'out vec4 cor;',
     'vec3 lin(vec3 c){return pow(c,vec3(2.2));}vec3 srgb(vec3 c){return pow(clamp(c,0.,1.),vec3(1./2.2));}',
     'float lado(vec2 a,vec2 b,vec2 p){vec2 e=b-a;return (e.x*(p.y-a.y)-e.y*(p.x-a.x))/max(length(e),1e-4);}',
@@ -181,7 +182,7 @@
     ' vec3 h=uHinv*vec3(p,1.);vec2 uv=h.xy/h.z;',
     ' float d=min(min(lado(uC[0],uC[1],p),lado(uC[1],uC[2],p)),min(lado(uC[2],uC[3],p),lado(uC[3],uC[0],p)))*uSinal;',
     ' float m=texture(uMasc,t).r;',
-    ' float cob=clamp(d+.5,0.,1.)*uTem*(1.-m);',
+    ' float area=clamp(d+.5,0.,1.)*(1.-m);float cob=area*uTem;',
     ' float w=t.x*.78+t.y*.22;cob*=smoothstep(w-.08,w,uRevela*1.08);',
     ' vec3 ac=lin(texture(uAcab,clamp(uv,0.,1.)).rgb);',
     ' float s=texture(uSombra,t).r;s=s*s/max(uMedia,.002);s=clamp(s,.3,1.45);',
@@ -189,7 +190,8 @@
     ' vec3 res=srgb(ac*luz*uTinta);',
     ' vec3 o=mix(foto,res,cob);',
     ' if(uCorte>=0.&&p.x<uCorte)o=foto;',
-    ' if(uVerMasc>.5)o=mix(o,vec3(.937,.314,.137),m*.5);',
+    ' if(uSel>.5)o=mix(o,vec3(.937,.314,.137),.24*area);',
+    ' if(uVerMasc>.5)o=mix(o,vec3(.357,.816,.541),m*.55);',
     ' cor=vec4(o,1.);',
     '}'
   ].join('\n');
@@ -205,7 +207,7 @@
     var b = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, b);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
     var a = gl.getAttribLocation(prog, 'a'); gl.enableVertexAttribArray(a); gl.vertexAttribPointer(a, 2, gl.FLOAT, false, 0, 0);
-    ['uFoto', 'uSombra', 'uMasc', 'uAcab', 'uTam', 'uHinv', 'uC', 'uSinal', 'uMedia', 'uLuz', 'uExpo', 'uBrilho', 'uCorte', 'uRevela', 'uVerMasc', 'uTem', 'uTinta']
+    ['uFoto', 'uSombra', 'uMasc', 'uAcab', 'uTam', 'uHinv', 'uC', 'uSinal', 'uMedia', 'uLuz', 'uExpo', 'uBrilho', 'uCorte', 'uRevela', 'uVerMasc', 'uTem', 'uSel', 'uTinta']
       .forEach(function (n) { U[n] = gl.getUniformLocation(prog, n); });
     ['foto', 'sombra', 'masc', 'acab'].forEach(function (n, i) { TX[n] = gl.createTexture(); gl.uniform1i(U['u' + n[0].toUpperCase() + n.slice(1)], i); });
     aniso = gl.getExtension('EXT_texture_filter_anisotropic');
@@ -354,10 +356,12 @@
     gl.uniform1f(U.uSinal, areaSinal(S.cantos) >= 0 ? 1 : -1);
     gl.uniform1f(U.uMedia, S.media); gl.uniform1f(U.uLuz, S.luz); gl.uniform1f(U.uExpo, S.expo); gl.uniform1f(U.uBrilho, S.brilho);
     gl.uniform3fv(U.uTinta, S.tinta);
-    gl.uniform1f(U.uCorte, S.modo === 'comparar' ? S.corte * S.W : -1);
+    var res = S.passo === 'resultado';
+    gl.uniform1f(U.uCorte, res && S.comparar ? S.corte * S.W : -1);
     gl.uniform1f(U.uRevela, S.revela);
-    gl.uniform1f(U.uVerMasc, S.modo === 'pincel' ? 1 : 0);
-    gl.uniform1f(U.uTem, 1);
+    gl.uniform1f(U.uVerMasc, res ? 0 : 1);
+    gl.uniform1f(U.uSel, res ? 0 : 1);
+    gl.uniform1f(U.uTem, res ? 1 : 0);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
     posicionarOverlay();
   }
@@ -370,23 +374,52 @@
     })(t0);
   }
 
-  /* ---------- interface ---------- */
+  /* ---------- interface: passo a passo ----------
+     Cantos → Proteger → Acabamento (botão Simular) → Resultado. Laranja = o que vai mudar; verde = o que fica igual. */
+  var ORDEM = ['cantos', 'proteger', 'acabamento', 'resultado'];
+  var GUIA = {
+    cantos: { t: 'Marque a área que vai mudar', d: 'Arraste as 4 bolinhas laranja até os cantos da parede (ou do teto). O que ficar em laranja recebe o acabamento.',
+      ex: 'Na foto de exemplo os cantos já estão no lugar: toque em Próximo.' },
+    proteger: { t: 'Pinte o que não pode mudar', d: 'Passe o dedo (ou o mouse) por cima de janelas, portas, móveis e quadros. O que ficar verde continua igual à foto. Nada na frente? Toque em Próximo.',
+      ex: 'Aqui a janela, a cortina e o ventilador já estão protegidos.' },
+    acabamento: { t: 'Escolha o acabamento', d: 'Escolha o tipo e a cor. Depois toque em Simular para ver como fica.' },
+    resultado: { t: 'Pronto! Veja como ficou', d: 'Troque o acabamento ou a cor quando quiser. Em "Antes e depois", arraste a linha para comparar. Gostou? Salve a imagem ou peça o orçamento.' }
+  };
+  var DICA = {
+    cantos: 'Arraste as bolinhas laranja até os cantos ',
+    proteger: 'Pinte de verde o que deve ficar igual (janela, porta, móveis).',
+    acabamento: 'Escolha o acabamento e toque em Simular.',
+    resultado: 'Arraste a linha para comparar o antes e o depois.'
+  };
+  // mini animações de cada passo (CSS em styles.css; paradas sem efeitos)
+  var MINI = {
+    cantos: '<svg class="mini mini--cantos" viewBox="0 0 64 48"><rect class="mini__parede" x="4" y="4" width="56" height="40" rx="2"/><rect class="mini__area" x="4" y="4" width="56" height="40"/>' +
+      '<circle class="mini__p mini__p1" cx="4" cy="4" r="3.6"/><circle class="mini__p mini__p2" cx="60" cy="4" r="3.6"/><circle class="mini__p mini__p3" cx="60" cy="44" r="3.6"/><circle class="mini__p mini__p4" cx="4" cy="44" r="3.6"/></svg>',
+    proteger: '<svg class="mini mini--proteger" viewBox="0 0 64 48"><rect class="mini__parede" x="4" y="4" width="56" height="40" rx="2"/><rect class="mini__janela" x="22" y="12" width="20" height="26"/><path class="mini__janela" d="M32 12v26M22 25h20"/>' +
+      '<path class="mini__tinta" pathLength="1" d="M20 15h24M44 22H20M20 29h24M44 36H20"/></svg>',
+    acabamento: '<svg class="mini mini--acab" viewBox="0 0 64 48"><rect class="mini__parede" x="4" y="4" width="56" height="40" rx="2"/><rect class="mini__novo" x="4" y="4" width="56" height="40" rx="2"/>' +
+      '<rect class="mini__btn" x="18" y="32" width="28" height="9" rx="4.5"/></svg>',
+    resultado: '<svg class="mini mini--res" viewBox="0 0 64 48"><rect class="mini__parede" x="4" y="4" width="56" height="40" rx="2"/><rect class="mini__novo mini__novo--meio" x="4" y="4" width="56" height="40" rx="2"/>' +
+      '<path class="mini__linha" d="M32 4v40"/></svg>'
+  };
+
   function montar() {
     dlg = document.getElementById('simulador-dlg');
     raiz = $('#sim-app', dlg);
+    var etapas = [['foto', 'Foto'], ['cantos', 'Cantos'], ['proteger', 'Proteger'], ['acabamento', 'Simular']];
     raiz.innerHTML =
       '<header class="sim__top"><div><p class="eyebrow">Simulador de acabamento</p><h2 class="sim__titulo" id="sim-titulo">Veja na sua obra</h2></div>' +
         '<button class="icon-btn sim__fechar" type="button" data-sim="fechar" aria-label="Fechar simulador"><svg class="ic"><use href="#i-close"/></svg></button></header>' +
       '<div class="sim__corpo">' +
         '<div class="sim__palco" id="sim-palco">' +
           '<div class="sim__vazio" id="sim-vazio">' +
-            '<svg class="sim__vazio-ic" viewBox="0 0 64 48" aria-hidden="true"><rect x="4" y="10" width="56" height="34" rx="4"/><circle cx="32" cy="27" r="10"/><path d="M22 10l4-6h12l4 6"/></svg>' +
-            '<p class="sim__vazio-t">Fotografe a parede ou o teto de frente, com boa luz.</p>' +
+            '<p class="sim__vazio-t">Veja como funciona e depois faça com a sua foto:</p>' +
+            '<div class="sim__vazio-tut" id="sim-vazio-tut"></div>' +
             '<div class="sim__vazio-acoes">' +
-              '<button class="btn btn--primary" type="button" data-sim="camera"><svg class="ic"><use href="#i-camera"/></svg><span>Tirar foto</span></button>' +
-              '<button class="btn btn--outline" type="button" data-sim="galeria"><svg class="ic"><use href="#i-image"/></svg><span>Escolher foto</span></button>' +
+              '<button class="btn btn--primary btn--lg" type="button" data-sim="camera"><svg class="ic"><use href="#i-camera"/></svg><span>Tirar foto</span></button>' +
+              '<button class="btn btn--outline btn--lg" type="button" data-sim="galeria"><svg class="ic"><use href="#i-image"/></svg><span>Escolher foto</span></button>' +
             '</div>' +
-            '<button class="link-arrow" type="button" data-sim="exemplo">Usar a foto de exemplo <svg class="ic"><use href="#i-arrow"/></svg></button>' +
+            '<button class="link-arrow" type="button" data-sim="exemplo">Ou use a foto de exemplo <svg class="ic"><use href="#i-arrow"/></svg></button>' +
             '<p class="sim__priv"><svg class="ic"><use href="#i-lock"/></svg> A foto fica só no seu aparelho: nada é enviado.</p>' +
           '</div>' +
           '<div class="sim__quadro" id="sim-quadro" hidden>' +
@@ -396,34 +429,35 @@
               return '<button class="sim__canto" type="button" data-canto="' + i + '" aria-label="' + n + ' (use as setas para mover)"></button>';
             }).join('') +
             '<div class="sim__corte" id="sim-corte" hidden><span class="sim__corte-rot">Antes</span><span class="sim__corte-al" aria-hidden="true"></span><span class="sim__corte-rot">Depois</span></div>' +
+            '<span class="sim__cursor" id="sim-cursor" hidden></span>' +
             '<canvas class="sim__lupa" id="sim-lupa" width="132" height="132" hidden></canvas>' +
             '<p class="sim__credito" id="sim-credito" hidden></p>' +
           '</div>' +
           '<p class="sim__dica" id="sim-dica" aria-live="polite"></p>' +
         '</div>' +
         '<div class="sim__painel" id="sim-painel" hidden>' +
-          '<div class="sim__grupo"><p class="sim__rot">Superfície</p><div class="seg" role="group" aria-label="Superfície">' +
+          '<ol class="sim-etapas" aria-label="Passos do simulador">' + etapas.map(function (e, i) {
+            return '<li><button type="button" data-ir="' + e[0] + '"><b><span>' + (i + 1) + '</span><svg class="ic"><use href="#i-check"/></svg></b>' + e[1] + '</button></li>';
+          }).join('') + '</ol>' +
+          '<div class="sim-guia" id="sim-guia" aria-live="polite"></div>' +
+          '<div class="sim__grupo" data-etapas="cantos"><p class="sim__rot">O que você fotografou?</p><div class="seg" role="group" aria-label="Superfície">' +
             '<button type="button" data-sup="parede" aria-pressed="true">Parede</button><button type="button" data-sup="teto" aria-pressed="false">Teto</button></div></div>' +
-          '<div class="sim__grupo"><p class="sim__rot">Ferramenta</p><div class="seg seg--3" role="group" aria-label="Ferramenta">' +
-            '<button type="button" data-modo="cantos" aria-pressed="true">Cantos</button><button type="button" data-modo="pincel" aria-pressed="false">Proteger</button><button type="button" data-modo="comparar" aria-pressed="false">Antes/depois</button></div>' +
-            '<div class="sim__pincel" id="sim-pincel" hidden><div class="seg" role="group" aria-label="Tamanho do pincel">' +
+          '<div class="sim__grupo" data-etapas="proteger"><p class="sim__rot">Tamanho do pincel</p><div class="seg" role="group" aria-label="Tamanho do pincel">' +
               '<button type="button" data-pincel="0" aria-pressed="false">Fino</button><button type="button" data-pincel="1" aria-pressed="true">Médio</button><button type="button" data-pincel="2" aria-pressed="false">Grosso</button></div>' +
-              '<div class="sim__pincel-acoes"><button class="btn btn--sm btn--outline" type="button" data-sim="desfazer">Desfazer</button><button class="btn btn--sm btn--outline" type="button" data-sim="limpar">Limpar</button></div></div>' +
-          '</div>' +
-          '<div class="sim__grupo"><p class="sim__rot">Acabamento</p><div class="sim__acabs" id="sim-acabs" role="radiogroup" aria-label="Acabamento"></div></div>' +
-          '<div class="sim__grupo"><p class="sim__rot" id="sim-tons-rot">Cor</p><div class="sim__tons" id="sim-tons" role="radiogroup" aria-labelledby="sim-tons-rot"></div></div>' +
-          '<details class="sim__ajustes"><summary>Ajustes finos</summary>' +
+            '<div class="sim__pincel-acoes"><button class="btn btn--sm btn--outline" type="button" data-sim="desfazer">Desfazer</button><button class="btn btn--sm btn--outline" type="button" data-sim="limpar">Limpar tudo</button></div></div>' +
+          '<div class="sim__grupo" data-etapas="resultado"><div class="seg" role="group" aria-label="Visualização">' +
+            '<button type="button" data-ver="resultado" aria-pressed="true">Resultado</button><button type="button" data-ver="comparar" aria-pressed="false">Antes e depois</button></div></div>' +
+          '<div class="sim__grupo" data-etapas="acabamento resultado"><p class="sim__rot">Acabamento</p><div class="sim__acabs" id="sim-acabs" role="radiogroup" aria-label="Acabamento"></div></div>' +
+          '<div class="sim__grupo" data-etapas="acabamento resultado"><p class="sim__rot" id="sim-tons-rot">Cor</p><div class="sim__tons" id="sim-tons" role="radiogroup" aria-labelledby="sim-tons-rot"></div></div>' +
+          '<details class="sim__ajustes" data-etapas="resultado"><summary>Ajustes finos</summary>' +
             '<label class="sim__faixa" id="sim-escala-box"><span>Tamanho do padrão</span><input type="range" min="0.6" max="1.8" step="0.05" value="1" data-ajuste="escala"></label>' +
             '<label class="sim__faixa"><span>Luz e sombra da foto</span><input type="range" min="0" max="1" step="0.05" value="0.85" data-ajuste="luz"></label>' +
             '<label class="sim__faixa"><span>Brilho</span><input type="range" min="0.7" max="1.3" step="0.02" value="1" data-ajuste="brilho"></label>' +
             '<button class="btn btn--sm btn--outline" type="button" data-sim="girar" id="sim-girar">Girar o padrão 90°</button>' +
           '</details>' +
-          '<div class="sim__acoes">' +
-            '<button class="btn btn--primary" type="button" data-sim="salvar"><svg class="ic"><use href="#i-download"/></svg><span>Salvar imagem</span></button>' +
-            '<a class="btn btn--whats" id="sim-whats" href="#" target="_blank" rel="noopener"><svg class="ic"><use href="#i-whats"/></svg><span>Pedir orçamento</span></a>' +
-            '<button class="btn btn--outline" type="button" data-sim="calcular" id="sim-calcular"><svg class="ic"><use href="#i-calc"/></svg><span>Calcular materiais</span></button>' +
-            '<button class="btn btn--outline" type="button" data-sim="trocar"><svg class="ic"><use href="#i-image"/></svg><span>Trocar foto</span></button>' +
-          '</div>' +
+          '<div class="sim__refazer" data-etapas="resultado"><button class="link-arrow" type="button" data-ir="cantos">Ajustar os cantos</button>' +
+            '<button class="link-arrow" type="button" data-ir="proteger">Ajustar o que fica igual</button></div>' +
+          '<div class="sim__acoes" id="sim-barra"></div>' +
         '</div>' +
       '</div>' +
       '<input type="file" accept="image/*" capture="environment" id="sim-in-camera" hidden>' +
@@ -434,9 +468,17 @@
     if (!ok) {
       $('#sim-vazio', raiz).innerHTML = '<p class="sim__vazio-t">Este navegador não consegue rodar o simulador (precisa de WebGL 2).</p>' +
         '<p class="sim__priv">Atualize o navegador ou abra o site no Chrome, Safari ou Edge recentes.</p>';
+    } else {
+      // a mesma demonstração animada da seção, antes da foto
+      var tut = document.querySelector('.sim-sec [data-sim-tut]');
+      if (tut && window.DrysulTutorial) {
+        var c = tut.cloneNode(true); c.removeAttribute('data-reveal'); c.classList.add('sim-tut--dlg'); c.removeAttribute('style');
+        $('#sim-vazio-tut', raiz).appendChild(c); window.DrysulTutorial.iniciar(c);
+      }
     }
     montarAcabs();
     ligarEventos();
+    if ('ResizeObserver' in window) new ResizeObserver(function () { if (dlg.open) ajustarTamanho(); }).observe($('#sim-palco', raiz));
     montado = true;
   }
 
@@ -451,12 +493,35 @@
       GERA[a.id](x, 96, 72, 120, a.tons[0][1], 1);
     });
   }
+  function barra() {
+    var p = S.passo, b = $('#sim-barra', raiz), seta = '<svg class="ic"><use href="#i-arrow"/></svg>', voltar = '<svg class="ic ic--volta"><use href="#i-arrow"/></svg>';
+    var ver = S.simulado ? '<button class="btn btn--outline" type="button" data-sim="simular">Ver resultado</button>' : '';
+    if (p === 'cantos') b.innerHTML = (ver || '') + '<button class="btn btn--primary' + (ver ? '' : ' sim__largo') + '" type="button" data-ir="proteger"><span>Próximo: proteger</span>' + seta + '</button>';
+    else if (p === 'proteger') b.innerHTML = '<button class="btn btn--outline" type="button" data-ir="cantos">' + voltar + '<span>Voltar</span></button>' +
+      '<button class="btn btn--primary" type="button" data-ir="acabamento"><span>Próximo</span>' + seta + '</button>';
+    else if (p === 'acabamento') b.innerHTML = '<button class="btn btn--outline" type="button" data-ir="proteger">' + voltar + '<span>Voltar</span></button>' +
+      '<button class="btn btn--primary sim__simular" type="button" data-sim="simular"><svg class="ic"><use href="#i-spark"/></svg><span>Simular</span></button>';
+    else b.innerHTML =
+      '<button class="btn btn--primary" type="button" data-sim="salvar"><svg class="ic"><use href="#i-download"/></svg><span>Salvar imagem</span></button>' +
+      '<a class="btn btn--whats" id="sim-whats" href="#" target="_blank" rel="noopener"><svg class="ic"><use href="#i-whats"/></svg><span>Pedir orçamento</span></a>' +
+      '<button class="btn btn--outline" type="button" data-sim="calcular" id="sim-calcular"><svg class="ic"><use href="#i-calc"/></svg><span>Calcular materiais</span></button>' +
+      '<button class="btn btn--outline" type="button" data-sim="trocar"><svg class="ic"><use href="#i-image"/></svg><span>Trocar foto</span></button>';
+  }
   function renderPainel() {
-    var a = acab(S.acab);
+    var a = acab(S.acab), p = S.passo, idx = ORDEM.indexOf(p);
+    $$('.sim-etapas [data-ir]', raiz).forEach(function (b) {
+      var alvo = b.getAttribute('data-ir'), atual = alvo === p || (alvo === 'acabamento' && p === 'resultado');
+      var feito = alvo === 'foto' || ORDEM.indexOf(alvo) < idx || (alvo === 'acabamento' && S.simulado && p !== 'resultado');
+      b.classList.toggle('is-feito', feito && !atual);
+      if (atual) b.setAttribute('aria-current', 'step'); else b.removeAttribute('aria-current');
+    });
+    $$('[data-etapas]', raiz).forEach(function (el) { el.hidden = el.getAttribute('data-etapas').split(' ').indexOf(p) === -1; });
+    var g = GUIA[p];
+    $('#sim-guia', raiz).innerHTML = MINI[p] + '<div><h3>' + g.t + '</h3><p>' + g.d + '</p>' + (S.exemplo && g.ex ? '<p class="sim-guia__ex">' + g.ex + '</p>' : '') + '</div>';
+    barra();
     $$('[data-sup]', raiz).forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-sup') === S.sup)); });
-    $$('[data-modo]', raiz).forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-modo') === S.modo)); });
     $$('[data-pincel]', raiz).forEach(function (b) { b.setAttribute('aria-pressed', String(+b.getAttribute('data-pincel') === S.pincel)); });
-    $('#sim-pincel', raiz).hidden = S.modo !== 'pincel';
+    $$('[data-ver]', raiz).forEach(function (b) { b.setAttribute('aria-pressed', String((b.getAttribute('data-ver') === 'comparar') === S.comparar)); });
     $$('.sim-acab', raiz).forEach(function (b) {
       var x = acab(b.getAttribute('data-acab'));
       b.hidden = x.sup.indexOf(S.sup) === -1;
@@ -469,18 +534,41 @@
     }).join('');
     $('#sim-escala-box', raiz).hidden = !a.padrao;
     $('#sim-girar', raiz).hidden = !a.padrao;
-    $('#sim-calcular', raiz).hidden = !a.calc || !a.calc[S.sup];
-    var dica = { cantos: 'Arraste os 4 cantos até as quinas ' + (S.sup === 'teto' ? 'do teto.' : 'da parede.'),
-      pincel: 'Pinte por cima de janelas, portas e móveis para mantê-los como na foto.',
-      comparar: 'Arraste a linha para comparar o antes e o depois.' }[S.modo];
-    $('#sim-dica', raiz).textContent = dica;
-    $('#sim-quadro', raiz).setAttribute('data-modo', S.modo);
-    $('#sim-corte', raiz).hidden = S.modo !== 'comparar';
-    var tom = a.tons[Math.min(S.tom, a.tons.length - 1)][0];
-    var txt = 'Olá, Drysul! Fiz uma simulação no site: ' + a.nome.toLowerCase() + ' (' + tom.toLowerCase() + ') ' +
-      (S.sup === 'teto' ? 'no teto' : 'na parede') + '. Gostaria de um orçamento. Posso mandar a foto da simulação por aqui.';
-    var wa = (D.loja && D.loja.whatsUrl) || 'https://wa.me/5555992010668';
-    $('#sim-whats', raiz).href = wa + '?text=' + encodeURIComponent(txt);
+    var calc = $('#sim-calcular', raiz); if (calc) calc.hidden = !a.calc || !a.calc[S.sup];
+    $('#sim-dica', raiz).textContent = p === 'cantos' ? DICA.cantos + (S.sup === 'teto' ? 'do teto.' : 'da parede.') : p === 'resultado' && !S.comparar ? 'Toque em "Antes e depois" para comparar.' : DICA[p];
+    var q = $('#sim-quadro', raiz);
+    q.setAttribute('data-modo', S.modo); q.setAttribute('data-passo', p);
+    q.classList.toggle('is-guiar', p === 'cantos' && !S.mexeu);
+    $('#sim-corte', raiz).hidden = !(p === 'resultado' && S.comparar);
+    var whats = $('#sim-whats', raiz);
+    if (whats) {
+      var tom = a.tons[Math.min(S.tom, a.tons.length - 1)][0];
+      var txt = 'Olá, Drysul! Fiz uma simulação no site: ' + a.nome.toLowerCase() + ' (' + tom.toLowerCase() + ') ' +
+        (S.sup === 'teto' ? 'no teto' : 'na parede') + '. Gostaria de um orçamento. Posso mandar a foto da simulação por aqui.';
+      whats.href = ((D.loja && D.loja.whatsUrl) || 'https://wa.me/5555992010668') + '?text=' + encodeURIComponent(txt);
+    }
+  }
+  function irPara(p) {
+    if (p === 'resultado' && !S.simulado) p = 'acabamento';
+    S.passo = p;
+    S.modo = { cantos: 'cantos', proteger: 'pincel', acabamento: 'nada', resultado: S.comparar ? 'comparar' : 'nada' }[p];
+    $('#sim-cursor', raiz).hidden = true;
+    renderPainel(); render();
+    var painel = $('#sim-painel', raiz); if (painel) painel.scrollTop = 0;
+  }
+  function simular() {
+    S.simulado = true; S.comparar = false;
+    irPara('resultado');
+    gerarAcabamento(); revelar();
+    if (window.DrysulSom) window.DrysulSom.tocar('adicionar');
+  }
+  function verComparar(sim) {
+    S.comparar = sim; S.modo = sim ? 'comparar' : 'nada';
+    renderPainel();
+    if (!sim || reduz()) { S.corte = 0.5; render(); return; }
+    // a linha entra pela direita e para no meio: mostra que dá para arrastar
+    var t0 = performance.now();
+    (function passo(t) { var k = clamp((t - t0) / 900, 0, 1); S.corte = 0.92 - 0.42 * (1 - Math.pow(1 - k, 3)); desenhar(); if (k < 1 && S.comparar) requestAnimationFrame(passo); })(t0);
   }
 
   /* ---------- overlay: cantos, linhas, corte ---------- */
@@ -525,13 +613,20 @@
   }
   function ligarEventos() {
     raiz.addEventListener('click', function (ev) {
-      var b = ev.target.closest('[data-sim],[data-sup],[data-modo],[data-pincel],[data-acab],[data-tom]');
-      if (!b) return;
-      if (b.hasAttribute('data-sup')) { S.sup = b.getAttribute('data-sup'); if (acab(S.acab).sup.indexOf(S.sup) === -1) { S.acab = 'liso'; S.tom = 0; } texChave = ''; aplicar(true); return; }
-      if (b.hasAttribute('data-modo')) { S.modo = b.getAttribute('data-modo'); renderPainel(); render(); return; }
+      var b = ev.target.closest('[data-sim],[data-sup],[data-ir],[data-ver],[data-pincel],[data-acab],[data-tom]');
+      if (!b || b.closest('.sim-tut__passos')) return;
+      if (b.hasAttribute('data-sup')) { S.sup = b.getAttribute('data-sup'); if (acab(S.acab).sup.indexOf(S.sup) === -1) { S.acab = 'liso'; S.tom = 0; } texChave = ''; renderPainel(); render(); return; }
+      if (b.hasAttribute('data-ir')) {
+        var alvo = b.getAttribute('data-ir');
+        if (alvo === 'foto') $('#sim-in-galeria', raiz).click();
+        else irPara(alvo === 'acabamento' && S.simulado && S.passo !== 'acabamento' && b.closest('.sim-etapas') ? 'resultado' : alvo);
+        return;
+      }
+      if (b.hasAttribute('data-ver')) { verComparar(b.getAttribute('data-ver') === 'comparar'); return; }
       if (b.hasAttribute('data-pincel')) { S.pincel = +b.getAttribute('data-pincel'); renderPainel(); return; }
       if (b.hasAttribute('data-acab')) { S.acab = b.getAttribute('data-acab'); S.tom = 0; aplicar(true); return; }
       if (b.hasAttribute('data-tom')) { S.tom = +b.getAttribute('data-tom'); aplicar(false); return; }
+      if (b.getAttribute('data-sim') === 'simular') { simular(); return; }
       var acao = b.getAttribute('data-sim');
       if (acao === 'fechar') fechar();
       else if (acao === 'camera') $('#sim-in-camera', raiz).click();
@@ -556,7 +651,7 @@
     q.addEventListener('pointerdown', function (ev) {
       if (!S.foto || ev.button > 0) return;
       var canto = ev.target.closest('.sim__canto');
-      if (canto) { arrasto = { tipo: 'canto', i: +canto.getAttribute('data-canto') }; }
+      if (canto) { arrasto = { tipo: 'canto', i: +canto.getAttribute('data-canto') }; if (!S.mexeu) { S.mexeu = true; q.classList.remove('is-guiar'); } }
       else if (S.modo === 'pincel') {
         var p = pontoFoto(ev); S.tracoAtual = { t: 'p', r: raioPincel(), p: [p] }; S.tracos.push(S.tracoAtual);
         aplicarTraco(S.tracoAtual); textura('masc', 2, masc, false); render(); arrasto = { tipo: 'pincel' };
@@ -564,7 +659,16 @@
       else return;
       q.setPointerCapture(ev.pointerId); ev.preventDefault();
     });
+    var cursor = $('#sim-cursor', raiz);
+    function moverCursor(ev) {
+      if (S.passo !== 'proteger' || (ev.pointerType === 'touch' && !arrasto)) { cursor.hidden = true; return; }
+      var r = q.getBoundingClientRect(), d = raioPincel() * 2 * escalaTela;
+      cursor.hidden = false; cursor.style.width = cursor.style.height = d.toFixed(1) + 'px';
+      cursor.style.transform = 'translate(' + (ev.clientX - r.left - d / 2).toFixed(1) + 'px,' + (ev.clientY - r.top - d / 2).toFixed(1) + 'px)';
+    }
+    q.addEventListener('pointerleave', function () { if (!arrasto) cursor.hidden = true; });
     q.addEventListener('pointermove', function (ev) {
+      moverCursor(ev);
       if (!arrasto) return;
       var p = pontoFoto(ev);
       if (arrasto.tipo === 'canto') { S.cantos[arrasto.i] = p; mostrarLupa(p, ev); render(); }
@@ -576,7 +680,7 @@
     var soltar = function () {
       if (!arrasto) return;
       if (arrasto.tipo === 'canto') { lupa.hidden = true; atualizarEstatisticas(); gerarAcabamento(); render(); }
-      else if (arrasto.tipo === 'pincel') { atualizarEstatisticas(); render(); }
+      else if (arrasto.tipo === 'pincel') { atualizarEstatisticas(); render(); if (window.matchMedia('(pointer: coarse)').matches) cursor.hidden = true; }
       arrasto = null; S.tracoAtual = null;
     };
     q.addEventListener('pointerup', soltar); q.addEventListener('pointercancel', soltar);
@@ -597,6 +701,7 @@
   function aplicar(trocouAcab) {
     renderPainel();
     if (!S.foto) return;
+    if (S.passo !== 'resultado') { if (window.DrysulSom && trocouAcab) window.DrysulSom.tocar('alternar'); return; }
     gerarAcabamento();
     if (trocouAcab) revelar(); else render();
     if (window.DrysulSom && trocouAcab) window.DrysulSom.tocar('alternar');
@@ -606,7 +711,9 @@
   function mostrarFoto(credito) {
     $('#sim-vazio', raiz).hidden = true; $('#sim-quadro', raiz).hidden = false; $('#sim-painel', raiz).hidden = false;
     var c = $('#sim-credito', raiz); c.hidden = !credito; c.textContent = credito || '';
-    renderPainel(); ajustarTamanho(); gerarAcabamento(true); revelar();
+    S.passo = 'cantos'; S.modo = 'cantos'; S.simulado = false; S.comparar = false; S.mexeu = false; S.revela = 1;
+    renderPainel(); ajustarTamanho(); gerarAcabamento(true); render();
+    var painel = $('#sim-painel', raiz); if (painel) painel.scrollTop = 0;
   }
   function carregarImagem(url, opcoes, credito) {
     var img = new Image();
@@ -633,10 +740,10 @@
 
   /* ---------- salvar / compartilhar ---------- */
   function salvar(btn) {
-    var modo = S.modo; S.modo = 'cantos'; S.revela = 1; desenhar();
+    var passo = S.passo, cmp = S.comparar; S.passo = 'resultado'; S.comparar = false; S.revela = 1; desenhar();
     var out = tela(S.W, S.H), x = out.getContext('2d');
     x.drawImage(cv, 0, 0);
-    S.modo = modo; render();
+    S.passo = passo; S.comparar = cmp; render();
     var a = acab(S.acab), tom = a.tons[Math.min(S.tom, a.tons.length - 1)][0];
     var f = Math.max(12, Math.round(S.W / 70)), txt = 'Simulação Drysul · ' + a.nome + ' · ' + tom;
     x.font = '700 ' + f + 'px Archivo, Arial, sans-serif';
@@ -679,5 +786,5 @@
 
   // _quadro: imagem atual sem o selo (usada nos testes e para gerar a imagem da seção)
   window.DrysulSim = { abrir: abrir, fechar: fechar, _estado: S,
-    _quadro: function () { S.revela = 1; var m = S.modo; S.modo = 'cantos'; desenhar(); var u = cv.toDataURL('image/png'); S.modo = m; render(); return u; } };
+    _quadro: function () { S.revela = 1; var p = S.passo, c = S.comparar; S.passo = 'resultado'; S.comparar = false; desenhar(); var u = cv.toDataURL('image/png'); S.passo = p; S.comparar = c; render(); return u; } };
 })();

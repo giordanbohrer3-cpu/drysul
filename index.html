@@ -20,8 +20,8 @@
   <meta name="twitter:card" content="summary_large_image">
 
   <link rel="preload" href="assets/fonts/archivo-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="css/styles.css?v=14">
-  <link rel="stylesheet" href="css/motion.css?v=14">
+  <link rel="stylesheet" href="css/styles.css?v=15">
+  <link rel="stylesheet" href="css/motion.css?v=15">
   <script>
     (function () {
       var root = document.documentElement, pref = null, tema = null;
@@ -64,6 +64,7 @@
     <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="1.5"/><path d="M16 8V5.5A1.5 1.5 0 0 0 14.5 4h-9A1.5 1.5 0 0 0 4 5.5v9A1.5 1.5 0 0 0 5.5 16H8"/></symbol>
     <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
     <symbol id="i-list" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01"/></symbol>
+    <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3.5 13.9 10l6.6 2-6.6 2L12 20.5 10.1 14l-6.6-2 6.6-2zM19 3v4M17 5h4"/></symbol>
     <symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 8.5A1.5 1.5 0 0 1 5.5 7h2.2l1.6-2.5h5.4L16.3 7h2.2A1.5 1.5 0 0 1 20 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5z"/><circle cx="12" cy="13" r="3.6"/></symbol>
     <symbol id="i-image" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="14" rx="1.5"/><circle cx="9" cy="10" r="1.6"/><path d="m4 17 5-5 4 4 2.5-2.5L20 18"/></symbol>
     <symbol id="i-calc" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="1.5"/><path d="M8 7h8M8.5 11.5h.01M12 11.5h.01M15.5 11.5h.01M8.5 15h.01M12 15h.01M15.5 15v2.5M8.5 18h.01M12 18h.01"/></symbol>
@@ -372,38 +373,57 @@
 
     <!-- SIMULADOR -->
     <section class="section section--paper sim-sec" id="simulador" aria-labelledby="sim-sec-title">
-      <div class="wrap sim-sec__grid">
-        <div class="sim-sec__txt">
-          <header class="sec-head">
+      <div class="wrap">
+        <header class="sec-head sec-head--row sim-sec__head">
+          <div>
             <p class="eyebrow" data-reveal>06 · Simulador</p>
             <h2 class="sec-title" id="sim-sec-title" data-reveal>Veja na sua parede <span class="hl">antes de fazer.</span></h2>
-            <span class="rule" data-reveal="line" aria-hidden="true"></span>
-            <p class="sec-lead" data-reveal>Tire uma foto da parede ou do teto, marque os cantos e compare drywall liso, forro com tabica, placa 3D, ripado, lambri e cimento queimado. A luz da sua foto continua lá, e a imagem não sai do seu celular.</p>
-          </header>
-          <div class="btn-row sim-sec__acoes" data-reveal>
-            <button class="btn btn--primary btn--lg" type="button" data-sim-foto="camera" data-magnetic><svg class="ic"><use href="#i-camera"/></svg><span>Tirar foto e simular</span></button>
-            <button class="btn btn--outline btn--lg" type="button" data-sim-foto="galeria"><svg class="ic"><use href="#i-image"/></svg><span>Escolher foto</span></button>
           </div>
-          <button class="link-arrow sim-sec__ex" type="button" data-sim-exemplo data-reveal>Testar com uma foto de exemplo <svg class="ic"><use href="#i-arrow"/></svg></button>
-          <ol class="sim-sec__passos" data-stagger>
-            <li data-reveal><b>1</b>Fotografe de frente</li>
-            <li data-reveal><b>2</b>Marque os 4 cantos</li>
-            <li data-reveal><b>3</b>Escolha o acabamento</li>
-          </ol>
-          <input type="file" accept="image/*" capture="environment" id="sim-sec-camera" hidden>
-          <input type="file" accept="image/*" id="sim-sec-galeria" hidden>
-          <button type="button" class="sim-calc" data-calc-system="colado" hidden tabindex="-1"></button>
-          <button type="button" class="sim-calc" data-calc-system="fge" hidden tabindex="-1"></button>
-        </div>
-        <figure class="sim-demo" data-reveal>
-          <button class="sim-demo__btn" type="button" data-sim-exemplo aria-label="Abrir o simulador com a foto de exemplo">
-            <img src="assets/img/sim-antes-960.webp" alt="Parede de tijolo à vista com janela, antes da simulação" width="960" height="720" loading="lazy" decoding="async">
-            <img class="sim-demo__depois" src="assets/img/sim-depois-960.webp" alt="A mesma parede simulada com drywall liso" width="960" height="720" loading="lazy" decoding="async">
-            <span class="sim-demo__linha" aria-hidden="true"></span>
-            <span class="sim-demo__tag sim-demo__tag--a" aria-hidden="true">Antes</span><span class="sim-demo__tag sim-demo__tag--d" aria-hidden="true">Depois</span>
+          <div class="sec-side">
+            <p class="sec-lead" data-reveal>Tire uma foto da parede ou do teto e veja como fica com drywall liso, forro com tabica, placa 3D, ripado, lambri ou cimento queimado. Leva menos de um minuto, e a foto não sai do seu celular.</p>
+            <div class="btn-row sim-sec__acoes" data-reveal>
+              <button class="btn btn--primary btn--lg" type="button" data-sim-foto="camera" data-magnetic><svg class="ic"><use href="#i-camera"/></svg><span>Tirar foto e simular</span></button>
+              <button class="btn btn--outline btn--lg" type="button" data-sim-foto="galeria"><svg class="ic"><use href="#i-image"/></svg><span>Escolher foto</span></button>
+            </div>
+          </div>
+        </header>
+
+        <div class="sim-tut" data-sim-tut data-passo="1" data-reveal>
+          <button class="sim-tut__palco" type="button" data-sim-exemplo data-sim="exemplo" aria-label="Demonstração do simulador. Toque para experimentar com esta foto">
+            <img class="sim-tut__img" src="assets/img/sim-exemplo.webp" srcset="assets/img/sim-antes-960.webp 960w, assets/img/sim-exemplo.webp 1280w" sizes="(min-width: 1000px) 800px, 100vw" width="1280" height="960" alt="" loading="lazy" decoding="async">
+            <img class="sim-tut__img sim-tut__depois" src="assets/img/sim-depois-1280.webp" srcset="assets/img/sim-depois-960.webp 960w, assets/img/sim-depois-1280.webp 1280w" sizes="(min-width: 1000px) 800px, 100vw" width="1280" height="960" alt="" loading="lazy" decoding="async">
+            <svg class="sim-tut__svg" viewBox="0 0 1280 960" aria-hidden="true">
+              <polygon class="sim-tut__area" points="205,135 1075,135 1075,825 205,825"/>
+              <path class="sim-tut__traco" pathLength="1" d="M315 262 H930 V357 H315 V452 H930 V547 H315 V642 H930 V737 H315 V832 H930 V912 H220"/>
+              <g class="sim-tut__cantos"><circle cx="205" cy="135" r="17"/><circle cx="1075" cy="135" r="17"/><circle cx="1075" cy="825" r="17"/><circle cx="205" cy="825" r="17"/></g>
+            </svg>
+            <span class="sim-tut__corte"></span>
+            <span class="sim-tut__btn"><svg class="ic"><use href="#i-spark"/></svg>Simular</span>
+            <span class="sim-tut__flash"></span>
+            <span class="sim-tut__dedo"></span>
+            <span class="sim-tut__legenda"><b>1</b><span>Tire a foto de frente</span></span>
+            <span class="sim-tut__tag sim-tut__tag--a">Antes</span><span class="sim-tut__tag sim-tut__tag--d">Depois</span>
           </button>
-          <figcaption>Simulação feita no próprio site, sem enviar a foto. Foto: Kai Kemmann, CC BY-SA 4.0.</figcaption>
-        </figure>
+          <ol class="sim-tut__passos">
+            <li><button type="button" data-tut="1"><b>1</b><span><strong>Tire a foto</strong>De frente para a parede ou o teto, com boa luz.</span><i aria-hidden="true"></i></button></li>
+            <li><button type="button" data-tut="2"><b>2</b><span><strong>Marque os 4 cantos</strong>Arraste as bolinhas laranja até as quinas.</span><i aria-hidden="true"></i></button></li>
+            <li><button type="button" data-tut="3"><b>3</b><span><strong>Proteja o que fica</strong>Pinte janela, porta e móveis: o que ficar verde não muda.</span><i aria-hidden="true"></i></button></li>
+            <li><button type="button" data-tut="4"><b>4</b><span><strong>Toque em Simular</strong>Escolha o acabamento e arraste a linha para comparar.</span><i aria-hidden="true"></i></button></li>
+          </ol>
+        </div>
+        <div class="btn-row sim-sec__cta-mob">
+          <button class="btn btn--primary btn--lg" type="button" data-sim-foto="camera"><svg class="ic"><use href="#i-camera"/></svg><span>Tirar foto e simular</span></button>
+          <button class="btn btn--outline btn--lg" type="button" data-sim-foto="galeria"><svg class="ic"><use href="#i-image"/></svg><span>Escolher foto</span></button>
+        </div>
+        <p class="sim-sec__rodape" data-reveal>
+          <button class="link-arrow" type="button" data-sim-exemplo>Experimentar com esta foto de exemplo <svg class="ic"><use href="#i-arrow"/></svg></button>
+          <span class="sim-sec__priv"><svg class="ic"><use href="#i-lock"/></svg> Tudo roda no seu aparelho: a foto não é enviada para lugar nenhum.</span>
+          <span class="sim-sec__cred">Foto de exemplo: Kai Kemmann, CC BY-SA 4.0.</span>
+        </p>
+        <input type="file" accept="image/*" capture="environment" id="sim-sec-camera" hidden>
+        <input type="file" accept="image/*" id="sim-sec-galeria" hidden>
+        <button type="button" class="sim-calc" data-calc-system="colado" hidden tabindex="-1"></button>
+        <button type="button" class="sim-calc" data-calc-system="fge" hidden tabindex="-1"></button>
       </div>
     </section>
 
@@ -828,14 +848,14 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script defer src="js/data.js?v=14"></script>
-  <script defer src="js/calculator-model.js?v=14"></script>
-  <script defer src="js/checkout-model.js?v=14"></script>
-  <script defer src="js/app.js?v=14"></script>
-  <script defer src="js/receipt.js?v=14"></script>
-  <script defer src="js/checkout.js?v=14"></script>
+  <script defer src="js/data.js?v=15"></script>
+  <script defer src="js/calculator-model.js?v=15"></script>
+  <script defer src="js/checkout-model.js?v=15"></script>
+  <script defer src="js/app.js?v=15"></script>
+  <script defer src="js/receipt.js?v=15"></script>
+  <script defer src="js/checkout.js?v=15"></script>
   <script defer src="js/vendor/lenis.min.js?v=1"></script>
-  <script defer src="js/motion.js?v=14"></script>
-  <script defer src="js/som.js?v=14"></script>
+  <script defer src="js/motion.js?v=15"></script>
+  <script defer src="js/som.js?v=15"></script>
 </body>
 </html>

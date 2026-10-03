@@ -810,7 +810,7 @@
     if (window.DrysulSim) return Promise.resolve(window.DrysulSim);
     if (!simCarregando) simCarregando = new Promise(function (ok, erro) {
       var sc = document.createElement('script');
-      sc.src = 'js/simulador.js?v=14'; sc.async = true;
+      sc.src = 'js/simulador.js?v=15'; sc.async = true;
       sc.onload = function () { ok(window.DrysulSim); };
       sc.onerror = function () { simCarregando = null; sc.remove(); erro(new Error('simulador')); };
       document.head.appendChild(sc);
@@ -828,6 +828,91 @@
     inp.addEventListener('change', function () { var f = inp.files && inp.files[0]; if (f) abrirSim({ arquivo: f }); inp.value = ''; });
   });
   $$('[data-sim-exemplo]').forEach(function (b) { b.addEventListener('click', function () { abrirSim({ exemplo: true }); }); });
+  /* ---------- demonstração animada do simulador (o "vídeo" dos 4 passos) ----------
+     Uma linha do tempo leve: a foto aparece, um dedo arrasta os 4 cantos, pinta a janela de verde, toca em Simular e
+     arrasta a linha do antes/depois. Só anima com a demonstração na tela e com efeitos ligados; clicar num passo pula
+     até ele. Também é usada dentro do simulador, antes da foto (window.DrysulTutorial). */
+  var TUT_INI = [[205, 135], [1075, 135], [1075, 825], [205, 825]], TUT_FIM = [[18, 18], [1262, 18], [1262, 942], [18, 942]];
+  var TUT_BTN = [640, 820], TUT_FIM_MS = 15800;
+  var TUT_PASSOS = [0, 1500, 5700, 9100];
+  var TUT_LEG = ['Tire a foto de frente', 'Arraste os 4 cantos até as quinas', 'Pinte o que não pode mudar', 'Toque em Simular', 'Arraste a linha e compare'];
+  function suaveIO(k) { return k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2; }
+  function faixa(t, a, b) { return Math.max(0, Math.min(1, (t - a) / (b - a))); }
+  function lerpP(a, b, k) { return [a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k]; }
+  function iniciarTutorial(el) {
+    if (!el || el._tut) return; el._tut = true;
+    var palco = el.querySelector('.sim-tut__palco'), circ = $$('.sim-tut__cantos circle', el), area = el.querySelector('.sim-tut__area');
+    var traco = el.querySelector('.sim-tut__traco'), dedo = el.querySelector('.sim-tut__dedo'), leg = el.querySelector('.sim-tut__legenda');
+    var comp = 0, larg = 1, alt = 1, t0 = 0, raf = 0, visivel = false, legAtual = -1, passoAtual = '';
+    function medir() { var r = palco.getBoundingClientRect(); larg = r.width || 1; alt = r.height || 1; }
+    function px(p) { return [p[0] / 1280 * larg, p[1] / 960 * alt]; }
+    function ponto(k) { if (!comp) comp = traco.getTotalLength(); var q = traco.getPointAtLength(comp * k); return [q.x, q.y]; }
+    function estado(t) {
+      var passo = t < TUT_PASSOS[1] ? 1 : t < TUT_PASSOS[2] ? 2 : t < TUT_PASSOS[3] ? 3 : 4, i, k, h = [], d = null, dv = 0, aperto = 1;
+      // cantos: cada um leva 1,05 s (o dedo chega em 0,35 s e arrasta em 0,7 s)
+      for (i = 0; i < 4; i++) {
+        var s0 = 1500 + i * 1050;
+        k = suaveIO(faixa(t, s0 + 350, s0 + 1050)); h.push(lerpP(TUT_INI[i], TUT_FIM[i], k));
+        if (t >= s0 && t < s0 + 1050) { d = t < s0 + 350 ? lerpP(i ? TUT_FIM[i - 1] : [640, 480], TUT_INI[i], suaveIO(faixa(t, s0, s0 + 350))) : h[i]; dv = 1; }
+      }
+      var pinta = faixa(t, 6000, 9000);
+      if (t >= 5700 && t < 9100) { d = t < 6000 ? lerpP(TUT_FIM[3], ponto(0), suaveIO(faixa(t, 5700, 6000))) : ponto(pinta); dv = 1; }
+      if (t >= 9100 && t < 10100) { d = lerpP(ponto(1), TUT_BTN, suaveIO(faixa(t, 9100, 9700))); dv = 1 - faixa(t, 9950, 10100); aperto = t > 9700 && t < 9900 ? 0.78 : 1; }
+      var rev = suaveIO(faixa(t, 9900, 11100)) * 100, corte = 100;
+      if (t >= 11100) {
+        corte = t < 12500 ? 100 - 70 * suaveIO(faixa(t, 11300, 12500)) : t < 13500 ? 30 + 40 * suaveIO(faixa(t, 12500, 13500)) : 70 - 20 * suaveIO(faixa(t, 13500, 14300));
+        d = [corte / 100 * 1280, 600]; dv = faixa(t, 11100, 11300) * (1 - faixa(t, 15000, 15400));
+      }
+      return { passo: passo, h: h, d: d, dv: dv, aperto: aperto, pinta: pinta, rev: rev, corte: corte,
+        ov: t < 1500 ? 0 : 1 - faixa(t, 9900, 10500), flash: t > 250 && t < 650 ? 1 - Math.abs(t - 450) / 200 : 0,
+        btn: t >= 9100 && t < 10300 ? 1 - faixa(t, 10000, 10300) : 0, leg: passo === 4 ? (t < 11100 ? 3 : 4) : passo - 1,
+        prog: passo === 4 ? faixa(t, 9100, TUT_FIM_MS) : faixa(t, TUT_PASSOS[passo - 1], TUT_PASSOS[passo]), fim: t >= 11100 };
+    }
+    function aplicar(e) {
+      e.h.forEach(function (p, i) { circ[i].setAttribute('cx', p[0].toFixed(1)); circ[i].setAttribute('cy', p[1].toFixed(1)); });
+      area.setAttribute('points', e.h.map(function (p) { return p[0].toFixed(1) + ',' + p[1].toFixed(1); }).join(' '));
+      traco.style.strokeDashoffset = (1 - e.pinta).toFixed(4);
+      var st = el.style;
+      st.setProperty('--ov', e.ov.toFixed(3)); st.setProperty('--flash', e.flash.toFixed(3)); st.setProperty('--btn', e.btn.toFixed(3));
+      st.setProperty('--a', (e.fim ? e.corte : 0).toFixed(2) + '%'); st.setProperty('--b', (e.fim ? 100 : e.rev).toFixed(2) + '%');
+      st.setProperty('--corte', e.corte.toFixed(2) + '%'); st.setProperty('--prog', e.prog.toFixed(3));
+      el.classList.toggle('is-fim', e.fim);
+      if (e.d) { var q = px(e.d); dedo.style.transform = 'translate(' + q[0].toFixed(1) + 'px,' + q[1].toFixed(1) + 'px) scale(' + e.aperto + ')'; }
+      dedo.style.opacity = e.dv.toFixed(3);
+      if (String(e.passo) !== passoAtual) { passoAtual = String(e.passo); el.setAttribute('data-passo', passoAtual); }
+      if (e.leg !== legAtual) { legAtual = e.leg; leg.innerHTML = '<b>' + Math.min(4, e.leg + 1) + '</b><span>' + TUT_LEG[e.leg] + '</span>'; }
+    }
+    function quadro(agora) {
+      raf = 0;
+      if (!visivel || document.documentElement.classList.contains('dialog-open') && !el.closest('dialog')) return;
+      var t = (agora - t0) % TUT_FIM_MS;
+      aplicar(estado(t));
+      raf = requestAnimationFrame(quadro);
+    }
+    function ligar() { if (!raf && visivel && document.documentElement.classList.contains('motion-on')) { medir(); raf = requestAnimationFrame(quadro); } }
+    function estatico() { var e = estado(14400); e.dv = 0; aplicar(e); el.setAttribute('data-passo', '4'); }
+    $$('[data-tut]', el).forEach(function (b) {
+      b.addEventListener('click', function () {
+        var n = +b.getAttribute('data-tut');
+        t0 = performance.now() - TUT_PASSOS[n - 1];
+        if (!document.documentElement.classList.contains('motion-on')) { aplicar(estado(n === 4 ? 14400 : TUT_PASSOS[n] - 1)); }
+        else ligar();
+      });
+    });
+    if ('ResizeObserver' in window) new ResizeObserver(medir).observe(palco);
+    estatico();
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(function (es) {
+        visivel = es[es.length - 1].isIntersecting;
+        if (visivel) { if (!t0) t0 = performance.now(); ligar(); }
+      }, { threshold: 0.2 }).observe(el);
+    }
+    new MutationObserver(function () { if (document.documentElement.classList.contains('motion-on')) ligar(); else { cancelAnimationFrame(raf); raf = 0; estatico(); } })
+      .observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+  }
+  window.DrysulTutorial = { iniciar: iniciarTutorial };
+  $$('[data-sim-tut]').forEach(iniciarTutorial);
+
   var secSim = document.getElementById('simulador');
   if (secSim && 'IntersectionObserver' in window) {
     var simIO = new IntersectionObserver(function (es) {

@@ -108,14 +108,36 @@
 @keyframes bres-in { from { opacity: 0; transform: translateY(10px); } }
 @keyframes busca-linha { 0% { transform: scaleX(0); opacity: 1; } 70% { transform: scaleX(1); opacity: 1; } 100% { transform: scaleX(1); opacity: 0; } }
 
-/* Simulador: a janela abre em perspectiva; na seção, a linha do antes/depois varre a foto devagar */
+/* Simulador: a janela abre em perspectiva */
+/* passo a passo: cantos pulsam até o primeiro arrasto; as mini animações mostram o gesto de cada passo */
+.motion-on .sim__quadro.is-guiar .sim__canto::after { animation: canto-pulsa 1.6s var(--ease) infinite; }
+.motion-on .sim__quadro.is-guiar .sim__canto:nth-of-type(2)::after { animation-delay: .4s; }
+.motion-on .sim__quadro.is-guiar .sim__canto:nth-of-type(3)::after { animation-delay: .8s; }
+.motion-on .sim__quadro.is-guiar .sim__canto:nth-of-type(4)::after { animation-delay: 1.2s; }
+@keyframes canto-pulsa { 0% { opacity: .9; transform: scale(1); } 100% { opacity: 0; transform: scale(2.1); } }
+.motion-on .sim-guia { animation: bres-in 420ms var(--ease) both; }
+.motion-on .mini--cantos .mini__area { animation: mini-area 2.6s var(--ease-io) infinite; }
+.motion-on .mini--cantos .mini__p1 { animation: mini-p1 2.6s var(--ease-io) infinite; }
+.motion-on .mini--cantos .mini__p2 { animation: mini-p2 2.6s var(--ease-io) infinite; }
+.motion-on .mini--cantos .mini__p3 { animation: mini-p3 2.6s var(--ease-io) infinite; }
+.motion-on .mini--cantos .mini__p4 { animation: mini-p4 2.6s var(--ease-io) infinite; }
+@keyframes mini-area { 0%, 15% { transform: scale(.55); } 60%, 100% { transform: scale(1); } }
+@keyframes mini-p1 { 0%, 15% { transform: translate(12.6px, 9px); } 60%, 100% { transform: none; } }
+@keyframes mini-p2 { 0%, 15% { transform: translate(-12.6px, 9px); } 60%, 100% { transform: none; } }
+@keyframes mini-p3 { 0%, 15% { transform: translate(-12.6px, -9px); } 60%, 100% { transform: none; } }
+@keyframes mini-p4 { 0%, 15% { transform: translate(12.6px, -9px); } 60%, 100% { transform: none; } }
+.motion-on .mini--proteger .mini__tinta { animation: mini-tinta 2.8s linear infinite; }
+@keyframes mini-tinta { 0%, 10% { stroke-dashoffset: 1; } 75%, 100% { stroke-dashoffset: 0; } }
+.motion-on .mini--acab .mini__novo { animation: mini-novo 2.8s var(--ease-io) infinite; }
+.motion-on .mini--acab .mini__btn { animation: mini-btn 2.8s var(--ease) infinite; }
+@keyframes mini-novo { 0%, 35% { clip-path: inset(0 100% 0 0); } 70%, 100% { clip-path: inset(0 0 0 0); } }
+@keyframes mini-btn { 0%, 22% { transform: none; } 28% { transform: scale(.82); } 34%, 100% { transform: none; opacity: 1; } 60% { opacity: 0; } }
+.motion-on .mini--res .mini__novo--meio { animation: mini-meio 3s var(--ease-io) infinite alternate; }
+.motion-on .mini--res .mini__linha { animation: mini-linha 3s var(--ease-io) infinite alternate; }
+@keyframes mini-meio { from { clip-path: inset(0 0 0 22%); } to { clip-path: inset(0 0 0 78%); } }
+@keyframes mini-linha { from { transform: translateX(-10px); } to { transform: translateX(10px); } }
 .motion-on .sim-dlg[open] { animation: pop-in 420ms var(--ease) both; }
 .motion-on .sim-dlg[open]::backdrop { animation: fade-up 300ms linear both; }
-.motion-on .sim-demo__depois { animation: sim-corte 7s var(--ease-io) infinite alternate; }
-.motion-on .sim-demo__linha { animation: sim-linha 7s var(--ease-io) infinite alternate; }
-.motion-on .sim-demo.anim-off .sim-demo__depois, .motion-on .sim-demo.anim-off .sim-demo__linha { animation-play-state: paused; }
-@keyframes sim-corte { from { clip-path: inset(0 0 0 86%); } to { clip-path: inset(0 0 0 14%); } }
-@keyframes sim-linha { from { left: 86%; } to { left: 14%; } }
 
 /* ---------- Pausado / movimento reduzido ---------- */
 .motion-paused *, .motion-paused *::before, .motion-paused *::after { animation: none !important; }

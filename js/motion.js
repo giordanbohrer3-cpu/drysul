@@ -233,7 +233,7 @@
     var vivoIO = new IntersectionObserver(function (es) {
       es.forEach(function (e) { e.target.classList.toggle('anim-off', !e.isIntersecting); });
     });
-    $$('.wall, .marquee, .calc__ph-ill, .sim-demo').forEach(function (el) { vivoIO.observe(el); });
+    $$('.wall, .marquee, .calc__ph-ill').forEach(function (el) { vivoIO.observe(el); });
   }
 
   /* ---------- parallax e camadas ---------- */

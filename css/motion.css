@@ -22,19 +22,13 @@
 @keyframes blink { 50% { opacity: 0; } }
 
 .motion-on .site-header { animation: fade-up 600ms var(--ease) both; }
-.motion-on .hero__title .line > span { animation: rise 1000ms var(--ease) both; }
-.motion-on .hero__title .line:nth-child(2) > span { animation-delay: 110ms; }
+/* o título do topo aparece na hora (é o maior elemento da primeira tela: animá-lo atrasava o carregamento percebido) */
 .motion-on .hero__eyebrow { animation: fade-up 700ms var(--ease) 60ms both; }
 .motion-on .hero__lead { animation: fade-up 800ms var(--ease) 320ms both; }
-.motion-on .hero__actions { animation: fade-up 800ms var(--ease) 440ms both; }
-.motion-on .hero__facts { animation: fade-up 800ms var(--ease) 560ms both; }
+.motion-on .atalho--hero { animation: fade-up 800ms var(--ease) 420ms both; }
+.motion-on .hero__cats, .motion-on .hero__selos { animation: fade-up 800ms var(--ease) 520ms both; }
 @keyframes wall-in { from { opacity: 0; } to { opacity: 1; } }
 .motion-on .wall { animation: wall-in 700ms linear 100ms both, float 8s ease-in-out 2.2s infinite; }
-/* só entra (backwards): depois da entrada valem a centralização e o apagar com --intro do styles.css */
-.motion-on .hero__hint { animation: hint-in 700ms var(--ease) 1500ms backwards; }
-@keyframes hint-in { from { opacity: 0; translate: 0 18px; } }
-.motion-on .hero__hint span::after { animation: hint-roda 1.8s var(--ease-io) infinite; }
-@keyframes hint-roda { 0% { transform: translateY(0); opacity: 1; } 70% { transform: translateY(9px); opacity: 0; } 100% { transform: translateY(0); opacity: 0; } }
 .motion-on .sc-search .caret { animation: blink 1s steps(1) infinite; }
 
 /* Parede 3D: as camadas usam variáveis que o JS atualiza com a rolagem */
@@ -47,7 +41,6 @@
 .motion-on .wall.anim-off, .motion-on .marquee.anim-off .marquee__track, .motion-on .calc__ph-ill.anim-off .ill { animation-play-state: paused; }
 
 /* ---------- Padrões respirando ---------- */
-.motion-on .dest-pattern { animation: breathe 9s ease-in-out infinite alternate; }
 
 /* ---------- Entradas ao rolar ---------- */
 .motion-on [data-reveal] {
@@ -70,8 +63,6 @@
 .motion-on [data-reveal="line"]:not(.is-in) { opacity: 1; transform: scaleX(0); }
 
 /* Cartões entram como painéis encaixando */
-.motion-on .cat-card[data-reveal]:not(.is-in),
-.motion-on .dest-card[data-reveal]:not(.is-in),
 .motion-on .offer[data-reveal]:not(.is-in) { transform: translateY(40px) scale(.985); }
 
 /* Parallax — deslocamentos pequenos aplicados via JS */
@@ -206,23 +197,19 @@
   @keyframes flutua-2 { from { transform: translate3d(-60px, 60px, 0) rotate(0deg); } to { transform: translate3d(60px, -70px, 0) rotate(22deg); } }
 
   .motion-on .section { view-timeline-name: --sec; }
-  .motion-on .sec-on :is(.dest-pattern, .about__pattern, .contact__pattern) { animation: pat-drift linear both; animation-timeline: --sec; animation-range: cover 0% cover 100%; }
+  .motion-on .sec-on :is(.about__pattern, .contact__pattern) { animation: pat-drift linear both; animation-timeline: --sec; animation-range: cover 0% cover 100%; }
   .motion-on :is(.section--navy, .section--deep).sec-on::after { animation: glow-drift linear both; animation-timeline: --sec; animation-range: cover 0% cover 100%; }
   .motion-on .sec-on .floater { animation: flutua-0 linear both; animation-timeline: --sec; animation-range: cover 0% cover 100%; }
   .motion-on .sec-on .floater--1 { animation-name: flutua-1; }
   .motion-on .sec-on .floater--2 { animation-name: flutua-2; }
 
   /* Entradas: os blocos sobem da profundidade e assentam com suavidade */
-  .motion-on :where(.cat-card, .dest-card, .prod-card, .offer, .calc__panel, .step,
+  .motion-on :where(.prod-card, .offer, .calc__panel, .step,
       .acc__item, .values li, .info-card, .footer__grid > *).s3d {
     animation: s3d-in cubic-bezier(.16, 1, .3, 1) both;
     animation-timeline: view();
     animation-range: entry 0% cover 40%;
   }
-  .motion-on .cat-card { --s3d-rx: 22deg; --s3d-y: 70px; --s3d-z: -90px; }
-  .motion-on .dest-card { --s3d-z: -160px; --s3d-y: 70px; --s3d-rx: 14deg; }
-  .motion-on .dest-card:nth-child(3n+1) { --s3d-ry: 16deg; --s3d-x: -30px; }
-  .motion-on .dest-card:nth-child(3n) { --s3d-ry: -16deg; --s3d-x: 30px; }
   .motion-on .prod-card { --s3d-rx: 18deg; --s3d-ry: 6deg; --s3d-z: -110px; --s3d-y: 60px; }
   .motion-on .prod-card:nth-child(even) { --s3d-ry: -6deg; }
   .motion-on .offer { --s3d-ry: 18deg; --s3d-x: -30px; --s3d-z: -130px; --s3d-y: 40px; }
@@ -248,7 +235,7 @@
   .motion-on .ph--e { --g-ry: -16deg; }
 
   /* Dentro dos cartões: a foto assenta girando e os desenhos viram como moeda */
-  .motion-on :where(.cat-card, .dest-card, .prod-card, .offer).s3d { view-timeline-name: --card; }
+  .motion-on :where(.prod-card, .offer).s3d { view-timeline-name: --card; }
   .motion-on :where(.dest-card, .prod-card, .offer).s3d :is(.dest-card__media, .prod-card__media, .offer__media) > img {
     animation: s3d-media cubic-bezier(.16, 1, .3, 1) both; animation-timeline: --card; animation-range: entry 0% cover 48%;
   }

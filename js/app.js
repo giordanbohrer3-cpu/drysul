@@ -2,7 +2,7 @@
 (function () {
   'use strict';
 
-  var D = window.DRYSUL, C = window.DrysulCalc, V = window.DrysulVendas;
+  var D = window.DRYSUL, C = window.DrysulCalc, V = window.DrysulVendas, B = window.DrysulBusca;
   var loja = D.loja;
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
@@ -22,7 +22,7 @@
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
     });
   }
-  function norm(s) { return String(s).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase(); }
+  var norm = B.norm;
   function ill(id, cls) {
     return '<svg class="ill ' + (cls || '') + '" viewBox="0 0 120 90" aria-hidden="true" focusable="false"><use href="#' + id + '"/></svg>';
   }
@@ -48,6 +48,26 @@
   $$('[data-store-link]').forEach(function (el) { el.href = links[el.getAttribute('data-store-link')]; });
   // preços citados fora do catálogo (ex.: peças do hero) também vêm do data.js
   $$('[data-preco-id]').forEach(function (el) { var p = produtoPorId[el.getAttribute('data-preco-id')]; if (p && p.preco != null) el.textContent = BRL.format(p.preco); });
+  // texto de exemplo dos campos: o longo quando cabe no campo, senão o curto (nunca cortado no meio da palavra).
+  // Mede o próprio campo, não a tela: vale para qualquer largura e layout.
+  var regua = document.createElement('span');
+  regua.setAttribute('aria-hidden', 'true');
+  regua.style.cssText = 'position:absolute;left:-9999px;top:0;visibility:hidden;white-space:pre';
+  document.body.appendChild(regua);
+  function caberTexto(i, t) {
+    var cs = getComputedStyle(i), ph = getComputedStyle(i, '::placeholder');
+    ['fontFamily', 'fontSize', 'fontStyle', 'fontStretch', 'letterSpacing', 'fontVariationSettings'].forEach(function (k) { regua.style[k] = cs[k]; });
+    regua.style.fontWeight = ph.fontWeight || cs.fontWeight; regua.textContent = t;
+    // campo de busca: o navegador reserva o espaço do botão de limpar mesmo vazio
+    return regua.offsetWidth + (i.type === 'search' ? 22 : 4) <= i.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+  }
+  function ajustarExemplo(i) {
+    if (!i.dataset.phLongo) i.dataset.phLongo = i.placeholder;
+    if (i.clientWidth) i.placeholder = caberTexto(i, i.dataset.phLongo) ? i.dataset.phLongo : i.dataset.phCurto;
+  }
+  var camposEx = $$('[data-ph-curto]'), roEx = window.ResizeObserver ? new ResizeObserver(function (es) { es.forEach(function (e) { ajustarExemplo(e.target); }); }) : null;
+  camposEx.forEach(function (i) { ajustarExemplo(i); if (roEx) roEx.observe(i); });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { camposEx.forEach(ajustarExemplo); });
 
   /* ---------- toast ---------- */
   var toastEl = $('#toast'), toastTimer;
@@ -117,6 +137,9 @@
       el.textContent = n;
       if (bump) { el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); }
     });
+    // barra do pedido no celular: total estimado (preço da loja + médias de mercado, como na lista)
+    var ft = $('#fab-total');
+    if (ft) { var sub = subtotal(), t = sub.total + sub.media; ft.textContent = t > 0 ? (sub.media > 0 ? '≈ ' : '') + BRL.format(t) : ''; }
   }
 
   function atualizarBotoes() {
@@ -410,18 +433,20 @@
   }
 
   function rank(p) { return p.destaque ? 0 : p.oferta ? 1 : 2; }
-  // com busca, a ordem "Destaques primeiro" vira ordem de relevância (o nome que bate vem antes)
-  var aproximado = false;
+  var nomesCat = {}; D.categorias.forEach(function (c) { nomesCat[c.id] = c.nome; });
+  function opcoesBusca(texto) { return { categorias: nomesCat, ignorarMedidas: !!C.entender(texto) }; }
+  // sem resultado: os mais procurados (com preço da loja e ofertas) no lugar de uma grade vazia
+  function sugeridos(lista) { return lista.filter(function (p) { return p.destaque || p.oferta; }).slice(0, 8); }
+  /* A lista vem do módulo de busca (js/busca.js, testado com o catálogo real): a categoria só restringe se tiver
+     o que foi buscado, erro de digitação é corrigido e, se nada bate, entram os sugeridos. Com busca, a ordem
+     "Destaques primeiro" vira ordem de relevância. */
+  var ultimo = null;
   function listaFiltrada() {
-    var base = catalogo.filter(function (p) { return filtro.cat === 'todas' || p.cat === filtro.cat; });
-    aproximado = false;
-    if (filtro.q.trim()) {
-      var r = buscarProdutos(filtro.q, base);
-      aproximado = r.aproximado;
-      if (filtro.ordem === 'padrao') return r.lista;
-      base = r.lista;
-    }
-    var lista = base;
+    var o = opcoesBusca(filtro.q); o.cat = filtro.cat; o.sugeridos = sugeridos;
+    var r = ultimo = B.filtrarCatalogo(filtro.q, catalogo, o);
+    if (r.escopo === 'todas') marcarChip('todas'); // a categoria não tinha: mostra de todas e o filtro acompanha
+    if (filtro.ordem === 'padrao' && (r.modo === 'exato' || r.modo === 'aproximado' || r.modo === 'digitacao')) return r.lista;
+    var lista = r.lista.slice();
     var ix = {}; catalogo.forEach(function (p, i) { ix[p.id] = i; });
     var cmp = {
       padrao: function (a, b) { return rank(a) - rank(b) || ix[a.id] - ix[b.id]; },
@@ -436,15 +461,27 @@
     return lista.sort(cmp);
   }
   function renderCatalogo() {
-    var lista = listaFiltrada();
+    var catAntes = filtro.cat, lista = listaFiltrada(), r = ultimo, q = filtro.q.trim(), n = lista.length;
     grid.innerHTML = lista.map(cardProduto).join('');
-    vazioEl.hidden = lista.length > 0;
-    var cat = filtro.cat === 'todas' ? '' : ' em ' + catPorId[filtro.cat].nome;
-    info.textContent = lista.length
-      ? (aproximado ? 'Nada com todos os termos. Mais próximos de “' + filtro.q.trim() + '”: ' + lista.length : lista.length + (lista.length > 1 ? ' materiais' : ' material') + cat + (filtro.q.trim() ? ' para “' + filtro.q.trim() + '”' : ''))
-      : '';
+    var qtd = n + (n > 1 ? ' materiais' : ' material'), cat = filtro.cat === 'todas' ? '' : ' em ' + catPorId[filtro.cat].nome;
+    info.textContent =
+      r.escopo === 'sugeridos' ? 'Mais procurados' :
+      !q || r.modo === 'tudo' ? qtd + cat :
+      r.modo === 'digitacao' ? qtd + ' para “' + r.corrigido + '” (você digitou “' + q + '”)' :
+      r.modo === 'aproximado' ? 'Mais próximos de “' + q + '”: ' + qtd :
+      qtd + ' para “' + q + '”' + (r.escopo === 'todas' ? ' em todas as categorias (nada em ' + catPorId[catAntes].nome + ')' : cat);
+    // nada bate: aviso com WhatsApp e limpar busca, e a grade segue com os mais procurados
+    vazioEl.hidden = r.escopo !== 'sugeridos';
+    if (r.escopo === 'sugeridos') {
+      $('#empty-termo').textContent = '“' + q + '”';
+      var w = $('#empty-whats'); w.setAttribute('data-whats-busca', q); w.href = linkWhats(MSG_WHATS.busca(q));
+    }
     atualizarBotoes();
     sugerirCalculo($('#calc-sugestao'), filtro.q);
+  }
+  function marcarChip(cat) {
+    filtro.cat = cat;
+    $$('.chip', chipsEl).forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-cat') === cat)); });
   }
   function renderChips() {
     var todos = [{ id: 'todas', nome: 'Todos', n: catalogo.length }].concat(D.categorias.map(function (c) {
@@ -454,11 +491,7 @@
       return '<button class="chip" type="button" data-cat="' + c.id + '" aria-pressed="' + (filtro.cat === c.id) + '">' + esc(c.nome) + ' <small>' + c.n + '</small></button>';
     }).join('');
   }
-  function setCategoria(cat) {
-    filtro.cat = cat;
-    $$('.chip', chipsEl).forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-cat') === cat)); });
-    renderCatalogo();
-  }
+  function setCategoria(cat) { marcarChip(cat); renderCatalogo(); }
   chipsEl.addEventListener('click', function (ev) { var b = ev.target.closest('[data-cat]'); if (b) setCategoria(b.getAttribute('data-cat')); });
   var buscaTimer;
   inBusca.addEventListener('input', function () {
@@ -469,6 +502,11 @@
   $('#limpar').addEventListener('click', function () {
     inBusca.value = ''; filtro.q = ''; selOrdem.value = 'padrao'; filtro.ordem = 'padrao'; setCategoria('todas'); inBusca.focus();
   });
+  // o navegador devolve o que estava no campo e na ordenação ao voltar pelo histórico: a lista acompanha
+  function sincronizarFiltros() {
+    if (inBusca.value !== filtro.q || selOrdem.value !== filtro.ordem) { filtro.q = inBusca.value; filtro.ordem = selOrdem.value; renderCatalogo(); }
+  }
+  window.addEventListener('pageshow', sincronizarFiltros);
   function rolar(el) {
     if (window.DrysulMotion && window.DrysulMotion.rolarAte) window.DrysulMotion.rolarAte(el); else el.scrollIntoView({ block: 'start' });
   }
@@ -479,30 +517,6 @@
   $$('[data-filter-link]').forEach(function (a) {
     a.addEventListener('click', function (ev) { ev.preventDefault(); irParaCategoria(a.getAttribute('data-filter-link')); });
   });
-
-  /* Categorias */
-  $('#cat-grid').innerHTML = D.categorias.map(function (c, i) {
-    var n = catalogo.filter(function (p) { return p.cat === c.id; }).length;
-    return '<button class="cat-card" type="button" data-reveal data-tilt data-cat-go="' + c.id + '">' +
-      '<span class="cat-card__n">' + String(i + 1).padStart(2, '0') + '</span>' + ill(c.icone) +
-      '<span class="cat-card__t">' + esc(c.nome) + '</span><span class="cat-card__d">' + esc(c.desc) + '</span>' +
-      '<span class="cat-card__f"><span>' + n + ' itens no catálogo</span>' + icon('i-arrow') + '</span></button>';
-  }).join('');
-  $('#cat-grid').addEventListener('click', function (ev) { var b = ev.target.closest('[data-cat-go]'); if (b) irParaCategoria(b.getAttribute('data-cat-go')); });
-
-  /* Destaques */
-  $('#dest-grid').innerHTML = catalogo.filter(function (p) { return p.destaque; }).map(function (p) {
-    var pr = precoPartes(p.preco);
-    return '<article class="dest-card" data-reveal data-tilt>' +
-      '<div class="dest-card__media"><span class="tag tag--orange">Linha Drysul</span>' + midia(p) + '</div>' +
-      '<div class="dest-card__body">' +
-        '<h3 class="dest-card__name">' + esc(p.nome) + '</h3>' +
-        '<p class="dest-card__emb">' + esc(p.emb) + '</p>' +
-        '<p class="dest-card__price"><small>' + pr.moeda + '</small><strong>' + pr.valor + '</strong><span>/ ' + esc(p.un) + '</span></p>' +
-        '<p class="dest-card__detail">' + esc(p.detalhe) + '</p>' +
-        caixaAdd(p, 'btn--primary', 'Adicionar à lista') +
-      '</div></article>';
-  }).join('');
 
   /* Ofertas */
   $('#offer-grid').innerHTML = catalogo.filter(function (p) { return p.oferta; }).map(function (p) {
@@ -538,54 +552,7 @@
     m.forEach(function (r) { if (r[0] < pos) r[0] = pos; if (r[1] <= r[0]) return; out += esc(texto.slice(pos, r[0])) + '<mark>' + esc(texto.slice(r[0], r[1])) + '</mark>'; pos = r[1]; });
     return out + esc(texto.slice(pos));
   }
-  /* Busca do catálogo e da busca rápida: sem acento, em qualquer ordem, entende plural ("parafusos", "perfis") e os
-     nomes do balcão ("gesso", "placa", "bucha", "massa corrida"). Todos os termos precisam bater; se nenhum produto tem
-     todos, aparecem os que batem mais termos (aproximado). Nome conta mais que descrição. */
-  var PARADAS = { de: 1, da: 1, do: 1, das: 1, dos: 1, para: 1, pra: 1, com: 1, e: 1, a: 1, o: 1, as: 1, os: 1, em: 1, no: 1, na: 1,
-    um: 1, uma: 1, quero: 1, preciso: 1, comprar: 1, x: 1, por: 1 };
-  var SINONIMOS = { gesso: ['chapa', 'drywall'], acartonado: ['chapa', 'drywall'], placa: ['chapa', 'placa'], bucha: ['ancorador', 'parabolt'],
-    chumbador: ['parabolt', 'ancorador'], corrida: ['massa'], teto: ['forro'], divisoria: ['drywall'] };
-  function variantes(t) {
-    var v = [t], sing = t;
-    if (t.length > 3) {
-      if (/is$/.test(t)) v.push(sing = t.slice(0, -2) + 'il');     // perfis → perfil (e não "perfi", que acha "superfície")
-      else if (/oes$/.test(t)) v.push(sing = t.slice(0, -3) + 'ao'); // ...ões → ...ão
-      else if (/s$/.test(t)) v.push(sing = t.slice(0, -1));        // parafusos → parafuso
-    }
-    return v.concat(SINONIMOS[t] || SINONIMOS[sing] || []);
-  }
-  // "forro de gesso 4x3": as medidas servem ao cálculo; para os produtos, a busca usa só "forro de gesso"
-  var MEDIDA = '\\d+(?:[.,]\\d+)?\\s*(?:cm|m2|m²|metros?|m)?';
-  var RE_PAR = new RegExp(MEDIDA + '\\s*(?:x|×|\\*|por)\\s*' + MEDIDA, 'gi'), RE_MEDIDA = new RegExp(MEDIDA + '(?![a-z])', 'gi');
-  function semMedidas(texto) {
-    return C.entender(texto) ? String(texto).replace(RE_PAR, ' ').replace(RE_MEDIDA, ' ') : texto;
-  }
-  function buscarProdutos(texto, universo) {
-    var termos = norm(semMedidas(texto)).split(/\s+/).map(function (t) { return t.replace(/^[^a-z0-9]+|[^a-z0-9]+$/g, ''); })
-      .filter(function (t) { return t && !PARADAS[t]; });
-    if (!termos.length) return { termos: [], lista: [], aproximado: false };
-    var grupos = termos.map(variantes), todas = [].concat.apply([], grupos);
-    var achados = (universo || catalogo).map(function (p, i) {
-      var nome = norm(p.nome), cat = norm(catPorId[p.cat].nome), resto = norm(p.detalhe + ' ' + p.emb), bate = 0, nota = 0;
-      var forte = false;
-      grupos.forEach(function (vs, g) {
-        var melhor = 0;
-        // nome começa com o termo 5, palavra do nome 4, dentro do nome 3, categoria 2, descrição ou embalagem 1
-        vs.forEach(function (t) {
-          var k = nome.indexOf(t);
-          melhor = Math.max(melhor, k === 0 ? 5 : k > 0 && nome[k - 1] === ' ' ? 4 : k > 0 ? 3 : cat.indexOf(t) !== -1 ? 2 : resto.indexOf(t) !== -1 ? 1 : 0);
-        });
-        if (melhor) { bate++; nota += melhor; if (termos[g].length > 2) forte = true; }
-      });
-      return bate ? { p: p, bate: bate, nota: nota, i: i, forte: forte } : null;
-    }).filter(Boolean);
-    // aproximado: só o que bate com algum termo de verdade (2 letras, como "lã", aparecem em tudo)
-    var todos = achados.filter(function (x) { return x.bate === grupos.length; });
-    if (!todos.length) achados = achados.filter(function (x) { return x.forte; });
-    var aprox = !todos.length && achados.length > 0;
-    var lista = (aprox ? achados : todos).sort(function (a, b) { return b.bate - a.bate || b.nota - a.nota || a.i - b.i; });
-    return { termos: todas, lista: lista.map(function (x) { return x.p; }), aproximado: aprox };
-  }
+  function buscarProdutos(texto) { return B.buscar(texto, catalogo, opcoesBusca(texto)); }
   function itemBusca(p, termos, i) {
     var preco = p.preco != null ? '<b>' + BRL.format(p.preco).replace(/\u00a0/g, ' ') + '</b><small>por ' + esc(p.un) + '</small>' : '<b class="is-consulta">Sob consulta</b><small>por ' + esc(p.un) + '</small>';
     return '<li class="bres" style="--i:' + Math.min(i, 8) + '">' +
@@ -609,15 +576,16 @@
       '<span class="bres__preco"><b>Calcular</b>' + icon('i-arrow') + '</span></button></li>';
   }
   function renderBusca() {
-    var texto = bIn.value.trim(), r = buscarProdutos(texto);
+    var texto = bIn.value.trim(), r = texto ? buscarProdutos(texto) : { lista: [], termos: [], modo: 'tudo' };
+    if (r.modo === 'tudo') r.lista = []; // só palavras vazias ou medidas: nada a listar além do cálculo
     bObra = C.entender(texto);
     var n = r.lista.length;
-    bSug.hidden = !!texto;
+    bSug.hidden = !!texto && (n > 0 || !!bObra); // sem resultado: as categorias e os mais procurados continuam à mão
     bVazio.hidden = !texto || n > 0 || !!bObra;
     bLista.innerHTML = (bObra ? itemCalculo(bObra) : '') + r.lista.map(function (p, i) { return itemBusca(p, r.termos, i + (bObra ? 1 : 0)); }).join('');
     if (texto && !n) { bTermo.textContent = '“' + texto + '”'; bWhats.setAttribute('data-whats-busca', texto); bWhats.href = linkWhats(MSG_WHATS.busca(texto)); }
     bStatus.textContent = !texto ? '' : (bObra ? 'Cálculo da obra' + (n ? ' e ' : '') : '') +
-      (n ? (r.aproximado ? 'resultados aproximados: ' : '') + n + (n > 1 ? ' produtos' : ' produto') : bObra ? '' : 'Nenhum produto encontrado');
+      (n ? (r.modo === 'digitacao' ? 'resultados para “' + r.corrigido + '”: ' : r.modo === 'aproximado' ? 'resultados aproximados: ' : '') + n + (n > 1 ? ' produtos' : ' produto') : bObra ? '' : 'Nada encontrado no catálogo');
     atualizarBotoes();
     // a linha laranja corre por baixo do campo a cada busca
     bCampo.classList.remove('is-buscando'); void bCampo.offsetWidth; bCampo.classList.add('is-buscando');
@@ -708,7 +676,7 @@
   tabs.innerHTML = C.SISTEMAS.map(function (s, i) {
     return '<button class="calc-tab" type="button" id="tab-' + s.id + '" aria-controls="calc-form" data-sys="' + s.id + '" aria-pressed="' + (s.id === calc.sistema) + '">' +
       '<svg class="calc-tab__ic" viewBox="0 0 48 36" aria-hidden="true" focusable="false"><use href="#s-' + s.id + '"/></svg>' +
-      '<small>' + String(i + 1).padStart(2, '0') + '</small>' + esc(s.curto) + '</button>';
+      '<span>' + esc(s.curto) + '</span></button>';
   }).join('');
 
   function campoHtml(nome, rotulo, un, dica) {
@@ -858,18 +826,22 @@
       var texto = inp.value.trim();
       if (!texto) { inp.focus(); return; }
       var obra = C.entender(texto);
-      if (obra) { inp.blur(); calcularObra(obra); return; }
-      // não é obra: vira busca de produto
-      inp.blur(); abrirBusca(f, texto);
+      inp.blur();
+      if (obra) calcularObra(obra); else buscarNoCatalogo(texto);
     });
   });
   $$('[data-atalho]').forEach(function (b) {
     b.addEventListener('click', function () {
-      var f = b.closest('[data-atalho-form]'), inp = f && $('input', f);
-      if (inp) inp.value = b.getAttribute('data-atalho');
-      calcularObra(C.entender(b.getAttribute('data-atalho')));
+      var f = b.closest('[data-atalho-form]'), inp = f && $('input', f), texto = b.getAttribute('data-atalho'), obra = C.entender(texto);
+      if (inp) inp.value = texto;
+      if (obra) calcularObra(obra); else buscarNoCatalogo(texto);
     });
   });
+  // busca de produto vinda do topo: o catálogo já abre filtrado (sem categoria presa) e a tela desce até ele
+  function buscarNoCatalogo(texto) {
+    inBusca.value = texto; filtro.q = texto; marcarChip('todas'); renderCatalogo();
+    rolar(document.getElementById('produtos'));
+  }
   // busca do catálogo com cara de obra ("parede 4x2,8"): oferece o cálculo acima dos produtos
   function sugerirCalculo(el, texto) {
     if (!el) return;
@@ -906,7 +878,7 @@
           : '<b class="is-consulta">Sob consulta</b>';
         return '<li style="--i:' + n + '"' + (i.opcional ? ' class="is-opc"' : '') + '>' + ill(ICONE_ITEM[i.id] || 'p-caixa', 'res__ic') +
           '<span class="res__nome">' + esc(i.nome) + '<small><b>' + conta(i.qtdCompra) + ' ' + esc(i.unCompra) + '</b>' +
-            (i.detCompra ? ' ' + esc(i.detCompra) : '') + ' · consumo ' + fmt(i.qtd) + ' ' + esc(i.unidade) + '</small></span>' +
+            (i.detCompra ? ' ' + esc(i.detCompra) : '') + '<span class="res__consumo"> · consumo ' + fmt(i.qtd) + ' ' + esc(i.unidade) + '</span></small></span>' +
           '<span class="res__preco">' + preco + '</span></li>';
       }).join('') + '</ul>' +
       totalResultado(o) +
@@ -961,8 +933,7 @@
     if (o.semPreco) fora.push(o.semPreco + (o.semPreco > 1 ? ' itens sob consulta' : ' item sob consulta'));
     return '<div class="res__total"><div><p>Total estimado dos materiais</p>' + (fora.length ? '<small>Fora do total: ' + esc(fora.join(' · ')) + '</small>' : '') + '</div>' +
       '<b>' + (media ? '≈ ' : '') + BRL.format(o.total) + '</b></div>' +
-      '<p class="res__nota">Embalagens arredondadas para cima. “≈ média” = preço médio de mercado (' + esc(D.precosMedios.data) + '); “Drysul” = preço da loja. ' +
-      'O valor final é confirmado pela loja no orçamento.</p>';
+      '<p class="res__nota">Embalagens arredondadas para cima. “Drysul” = preço da loja; “≈ média” = média de mercado (' + esc(D.precosMedios.data) + '). O valor final vem no orçamento.</p>';
   }
   // números do resultado sobem de 0 até o valor (só com efeitos; o texto final é sempre o valor exato).
   // O número que anda fica oculto para leitores de tela; eles leem só o valor final, sem a contagem.
@@ -1017,7 +988,7 @@
     if (window.DrysulSim) return Promise.resolve(window.DrysulSim);
     if (!simCarregando) simCarregando = new Promise(function (ok, erro) {
       var sc = document.createElement('script');
-      sc.src = 'js/simulador.js?v=17'; sc.async = true;
+      sc.src = 'js/simulador.js?v=18'; sc.async = true;
       sc.onload = function () { ok(window.DrysulSim); };
       sc.onerror = function () { simCarregando = null; sc.remove(); erro(new Error('simulador')); };
       document.head.appendChild(sc);
@@ -1229,21 +1200,18 @@
     }, { rootMargin: '-45% 0px -45% 0px' });
     steps.forEach(function (s) { stepIO.observe(s); });
 
-    var heroVisivel = true, contatoVisivel = false, resVisivel = false;
+    // a barra do pedido só sai de cena sobre o resultado da calculadora, que tem os próprios botões presos
+    var resVisivel = false;
     var fabIO = new IntersectionObserver(function (es) {
-      es.forEach(function (e) {
-        if (e.target.id === 'inicio') heroVisivel = e.isIntersecting;
-        if (e.target.id === 'contato') contatoVisivel = e.isIntersecting;
-        if (e.target.id === 'calc-result') resVisivel = e.isIntersecting;
-      });
+      es.forEach(function (e) { resVisivel = e.isIntersecting; });
       atualizarFab();
     }, { threshold: 0.05 });
-    fabIO.observe($('#inicio')); fabIO.observe($('#contato')); fabIO.observe(res);
+    fabIO.observe(res);
     atualizarFab = function () {
       var fab = $('#fab');
       fab.hidden = false;
       var co = document.getElementById('checkout');
-      fab.classList.toggle('is-hidden', heroVisivel || contatoVisivel || (resVisivel && !!calc.resultado) || dlg.open || (co && co.open) || totalLinhas() === 0);
+      fab.classList.toggle('is-hidden', (resVisivel && !!calc.resultado) || dlg.open || (co && co.open) || !!document.querySelector('dialog[open]') || totalLinhas() === 0);
     };
   }
   atualizarContadores();

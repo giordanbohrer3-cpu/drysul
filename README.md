@@ -1,9 +1,6 @@
 # Drysul — site
 
-Site da **Drysul — gesso e acabamento**.
-
 **No ar:** https://giordanbohrer3-cpu.github.io/drysul/
-
 
 Site da **Drysul — gesso e acabamento**. HTML, CSS e JavaScript puros, sem build. Única biblioteca: o Lenis (rolagem suave, licença MIT), copiado em `js/vendor/`. Publicado pelo GitHub Pages até a mudança para o domínio da loja.
 
@@ -11,20 +8,22 @@ Site da **Drysul — gesso e acabamento**. HTML, CSS e JavaScript puros, sem bui
 
 | Arquivo | Função |
 |---|---|
-| `index.html` | Página única: hero, categorias, linha Drysul, catálogo, ofertas, calculadora, simulador, como funciona, soluções, inspiração, a Drysul, contato |
+| `index.html` | Página única, na ordem da compra: topo com busca, catálogo, calculadora, simulador, ofertas, como funciona, soluções, inspiração, a Drysul, contato |
 | `js/data.js` | **Fonte única de dados**: contato, categorias, produtos, preços e ofertas |
 | `js/calculator-model.js` | Coeficientes, validação, embalagens de compra e orçamento da calculadora, e o atalho `entender()` que lê "parede de 4 × 2,8 m com madeira" (sem DOM, testável no Node) |
-| `js/app.js` | Catálogo, busca (sinônimos de balcão, plural, relevância), filtros, pedido/lista, WhatsApp, calculadora e atalho "descreva a obra", menu |
+| `js/busca.js` | Regras da busca (sem DOM, testável no Node): sem acento, plural, sinônimos de balcão, erro de digitação, relevância e o filtro do catálogo, que nunca devolve a grade vazia havendo produtos |
+| `js/app.js` | Catálogo, filtros, busca rápida, pedido/lista e barra do pedido, WhatsApp, calculadora e atalho "descreva a obra", menu |
 | `js/checkout-model.js` | Regras da central de vendas: canal (site x WhatsApp), limite, validações (testável no Node) |
 | `js/checkout.js` | Central de vendas: pedido → entrega → pagamento (Pix, crédito, débito, WhatsApp) → confirmação |
-| `js/motion.js` | Hero fixo que desmonta a parede em 4 etapas (fita, chapa, parafusos, estrutura), escrita animada dos títulos, rolagem suave no computador (Lenis), canvas técnico, fundos que andam com a rolagem, pausa de efeitos; anima só o que está perto da tela |
+| `js/motion.js` | Parede do topo montada em pose estática (sem prender a rolagem), escrita animada dos títulos, rolagem suave no computador (Lenis), canvas técnico, fundos que andam com a rolagem, pausa de efeitos; anima só o que está perto da tela |
 | `js/simulador.js` | Simulador de acabamento em passos guiados (foto → cantos → proteger → Simular → resultado): perspectiva pelos 4 cantos, pincel para proteger objetos (verde = fica igual, laranja = muda) e 6 acabamentos gerados no próprio navegador (WebGL 2). Carregado só quando a seção se aproxima; a foto não sai do aparelho. A demonstração animada dos 4 passos fica no `app.js` (`iniciarTutorial`) |
-| `js/som.js` | Sons sintetizados no navegador (sem arquivos): clique, passar o mouse nos botões, sopro de ar na rolagem (segue a velocidade), swoosh nas etapas do topo e trilha de piano generativa (8 frases em ciclos de tamanhos diferentes, à la *Music for Airports*: contínua e sem repetição). Começam no primeiro clique/toque; o ícone de som no canto direito do cabeçalho liga e desliga, e com o som ligado mostra o volume (salvo no aparelho) |
+| `js/som.js` | Sons sintetizados no navegador (sem arquivos): clique, passar o mouse nos botões, sopro de ar na rolagem (segue a velocidade) e trilha de piano generativa (8 frases em ciclos de tamanhos diferentes, à la *Music for Airports*: contínua e sem repetição). Começam no primeiro clique/toque; o ícone de som no canto direito do cabeçalho liga e desliga, e com o som ligado mostra o volume (salvo no aparelho) |
 | `js/vendor/lenis.min.js` | Lenis 1.3.26 (MIT, licença em `js/vendor/LENIS-LICENSE.txt`); só no computador com mouse/trackpad |
-| `css/styles.css` | Design system (tokens semânticos com tema claro e escuro, componentes, seções, responsivo) |
+| `css/styles.css` | Design system: tokens de cor (claro e escuro), escala de tipografia (`--fs-*`), de espaçamento (`--s-*`, `--sec-pad`) e de altura de botão (`--bh-*`); componentes, seções, responsivo, alvos de 44 px no toque |
 | `css/motion.css` | Animações; estados ocultos só existem com efeitos ativos. 3D na rolagem em CSS (`animation-timeline`), com as entradas normais como alternativa em navegadores sem suporte |
 | `assets/` | Logo e padrão vetoriais (do arquivo oficial da marca), fotos do manual em WebP, fonte Archivo (OFL) |
 | `tests/calculator.test.js` | Casos conferidos com a calculadora de referência |
+| `tests/busca.test.js` | Busca com o catálogo real: cada produto acha a si mesmo, plural, sinônimos, erro de digitação, medidas e categoria sem resultado |
 | `tests/checkout.test.js` | Regras de roteamento e validação da central de vendas |
 
 ## Como editar
@@ -35,9 +34,12 @@ Site da **Drysul — gesso e acabamento**. HTML, CSS e JavaScript puros, sem bui
 - **Jornada curta:** a pessoa descreve a obra no topo, na calculadora ou na busca ("parede de drywall 4 × 2,8 m com ripado") →
   o site escolhe o sistema, preenche as medidas e calcula → "Adicionar à lista" põe todos os materiais na lista, com quantidade
   editável (somando com o que já estava) → "Ver lista e pedir orçamento" ou "Enviar pelo WhatsApp" direto do resultado.
-  As medidas e o acabamento vão juntos na mensagem ("Calculado no site"). Materiais que só a calculadora usa (cola, lã, arame,
-  regulador…) estão em `js/data.js` com `catalogo: false`: entram na lista, mas não no catálogo nem na busca.
-- **Sinônimos da busca:** `SINONIMOS` no `js/app.js` (gesso → chapa/drywall, placa → chapa, bucha → ancorador/parabolt…).
+  As medidas e o acabamento vão juntos na mensagem ("Calculado no site"). Todos os materiais que a calculadora usa (cola, lã,
+  arame, regulador…) também estão no catálogo e na busca. No celular, a barra "Ver pedido" com o total fica no pé da tela.
+- **Busca:** `SINONIMOS` e palavras ignoradas (`PARADAS`) no `js/busca.js` (gesso → chapa/drywall, placa → chapa, bucha → ancorador/parabolt…).
+  Ordem: todos os termos batem → erro de digitação corrigido ("parafusso" → parafuso) → os que batem parte dos termos → mais procurados,
+  com aviso e botão do WhatsApp. Com uma categoria escolhida e nada nela, a busca vale para todas ("massa" em Chapas mostra a massa).
+- **Textos de exemplo dos campos:** `placeholder` (longo) e `data-ph-curto` (curto) no `index.html`; o site usa o longo quando cabe no campo.
 - **Preços da calculadora:** cada material vira embalagem de compra (`COMPRA` no `js/calculator-model.js`) e usa o preço do produto da loja em `js/data.js`; sem preço da loja, usa a tabela `precosMedios` (médias de mercado de 03/10/2026, marcadas com “≈ média”). Para usar o preço da Drysul, preencha `preco` no produto. A mensagem do WhatsApp leva só os itens, sem preços da estimativa.
 - **Simulador:** acabamentos, cores e tons em `ACABS` no `js/simulador.js`; a foto de exemplo e as áreas protegidas dela em `EXEMPLO`.
 - **Limite da compra pelo site:** `vendas.limiteOnline` em `js/data.js` (atual: R$ 1.000).
@@ -63,7 +65,7 @@ o cliente vê o aviso "Pagamento online em fase de testes" e o comprovante leva 
 ## Testes
 
 ```bash
-node --test tests/calculator.test.js tests/checkout.test.js
+node --test tests/calculator.test.js tests/busca.test.js tests/checkout.test.js
 ```
 
 ## Simulador de acabamento

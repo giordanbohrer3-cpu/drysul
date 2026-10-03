@@ -25,8 +25,8 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-      - name: Testes (calculadora e central de vendas)
-        run: node --test tests/calculator.test.js tests/checkout.test.js
+      - name: Testes (calculadora, busca e central de vendas)
+        run: node --test tests/calculator.test.js tests/busca.test.js tests/checkout.test.js
       - uses: actions/configure-pages@v5
       - name: Empacotar o site
         uses: actions/upload-pages-artifact@v3

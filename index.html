@@ -20,8 +20,8 @@
   <meta name="twitter:card" content="summary_large_image">
 
   <link rel="preload" href="assets/fonts/archivo-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="css/styles.css?v=17">
-  <link rel="stylesheet" href="css/motion.css?v=17">
+  <link rel="stylesheet" href="css/styles.css?v=18">
+  <link rel="stylesheet" href="css/motion.css?v=18">
   <script>
     (function () {
       var root = document.documentElement, pref = null, tema = null;
@@ -34,8 +34,6 @@
       var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
       var on = pref === 'on' ? true : pref === 'off' ? false : !reduce;
       root.classList.add(on ? 'motion-on' : 'motion-paused');
-      // palco fixo do hero: só com efeitos e em telas com altura suficiente (celular deitado rola normal)
-      if (on && !(window.matchMedia && matchMedia('(max-height: 520px)').matches)) root.classList.add('pin-on');
     })();
   </script>
 </head>
@@ -106,9 +104,9 @@
       <nav class="nav" id="nav" aria-label="Principal">
         <ul class="nav__list">
           <li><a href="#produtos">Produtos</a></li>
-          <li><a href="#ofertas">Ofertas</a></li>
           <li><a href="#calculadora">Calculadora</a></li>
           <li><a href="#simulador">Simulador</a></li>
+          <li><a href="#ofertas">Ofertas</a></li>
           <li><a href="#a-drysul">A Drysul</a></li>
           <li><a href="#contato">Contato</a></li>
           <li class="nav__tema-item"><button class="nav__tema" type="button" data-theme-toggle><svg class="ic ic-moon" aria-hidden="true"><use href="#i-moon"/></svg><svg class="ic ic-sun" aria-hidden="true"><use href="#i-sun"/></svg><span>Tema escuro</span></button></li>
@@ -143,8 +141,8 @@
   </header>
 
   <main id="conteudo">
-    <!-- HERO: a parede drywall desmonta com a rolagem e cada peça aparece à esquerda -->
-    <section class="hero" id="inicio" aria-labelledby="hero-title" data-step="0">
+    <!-- HERO compacto: título, busca que entende material ou obra, categorias e atalhos; a parede ilustrada fica à direita no computador -->
+    <section class="hero" id="inicio" aria-labelledby="hero-title">
       <div class="hero__pin">
         <canvas class="tech-canvas" data-canvas="dark" aria-hidden="true"></canvas>
         <div class="hero__pattern" aria-hidden="true"></div>
@@ -157,59 +155,28 @@
                 <span class="line"><span>Da estrutura</span></span>
                 <span class="line"><span>ao <em>acabamento.</em></span></span>
               </h1>
-              <p class="hero__lead">Chapas, perfis, fixação, massas e fitas para drywall. Monte sua lista, calcule o material pela medida da obra e receba o orçamento pelo WhatsApp.</p>
-              <div class="hero__actions">
-                <a class="btn btn--primary btn--lg" href="#produtos" data-magnetic><span>Montar orçamento</span><svg class="ic"><use href="#i-arrow"/></svg></a>
-                <a class="btn btn--ghost btn--lg" href="#atalho-calc" data-magnetic><svg class="ic"><use href="#i-calc"/></svg><span>Calcular materiais</span></a>
-              </div>
-              <!-- atalho: a pessoa descreve a obra e vai direto para os materiais calculados -->
-              <form class="atalho atalho--hero" data-atalho-form role="search" aria-label="Calcular os materiais da obra">
+              <p class="hero__lead">Chapas, perfis, fixação, massas e fitas para drywall. Encontre o material, calcule pela medida da obra e peça o orçamento no WhatsApp.</p>
+              <!-- busca principal: produto vai para o catálogo filtrado; obra ("parede 4 × 2,8 m") vai direto para o cálculo -->
+              <form class="atalho atalho--hero" data-atalho-form role="search" aria-label="Buscar material ou calcular a obra">
                 <label class="atalho__campo">
-                  <svg class="ic" aria-hidden="true"><use href="#i-calc"/></svg>
-                  <span class="sr">Descreva a obra</span>
-                  <input type="text" name="obra" enterkeyhint="go" autocomplete="off" placeholder="Descreva a obra: parede de 4 × 2,8 m">
+                  <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
+                  <span class="sr">Buscar material ou descrever a obra</span>
+                  <input type="search" name="obra" enterkeyhint="search" autocomplete="off" placeholder="Busque material ou descreva a obra" data-ph-curto="Busque material ou obra">
                 </label>
-                <button class="btn btn--primary" type="submit"><span>Calcular</span><svg class="ic"><use href="#i-arrow"/></svg></button>
-                <p class="atalho__dica">Ex.: <button type="button" data-atalho="parede de 4 × 2,8 m">parede 4 × 2,8 m</button> · <button type="button" data-atalho="forro de gesso 12 m²">forro 12 m²</button></p>
+                <button class="btn btn--primary" type="submit"><span>Buscar</span><svg class="ic"><use href="#i-arrow"/></svg></button>
+                <p class="atalho__dica">Ex.: <button type="button" data-atalho="chapa RU">chapa RU</button> · <button type="button" data-atalho="parede de 4 × 2,8 m">parede 4 × 2,8 m</button> · <button type="button" data-atalho="forro de gesso 12 m²">forro 12 m²</button></p>
               </form>
-            </div>
-
-            <div class="hero__parts" id="hero-parts">
-              <p class="eyebrow eyebrow--light parts__eyebrow"><span class="dot"></span>Por dentro da parede drywall</p>
-              <ol class="parts">
-                <li class="part" data-part="1">
-                  <span class="part__n">01</span>
-                  <div class="part__body">
-                    <h2 class="part__t">Fita + massa</h2>
-                    <p class="part__d">Fecham as juntas entre as chapas e deixam a parede lisa, pronta para a pintura.</p>
-                    <p class="part__meta"><span>Fita Drysul <b data-preco-id="fita"></b></span><span>Massa 25 kg <b data-preco-id="massa"></b></span></p>
-                  </div>
-                </li>
-                <li class="part" data-part="2">
-                  <span class="part__n">02</span>
-                  <div class="part__body">
-                    <h2 class="part__t">Chapa de drywall</h2>
-                    <p class="part__d">Gesso entre duas lâminas de cartão. ST nas áreas secas, RU nas úmidas e RF onde a obra pede proteção contra fogo.</p>
-                    <a class="part__link" href="#produtos" data-filter-link="chapas">Ver chapas <svg class="ic"><use href="#i-arrow"/></svg></a>
-                  </div>
-                </li>
-                <li class="part" data-part="3">
-                  <span class="part__n">03</span>
-                  <div class="part__body">
-                    <h2 class="part__t">Parafusos</h2>
-                    <p class="part__d">Prendem a chapa nos montantes a cada 25 a 30 cm. A cabeça trombeta fica rente à chapa e some sob a massa.</p>
-                    <a class="part__link" href="#produtos" data-filter-link="fixacao">Ver fixação <svg class="ic"><use href="#i-arrow"/></svg></a>
-                  </div>
-                </li>
-                <li class="part" data-part="4">
-                  <span class="part__n">04</span>
-                  <div class="part__body">
-                    <h2 class="part__t">Guias e montantes</h2>
-                    <p class="part__d">O esqueleto de aço galvanizado: guias no piso e no teto, montantes em pé a cada 60 cm.</p>
-                    <a class="part__link" href="#produtos" data-filter-link="perfis">Ver perfis <svg class="ic"><use href="#i-arrow"/></svg></a>
-                  </div>
-                </li>
-              </ol>
+              <nav class="hero__cats" aria-label="Categorias do catálogo">
+                <a href="#produtos" data-filter-link="chapas"><svg class="ill" viewBox="0 0 120 90" aria-hidden="true"><use href="#p-chapa"/></svg><span>Chapas</span></a>
+                <a href="#produtos" data-filter-link="perfis"><svg class="ill" viewBox="0 0 120 90" aria-hidden="true"><use href="#p-perfil"/></svg><span>Perfis</span></a>
+                <a href="#produtos" data-filter-link="fixacao"><svg class="ill" viewBox="0 0 120 90" aria-hidden="true"><use href="#p-parafuso"/></svg><span>Fixação</span></a>
+                <a href="#produtos" data-filter-link="acabamento"><svg class="ill" viewBox="0 0 120 90" aria-hidden="true"><use href="#p-balde"/></svg><span>Acabamento</span></a>
+              </nav>
+              <ul class="hero__selos" aria-label="Como comprar">
+                <li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Preço da loja na linha Drysul</li>
+                <li><a href="#atalho-calc"><svg class="ic" aria-hidden="true"><use href="#i-calc"/></svg>Calcular por medida</a></li>
+                <li><a data-store-link="whatsapp" data-whats="contato" href="https://wa.me/5555992010668" target="_blank" rel="noopener"><svg class="ic" aria-hidden="true"><use href="#i-whats"/></svg>Pedir pelo WhatsApp</a></li>
+              </ul>
             </div>
           </div>
 
@@ -241,44 +208,6 @@
           </div>
           </figure>
         </div>
-        <p class="hero__hint" aria-hidden="true"><span></span>Role para desmontar a parede</p>
-      </div>
-    </section>
-
-    <!-- MARQUEE -->
-    <div class="marquee">
-      <p class="sr">Drywall, gesso, estrutura, acabamento e fixação</p>
-      <div class="marquee__track" aria-hidden="true">
-        <span>Drywall</span><i></i><span>Gesso</span><i></i><span>Estrutura</span><i></i><span>Acabamento</span><i></i><span>Fixação</span><i></i>
-        <span>Drywall</span><i></i><span>Gesso</span><i></i><span>Estrutura</span><i></i><span>Acabamento</span><i></i><span>Fixação</span><i></i>
-      </div>
-    </div>
-
-    <!-- CATEGORIAS -->
-    <section class="section section--paper" id="categorias" aria-labelledby="cat-title">
-      <div class="wrap">
-        <header class="sec-head">
-          <p class="eyebrow" data-reveal>01 · Categorias</p>
-          <h2 class="sec-title" id="cat-title" data-reveal>Tudo para a obra seca, <span class="hl">em camadas.</span></h2>
-          <span class="rule" data-reveal="line" aria-hidden="true"></span>
-          <p class="sec-lead" data-reveal>Da estrutura metálica ao tratamento de juntas. Escolha a categoria e veja os materiais disponíveis.</p>
-        </header>
-        <div class="cat-grid" data-stagger id="cat-grid"></div>
-      </div>
-    </section>
-
-    <!-- DESTAQUES -->
-    <section class="section section--navy" id="destaques" aria-labelledby="dest-title">
-      <div class="dest-pattern" aria-hidden="true"></div>
-      <div class="wrap">
-        <header class="sec-head sec-head--row">
-          <div>
-            <p class="eyebrow eyebrow--light" data-reveal>02 · Preço da loja</p>
-            <h2 class="sec-title sec-title--light" id="dest-title" data-reveal>Linha Drysul <span class="hl">com preço.</span></h2>
-          </div>
-          <p class="sec-lead sec-lead--light" data-reveal>Valores informados pela loja em 30/09/2026, por embalagem. Estoque e condições são confirmados no atendimento.</p>
-        </header>
-        <div class="dest-grid" data-stagger id="dest-grid"></div>
       </div>
     </section>
 
@@ -286,17 +215,16 @@
     <section class="section section--light catalog" id="produtos" aria-labelledby="prod-title">
       <canvas class="tech-canvas" data-canvas="light" aria-hidden="true"></canvas>
       <div class="wrap">
-        <header class="sec-head">
-          <p class="eyebrow" data-reveal>03 · Catálogo</p>
+        <header class="sec-head sec-head--compacto">
+          <p class="eyebrow" data-reveal>01 · Catálogo</p>
           <h2 class="sec-title" id="prod-title" data-reveal>Encontre o material <span class="hl">e monte a lista.</span></h2>
-          <span class="rule" data-reveal="line" aria-hidden="true"></span>
         </header>
 
         <div class="toolbar" data-reveal>
           <label class="search">
             <svg class="ic"><use href="#i-search"/></svg>
             <span class="sr">Buscar material</span>
-            <input type="search" id="busca" placeholder="Busque chapa, perfil, parafuso, massa… ou “parede 4 × 2,8 m”" autocomplete="off">
+            <input type="search" id="busca" placeholder="Chapa, perfil, parafuso… ou “parede 4 × 2,8 m”" data-ph-curto="Chapa, perfil, massa…" autocomplete="off">
           </label>
           <div class="chips" role="group" aria-label="Filtrar por categoria" id="filtros"></div>
           <label class="sort">
@@ -310,48 +238,34 @@
           </label>
         </div>
         <div class="calc-sugestao" id="calc-sugestao" hidden></div>
+        <!-- sem resultado: aviso curto + saídas, e a grade continua com os mais procurados (nunca uma tela vazia) -->
+        <div class="empty" id="empty" role="status" hidden>
+          <p><strong>Não achamos <span id="empty-termo"></span> no catálogo.</strong> A loja pode ter mesmo assim: pergunte para a equipe. Abaixo, os mais procurados.</p>
+          <div class="btn-row">
+            <a class="btn btn--whats btn--sm" id="empty-whats" data-whats-busca="" href="https://wa.me/5555992010668" target="_blank" rel="noopener"><svg class="ic"><use href="#i-whats"/></svg><span>Perguntar no WhatsApp</span></a>
+            <button class="btn btn--outline btn--sm" type="button" id="limpar">Limpar busca</button>
+          </div>
+        </div>
         <p class="result-info" id="result-info" aria-live="polite"></p>
         <div class="prod-grid" id="prod-grid"></div>
-        <div class="empty" id="empty" hidden>
-          <p><strong>Nenhum material encontrado.</strong> Tente outro termo ou fale com a equipe — o catálogo completo é atendido pelo WhatsApp.</p>
-          <button class="btn btn--outline btn--sm" type="button" id="limpar">Limpar busca e filtros</button>
-        </div>
         <p class="catalog-note"><svg class="ic"><use href="#i-info"/></svg> Itens “sob consulta” têm preço, marca e medidas confirmados pela equipe. Adicione-os à lista normalmente.</p>
-      </div>
-    </section>
-
-    <!-- OFERTAS -->
-    <section class="section section--sand" id="ofertas" aria-labelledby="of-title">
-      <div class="wrap">
-        <header class="sec-head sec-head--row">
-          <div>
-            <p class="eyebrow" data-reveal>04 · Ofertas publicadas</p>
-            <h2 class="sec-title" id="of-title" data-reveal>Direto do <span class="hl">@drysul.loja</span></h2>
-          </div>
-          <div class="sec-side" data-reveal>
-            <p class="sec-lead">Ofertas publicadas no Instagram em 09/09/2026. Cada card leva à publicação original. Vigência e estoque são confirmados no atendimento.</p>
-            <a class="btn btn--outline btn--sm" href="https://www.instagram.com/drysul.loja/" target="_blank" rel="noopener" data-store-link="instagram"><svg class="ic"><use href="#i-insta"/></svg><span>Seguir no Instagram</span></a>
-          </div>
-        </header>
-        <div class="offer-grid" data-stagger id="offer-grid"></div>
       </div>
     </section>
 
     <!-- CALCULADORA -->
     <section class="section section--light" id="calculadora" aria-labelledby="calc-title">
       <div class="wrap calc">
-        <header class="sec-head calc__head">
-          <p class="eyebrow" data-reveal>05 · Calculadora</p>
+        <header class="sec-head sec-head--compacto calc__head">
+          <p class="eyebrow" data-reveal>02 · Calculadora</p>
           <h2 class="sec-title" id="calc-title" data-reveal>Da medida <span class="hl">à lista.</span></h2>
-          <span class="rule" data-reveal="line" aria-hidden="true"></span>
-          <p class="sec-lead" data-reveal>Escreva a obra do seu jeito ou escolha o sistema e informe as medidas. Os materiais saem com quantidade e preço estimado, e vão para a lista com um toque.</p>
+          <p class="sec-lead" data-reveal>Escreva a obra ou escolha o sistema e as medidas. Os materiais saem com quantidade e vão para a lista com um toque.</p>
         </header>
 
         <form class="atalho" data-atalho-form id="atalho-calc" role="search" aria-label="Descreva a obra e calcule" data-reveal>
           <label class="atalho__campo">
             <svg class="ic" aria-hidden="true"><use href="#i-spark"/></svg>
             <span class="sr">Descreva a obra</span>
-            <input id="atalho-calc-in" type="text" name="obra" enterkeyhint="go" autocomplete="off" placeholder="Ex.: parede de drywall de 4 × 2,8 m com ripado de madeira">
+            <input id="atalho-calc-in" type="text" name="obra" enterkeyhint="go" autocomplete="off" placeholder="Ex.: parede de drywall de 4 × 2,8 m com ripado de madeira" data-ph-curto="Ex.: parede 4 × 2,8 m">
           </label>
           <button class="btn btn--primary" type="submit"><svg class="ic"><use href="#i-calc"/></svg><span>Calcular</span></button>
           <p class="atalho__dica">Escreva do seu jeito. Ex.: <button type="button" data-atalho="parede de 4 × 2,8 m">parede 4 × 2,8 m</button> · <button type="button" data-atalho="forro de gesso 12 m²">forro 12 m²</button> · <button type="button" data-atalho="cobrir parede de 3 × 2,6 m com cimento queimado">revestimento 3 × 2,6 m</button></p>
@@ -371,9 +285,6 @@
           </form>
           <div class="calc__result" id="calc-result" aria-live="polite">
             <div class="calc__placeholder">
-              <div class="calc__ph-ill" aria-hidden="true">
-                <svg class="ill"><use href="#p-chapa"/></svg><svg class="ill"><use href="#p-perfil"/></svg><svg class="ill"><use href="#p-parafuso"/></svg><svg class="ill"><use href="#p-balde"/></svg>
-              </div>
               <p class="calc__ph-t">Sua lista de materiais aparece aqui</p>
               <ol class="calc__ph-steps">
                 <li><b>1</b>Escolha o sistema</li>
@@ -383,7 +294,7 @@
             </div>
           </div>
         </div>
-        <p class="calc__note"><svg class="ic"><use href="#i-info"/></svg> Estimativa de consumo com coeficientes de referência de mercado (calculadora pública da Gypsum, conferida em 29/09/2026). Embalagens arredondadas para cima e preços de referência (da loja ou médios de mercado). Não substitui projeto técnico; perdas, compatibilidade e valores finais são confirmados pela equipe.</p>
+        <p class="calc__note"><svg class="ic"><use href="#i-info"/></svg> Estimativa de consumo com coeficientes de mercado (Gypsum, 29/09/2026). Não substitui projeto técnico; quantidades e valores finais são confirmados pela equipe.</p>
       </div>
     </section>
 
@@ -391,7 +302,7 @@
     <section class="section section--paper sim-sec" id="simulador" aria-labelledby="sim-sec-title">
       <div class="wrap">
         <header class="sec-head sim-sec__head">
-          <p class="eyebrow" data-reveal>06 · Simulador</p>
+          <p class="eyebrow" data-reveal>03 · Simulador</p>
           <h2 class="sec-title" id="sim-sec-title" data-reveal>Veja na sua parede <span class="hl">antes de fazer.</span></h2>
         </header>
 
@@ -438,13 +349,39 @@
       </div>
     </section>
 
+    <!-- OFERTAS -->
+    <section class="section section--sand" id="ofertas" aria-labelledby="of-title">
+      <div class="wrap">
+        <header class="sec-head sec-head--row">
+          <div>
+            <p class="eyebrow" data-reveal>04 · Ofertas publicadas</p>
+            <h2 class="sec-title" id="of-title" data-reveal>Direto do <span class="hl">@drysul.loja</span></h2>
+          </div>
+          <div class="sec-side" data-reveal>
+            <p class="sec-lead">Ofertas publicadas no Instagram em 09/09/2026. Cada card leva à publicação original. Vigência e estoque são confirmados no atendimento.</p>
+            <a class="btn btn--outline btn--sm" href="https://www.instagram.com/drysul.loja/" target="_blank" rel="noopener" data-store-link="instagram"><svg class="ic"><use href="#i-insta"/></svg><span>Seguir no Instagram</span></a>
+          </div>
+        </header>
+        <div class="offer-grid" data-stagger id="offer-grid"></div>
+      </div>
+    </section>
+
+    <!-- MARQUEE -->
+    <div class="marquee">
+      <p class="sr">Drywall, gesso, estrutura, acabamento e fixação</p>
+      <div class="marquee__track" aria-hidden="true">
+        <span>Drywall</span><i></i><span>Gesso</span><i></i><span>Estrutura</span><i></i><span>Acabamento</span><i></i><span>Fixação</span><i></i>
+        <span>Drywall</span><i></i><span>Gesso</span><i></i><span>Estrutura</span><i></i><span>Acabamento</span><i></i><span>Fixação</span><i></i>
+      </div>
+    </div>
+
     <!-- COMO FUNCIONA -->
     <section class="section section--deep story" id="como-funciona" aria-labelledby="story-title">
       <canvas class="tech-canvas" data-canvas="dark" aria-hidden="true"></canvas>
       <div class="wrap story__grid">
         <div class="story__sticky">
           <header class="sec-head">
-            <p class="eyebrow eyebrow--light">07 · Como funciona</p>
+            <p class="eyebrow eyebrow--light">05 · Como funciona</p>
             <h2 class="sec-title sec-title--light" id="story-title">Seu projeto, <span class="hl">passo a passo.</span></h2>
           </header>
           <div class="story__stage" id="story-stage" data-step="1" aria-hidden="true">
@@ -497,7 +434,7 @@
     <section class="section section--paper" id="solucoes" aria-labelledby="sol-title">
       <div class="wrap sol">
         <header class="sec-head">
-          <p class="eyebrow" data-reveal>08 · Soluções</p>
+          <p class="eyebrow" data-reveal>06 · Soluções</p>
           <h2 class="sec-title" id="sol-title" data-reveal>Cada sistema, <span class="hl">o material certo.</span></h2>
           <span class="rule" data-reveal="line" aria-hidden="true"></span>
           <p class="sec-lead" data-reveal>Precisa de instalação ou indicação de profissional? Consulte a equipe pelo WhatsApp.</p>
@@ -551,7 +488,7 @@
       <div class="wrap">
         <header class="sec-head sec-head--row">
           <div>
-            <p class="eyebrow" data-reveal>09 · Inspiração</p>
+            <p class="eyebrow" data-reveal>07 · Inspiração</p>
             <h2 class="sec-title" id="insp-title" data-reveal>Ambientes que <span class="hl">ganham forma.</span></h2>
           </div>
           <p class="sec-lead" data-reveal>Imagens de referência do manual da marca Drysul. Espaço pronto para receber fotos de obras atendidas pela loja.</p>
@@ -571,7 +508,7 @@
       <div class="about__pattern" data-parallax="0.08" aria-hidden="true"></div>
       <div class="wrap about__grid">
         <div class="about__copy">
-          <p class="eyebrow eyebrow--light" data-reveal>10 · A Drysul</p>
+          <p class="eyebrow eyebrow--light" data-reveal>08 · A Drysul</p>
           <h2 class="sec-title sec-title--light" id="about-title" data-reveal>Precisão em <span class="hl">cada camada.</span></h2>
           <p class="about__lead" data-reveal>A Drysul é especializada em materiais para construção a seco: drywall, gesso e acabamento. Atendimento direto para montar a lista certa e manter a obra andando.</p>
           <ul class="values" data-stagger>
@@ -594,7 +531,7 @@
       <div class="contact__pattern" data-parallax="0.1" aria-hidden="true"></div>
       <div class="wrap">
         <header class="contact__head">
-          <p class="eyebrow eyebrow--light" data-reveal>11 · Contato</p>
+          <p class="eyebrow eyebrow--light" data-reveal>09 · Contato</p>
           <h2 class="contact__title" id="contact-title" data-reveal>Sua obra começa <span class="hl">com a lista certa.</span></h2>
           <div class="contact__cta" data-reveal>
             <a class="btn btn--whats btn--lg" data-store-link="whatsapp" data-whats="contato" href="https://wa.me/5555992010668" target="_blank" rel="noopener" data-magnetic><svg class="ic"><use href="#i-whats"/></svg><span>Chamar no WhatsApp</span></a>
@@ -639,11 +576,11 @@
       </div>
       <nav class="footer__col" aria-label="Rodapé — navegação">
         <p class="footer__k">Navegação</p>
-        <a href="#produtos">Produtos</a><a href="#ofertas">Ofertas</a><a href="#calculadora">Calculadora</a><a href="#simulador">Simulador</a><a href="#a-drysul">A Drysul</a>
+        <a href="#produtos">Produtos</a><a href="#calculadora">Calculadora</a><a href="#simulador">Simulador</a><a href="#ofertas">Ofertas</a><a href="#a-drysul">A Drysul</a>
       </nav>
       <div class="footer__col">
         <p class="footer__k">Categorias</p>
-        <a href="#produtos" data-filter-link="chapas">Chapas</a><a href="#produtos" data-filter-link="perfis">Perfis</a><a href="#produtos" data-filter-link="fixacao">Fixação</a><a href="#produtos" data-filter-link="acabamento">Massas e fitas</a>
+        <a href="#produtos" data-filter-link="chapas">Chapas</a><a href="#produtos" data-filter-link="perfis">Perfis</a><a href="#produtos" data-filter-link="fixacao">Fixação</a><a href="#produtos" data-filter-link="acabamento">Acabamento</a>
       </div>
       <div class="footer__col">
         <p class="footer__k">Contato</p>
@@ -662,8 +599,10 @@
     </div>
   </footer>
 
+  <!-- pedido sempre à mão no celular: aparece assim que a lista tem algo, com o total estimado -->
   <button class="fab" type="button" data-open-quote id="fab" hidden>
-    <svg class="ic"><use href="#i-bag"/></svg><span>Pedido</span><span class="quote-count" data-quote-count>0</span>
+    <svg class="ic" aria-hidden="true"><use href="#i-bag"/></svg><span class="fab__t">Ver pedido</span><span class="quote-count" data-quote-count>0</span>
+    <span class="fab__total" id="fab-total"></span>
   </button>
 
   <!-- Diálogo de orçamento -->
@@ -793,7 +732,7 @@
       <h2 class="sr" id="bg-titulo">Buscar produtos</h2>
       <div class="busca__campo" id="bg-campo">
         <svg class="ic busca__lupa" aria-hidden="true"><use href="#i-search"/></svg>
-        <input class="busca__input" id="bg-input" type="search" autocomplete="off" spellcheck="false" enterkeyhint="search" placeholder="Material ou obra: chapa RU, parede 4 × 2,8 m…" aria-label="Buscar produtos ou calcular uma obra" aria-describedby="bg-status" aria-controls="bg-lista">
+        <input class="busca__input" id="bg-input" type="search" autocomplete="off" spellcheck="false" enterkeyhint="search" placeholder="Material ou obra: chapa RU, parede 4 × 2,8 m…" data-ph-curto="Material ou obra" aria-label="Buscar produtos ou calcular uma obra" aria-describedby="bg-status" aria-controls="bg-lista">
         <kbd class="busca__esc" aria-hidden="true">Esc</kbd>
         <button class="icon-btn busca__fechar" type="button" data-close aria-label="Fechar busca"><svg class="ic"><use href="#i-close"/></svg></button>
       </div>
@@ -843,14 +782,15 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script defer src="js/data.js?v=17"></script>
-  <script defer src="js/calculator-model.js?v=17"></script>
-  <script defer src="js/checkout-model.js?v=17"></script>
-  <script defer src="js/app.js?v=17"></script>
-  <script defer src="js/receipt.js?v=17"></script>
-  <script defer src="js/checkout.js?v=17"></script>
+  <script defer src="js/data.js?v=18"></script>
+  <script defer src="js/calculator-model.js?v=18"></script>
+  <script defer src="js/checkout-model.js?v=18"></script>
+  <script defer src="js/busca.js?v=18"></script>
+  <script defer src="js/app.js?v=18"></script>
+  <script defer src="js/receipt.js?v=18"></script>
+  <script defer src="js/checkout.js?v=18"></script>
   <script defer src="js/vendor/lenis.min.js?v=1"></script>
-  <script defer src="js/motion.js?v=17"></script>
-  <script defer src="js/som.js?v=17"></script>
+  <script defer src="js/motion.js?v=18"></script>
+  <script defer src="js/som.js?v=18"></script>
 </body>
 </html>

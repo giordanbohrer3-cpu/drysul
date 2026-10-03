@@ -156,13 +156,18 @@
     if (q.estimativa) {
       var e = q.estimativa;
       L.push('', '*Estimativa da calculadora* — ' + e.nome + ', ' + descMedidas(e));
-      e.itens.forEach(function (i) { L.push('• ' + i.nome + ': ' + fmt(i.qtd) + ' ' + i.unidade); });
+      e.itens.forEach(function (i) { L.push('• ' + i.nome + ': ' + qtdEstimativa(i)); });
     }
     var sub = subtotal();
     if (sub.total > 0) L.push('', 'Subtotal de referência (itens com preço): ' + BRL.format(sub.total) + ' — a confirmar');
     if (q.obs.trim()) L.push('', 'Observações: ' + q.obs.trim());
     if (q.nome.trim()) L.push('Nome: ' + q.nome.trim());
     return L.join('\n').replace(/ /g, ' ');
+  }
+  // "9 chapas ST 1,20 × 2,40 m (consumo 23,52 m²)"; estimativas antigas, sem embalagem, mostram só o consumo
+  function qtdEstimativa(i) {
+    if (i.qtdCompra == null) return fmt(i.qtd) + ' ' + i.unidade;
+    return i.qtdCompra + ' ' + i.unCompra + (i.detCompra ? ' ' + i.detCompra : '') + ' (consumo ' + fmt(i.qtd) + ' ' + i.unidade + ')';
   }
   function descMedidas(e) {
     return e.dims ? fmt(e.dims.altura) + ' × ' + fmt(e.dims.comprimento) + ' m (' + fmt(e.area) + ' m²)' : fmt(e.area) + ' m²';
@@ -223,9 +228,13 @@
     if (q.estimativa) {
       var e = q.estimativa;
       elEst.innerHTML = '<div class="q-est"><div class="q-est__head"><div><p class="q-est__t">Estimativa · ' + esc(e.nome) + '</p>' +
-        '<p class="q-est__s">' + esc(descMedidas(e)) + ' — consumo estimado</p></div>' +
+        '<p class="q-est__s">' + esc(descMedidas(e)) + ' — materiais estimados</p></div>' +
         '<button type="button" class="q-rm" data-q="rm-est" aria-label="Remover estimativa">' + icon('i-trash') + '</button></div>' +
-        '<ul>' + e.itens.map(function (i) { return '<li><span>' + esc(i.nome) + '</span><b>' + fmt(i.qtd) + ' ' + esc(i.unidade) + '</b></li>'; }).join('') + '</ul></div>';
+        '<ul>' + e.itens.map(function (i) {
+          return '<li><span>' + esc(i.nome) + '</span><b>' + (i.qtdCompra != null ? i.qtdCompra + ' ' + esc(i.unCompra) : fmt(i.qtd) + ' ' + esc(i.unidade)) + '</b></li>';
+        }).join('') + '</ul>' +
+        (e.total > 0 ? '<p class="q-est__total"><span>Estimativa no site<small>preços médios, confirmados pela loja</small></span><b>≈ ' + BRL.format(e.total) + '</b></p>' : '') +
+        '</div>';
     } else elEst.innerHTML = '';
 
     var vazio = totalLinhas() === 0;
@@ -706,24 +715,49 @@
     });
     if (!r.ok) { var f = $('[aria-invalid="true"]', campos); if (f) f.focus(); return; }
     calc.resultado = r;
-    renderResultado(r);
+    calc.orcamento = C.orcar(r, precoCalc);
+    renderResultado(r, calc.orcamento);
   });
 
-  function renderResultado(r) {
+  // preço de cada material na estimativa: o da loja (produto com preço) ou o médio de mercado (data.js)
+  function precoCalc(ref) {
+    var p = produtoPorId[ref];
+    if (p && p.preco != null) return { preco: p.preco, fonte: 'loja' };
+    var m = D.precosMedios && D.precosMedios.precos[ref];
+    return m != null ? { preco: m, fonte: 'media' } : null;
+  }
+  function renderResultado(r, o) {
     res.classList.remove('is-stale');
     res.innerHTML =
       '<div class="res__head"><div><p class="res__sys">' + esc(r.nome) + '</p><p class="res__dims">' +
         (r.dims ? fmt(r.dims.altura) + ' m × ' + fmt(r.dims.comprimento) + ' m' : 'Área informada') + '</p></div>' +
         '<p class="res__area">' + conta(r.area) + '<small>m²</small></p></div>' +
       '<p class="stale-note">Medidas alteradas — calcule novamente para atualizar.</p>' +
-      '<ul class="res__list">' + r.itens.map(function (i, n) {
-        return '<li style="--i:' + n + '">' + ill(ICONE_ITEM[i.id] || 'p-caixa', 'res__ic') + '<span>' + esc(i.nome) + '</span><b>' + conta(i.qtd) + '<small>' + esc(i.unidade) + '</small></b></li>';
+      '<ul class="res__list">' + o.itens.map(function (i, n) {
+        var preco = i.subtotal != null
+          ? '<b>' + BRL.format(i.subtotal) + '</b><small>' + (i.fonte === 'media' ? '≈ ' : '') + BRL.format(i.preco) + '/' + esc(i.unSing) +
+            (i.fonte === 'loja' ? ' · Drysul' : ' · média') + '</small>'
+          : '<b class="is-consulta">Sob consulta</b>';
+        return '<li style="--i:' + n + '"' + (i.opcional ? ' class="is-opc"' : '') + '>' + ill(ICONE_ITEM[i.id] || 'p-caixa', 'res__ic') +
+          '<span class="res__nome">' + esc(i.nome) + '<small><b>' + conta(i.qtdCompra) + ' ' + esc(i.unCompra) + '</b>' +
+            (i.detCompra ? ' ' + esc(i.detCompra) : '') + ' · consumo ' + fmt(i.qtd) + ' ' + esc(i.unidade) + '</small></span>' +
+          '<span class="res__preco">' + preco + '</span></li>';
       }).join('') + '</ul>' +
+      totalResultado(o) +
       '<div class="res__actions">' +
         '<button class="btn btn--primary" type="button" data-res-action="orcamento">' + icon('i-list') + '<span>Levar ao orçamento</span></button>' +
         '<button class="btn btn--outline" type="button" data-res-action="copiar">' + icon('i-copy') + '<span>Copiar estimativa</span></button>' +
       '</div>';
     contarNumeros(res);
+  }
+  function totalResultado(o) {
+    var fora = [], media = o.itens.some(function (i) { return i.fonte === 'media'; });
+    o.itens.forEach(function (i) { if (i.opcional && i.subtotal != null) fora.push(i.nome.replace(/\s*\(opcional\)/, '') + ' (opcional): + ' + BRL.format(i.subtotal)); });
+    if (o.semPreco) fora.push(o.semPreco + (o.semPreco > 1 ? ' itens sob consulta' : ' item sob consulta'));
+    return '<div class="res__total"><div><p>Total estimado dos materiais</p>' + (fora.length ? '<small>Fora do total: ' + esc(fora.join(' · ')) + '</small>' : '') + '</div>' +
+      '<b>' + (media ? '≈ ' : '') + BRL.format(o.total) + '</b></div>' +
+      '<p class="res__nota">Embalagens arredondadas para cima. “≈ média” = preço médio de mercado (' + esc(D.precosMedios.data) + '); “Drysul” = preço da loja. ' +
+      'O valor final é confirmado pela loja no orçamento.</p>';
   }
   // números do resultado sobem de 0 até o valor (só com efeitos; o texto final é sempre o valor exato).
   // O número que anda fica oculto para leitores de tela; eles leem só o valor final, sem a contagem.
@@ -748,12 +782,13 @@
     var r = calc.resultado;
     if (b.getAttribute('data-res-action') === 'orcamento') {
       var substituiu = !!q.estimativa;
-      q.estimativa = { sistema: r.sistema, nome: r.nome, dims: r.dims, area: r.area, itens: r.itens };
+      var o = calc.orcamento || C.orcar(r, precoCalc);
+      q.estimativa = { sistema: r.sistema, nome: r.nome, dims: r.dims, area: r.area, itens: o.itens, total: o.total };
       mudou(true);
       toast(substituiu ? 'Estimativa atualizada no pedido' : 'Estimativa adicionada ao pedido', { label: 'Ver pedido', run: abrirOrcamento });
     } else {
       var txt = ['Estimativa Drysul — ' + r.nome + ', ' + descMedidas(r)].concat(r.itens.map(function (i) {
-        return '• ' + i.nome + ': ' + fmt(i.qtd) + ' ' + i.unidade;
+        return '• ' + i.nome + ': ' + qtdEstimativa(i);
       })).join('\n');
       copiar(txt, 'Estimativa copiada.');
     }
@@ -766,6 +801,40 @@
     });
   });
   renderSistema();
+
+  /* ==========================================================================
+     Simulador de acabamento — o js/simulador.js só é baixado quando a seção se aproxima ou alguém clica
+     ========================================================================== */
+  var simCarregando = null;
+  function carregarSim() {
+    if (window.DrysulSim) return Promise.resolve(window.DrysulSim);
+    if (!simCarregando) simCarregando = new Promise(function (ok, erro) {
+      var sc = document.createElement('script');
+      sc.src = 'js/simulador.js?v=14'; sc.async = true;
+      sc.onload = function () { ok(window.DrysulSim); };
+      sc.onerror = function () { simCarregando = null; sc.remove(); erro(new Error('simulador')); };
+      document.head.appendChild(sc);
+    });
+    return simCarregando;
+  }
+  function abrirSim(op) {
+    carregarSim().then(function (sim) { sim.abrir(op); }, function () { toast('Não foi possível abrir o simulador. Confira a conexão e tente de novo.'); });
+  }
+  $$('[data-sim-foto]').forEach(function (b) {
+    b.addEventListener('click', function () { document.getElementById('sim-sec-' + b.getAttribute('data-sim-foto')).click(); });
+  });
+  ['camera', 'galeria'].forEach(function (n) {
+    var inp = document.getElementById('sim-sec-' + n); if (!inp) return;
+    inp.addEventListener('change', function () { var f = inp.files && inp.files[0]; if (f) abrirSim({ arquivo: f }); inp.value = ''; });
+  });
+  $$('[data-sim-exemplo]').forEach(function (b) { b.addEventListener('click', function () { abrirSim({ exemplo: true }); }); });
+  var secSim = document.getElementById('simulador');
+  if (secSim && 'IntersectionObserver' in window) {
+    var simIO = new IntersectionObserver(function (es) {
+      if (es.some(function (e) { return e.isIntersecting; })) { simIO.disconnect(); carregarSim().catch(function () {}); }
+    }, { rootMargin: '600px 0px' });
+    simIO.observe(secSim);
+  }
 
   /* ==========================================================================
      Tema claro / escuro — a escolha fica salva; sem escolha, segue o aparelho

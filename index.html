@@ -20,8 +20,8 @@
   <meta name="twitter:card" content="summary_large_image">
 
   <link rel="preload" href="assets/fonts/archivo-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="css/styles.css?v=13">
-  <link rel="stylesheet" href="css/motion.css?v=13">
+  <link rel="stylesheet" href="css/styles.css?v=14">
+  <link rel="stylesheet" href="css/motion.css?v=14">
   <script>
     (function () {
       var root = document.documentElement, pref = null, tema = null;
@@ -64,6 +64,8 @@
     <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="1.5"/><path d="M16 8V5.5A1.5 1.5 0 0 0 14.5 4h-9A1.5 1.5 0 0 0 4 5.5v9A1.5 1.5 0 0 0 5.5 16H8"/></symbol>
     <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
     <symbol id="i-list" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01"/></symbol>
+    <symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 8.5A1.5 1.5 0 0 1 5.5 7h2.2l1.6-2.5h5.4L16.3 7h2.2A1.5 1.5 0 0 1 20 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5z"/><circle cx="12" cy="13" r="3.6"/></symbol>
+    <symbol id="i-image" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="14" rx="1.5"/><circle cx="9" cy="10" r="1.6"/><path d="m4 17 5-5 4 4 2.5-2.5L20 18"/></symbol>
     <symbol id="i-calc" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="1.5"/><path d="M8 7h8M8.5 11.5h.01M12 11.5h.01M15.5 11.5h.01M8.5 15h.01M12 15h.01M15.5 15v2.5M8.5 18h.01M12 18h.01"/></symbol>
     <symbol id="i-pause" viewBox="0 0 24 24"><path d="M9 6v12M15 6v12"/></symbol>
     <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13l10.5-6.5z"/></symbol>
@@ -116,7 +118,7 @@
           <li><a href="#produtos">Produtos</a></li>
           <li><a href="#ofertas">Ofertas</a></li>
           <li><a href="#calculadora">Calculadora</a></li>
-          <li><a href="#como-funciona">Como funciona</a></li>
+          <li><a href="#simulador">Simulador</a></li>
           <li><a href="#a-drysul">A Drysul</a></li>
           <li><a href="#contato">Contato</a></li>
           <li class="nav__tema-item"><button class="nav__tema" type="button" data-theme-toggle><svg class="ic ic-moon" aria-hidden="true"><use href="#i-moon"/></svg><svg class="ic ic-sun" aria-hidden="true"><use href="#i-sun"/></svg><span>Tema escuro</span></button></li>
@@ -364,7 +366,44 @@
             </div>
           </div>
         </div>
-        <p class="calc__note"><svg class="ic"><use href="#i-info"/></svg> Estimativa de consumo com coeficientes de referência de mercado (calculadora pública da Gypsum, conferida em 29/09/2026). Não substitui projeto técnico; embalagens, perdas e compatibilidade são confirmadas pela equipe.</p>
+        <p class="calc__note"><svg class="ic"><use href="#i-info"/></svg> Estimativa de consumo com coeficientes de referência de mercado (calculadora pública da Gypsum, conferida em 29/09/2026). Embalagens arredondadas para cima e preços de referência (da loja ou médios de mercado). Não substitui projeto técnico; perdas, compatibilidade e valores finais são confirmados pela equipe.</p>
+      </div>
+    </section>
+
+    <!-- SIMULADOR -->
+    <section class="section section--paper sim-sec" id="simulador" aria-labelledby="sim-sec-title">
+      <div class="wrap sim-sec__grid">
+        <div class="sim-sec__txt">
+          <header class="sec-head">
+            <p class="eyebrow" data-reveal>06 · Simulador</p>
+            <h2 class="sec-title" id="sim-sec-title" data-reveal>Veja na sua parede <span class="hl">antes de fazer.</span></h2>
+            <span class="rule" data-reveal="line" aria-hidden="true"></span>
+            <p class="sec-lead" data-reveal>Tire uma foto da parede ou do teto, marque os cantos e compare drywall liso, forro com tabica, placa 3D, ripado, lambri e cimento queimado. A luz da sua foto continua lá, e a imagem não sai do seu celular.</p>
+          </header>
+          <div class="btn-row sim-sec__acoes" data-reveal>
+            <button class="btn btn--primary btn--lg" type="button" data-sim-foto="camera" data-magnetic><svg class="ic"><use href="#i-camera"/></svg><span>Tirar foto e simular</span></button>
+            <button class="btn btn--outline btn--lg" type="button" data-sim-foto="galeria"><svg class="ic"><use href="#i-image"/></svg><span>Escolher foto</span></button>
+          </div>
+          <button class="link-arrow sim-sec__ex" type="button" data-sim-exemplo data-reveal>Testar com uma foto de exemplo <svg class="ic"><use href="#i-arrow"/></svg></button>
+          <ol class="sim-sec__passos" data-stagger>
+            <li data-reveal><b>1</b>Fotografe de frente</li>
+            <li data-reveal><b>2</b>Marque os 4 cantos</li>
+            <li data-reveal><b>3</b>Escolha o acabamento</li>
+          </ol>
+          <input type="file" accept="image/*" capture="environment" id="sim-sec-camera" hidden>
+          <input type="file" accept="image/*" id="sim-sec-galeria" hidden>
+          <button type="button" class="sim-calc" data-calc-system="colado" hidden tabindex="-1"></button>
+          <button type="button" class="sim-calc" data-calc-system="fge" hidden tabindex="-1"></button>
+        </div>
+        <figure class="sim-demo" data-reveal>
+          <button class="sim-demo__btn" type="button" data-sim-exemplo aria-label="Abrir o simulador com a foto de exemplo">
+            <img src="assets/img/sim-antes-960.webp" alt="Parede de tijolo à vista com janela, antes da simulação" width="960" height="720" loading="lazy" decoding="async">
+            <img class="sim-demo__depois" src="assets/img/sim-depois-960.webp" alt="A mesma parede simulada com drywall liso" width="960" height="720" loading="lazy" decoding="async">
+            <span class="sim-demo__linha" aria-hidden="true"></span>
+            <span class="sim-demo__tag sim-demo__tag--a" aria-hidden="true">Antes</span><span class="sim-demo__tag sim-demo__tag--d" aria-hidden="true">Depois</span>
+          </button>
+          <figcaption>Simulação feita no próprio site, sem enviar a foto. Foto: Kai Kemmann, CC BY-SA 4.0.</figcaption>
+        </figure>
       </div>
     </section>
 
@@ -374,7 +413,7 @@
       <div class="wrap story__grid">
         <div class="story__sticky">
           <header class="sec-head">
-            <p class="eyebrow eyebrow--light">06 · Como funciona</p>
+            <p class="eyebrow eyebrow--light">07 · Como funciona</p>
             <h2 class="sec-title sec-title--light" id="story-title">Seu projeto, <span class="hl">passo a passo.</span></h2>
           </header>
           <div class="story__stage" id="story-stage" data-step="1" aria-hidden="true">
@@ -427,7 +466,7 @@
     <section class="section section--paper" id="solucoes" aria-labelledby="sol-title">
       <div class="wrap sol">
         <header class="sec-head">
-          <p class="eyebrow" data-reveal>07 · Soluções</p>
+          <p class="eyebrow" data-reveal>08 · Soluções</p>
           <h2 class="sec-title" id="sol-title" data-reveal>Cada sistema, <span class="hl">o material certo.</span></h2>
           <span class="rule" data-reveal="line" aria-hidden="true"></span>
           <p class="sec-lead" data-reveal>Precisa de instalação ou indicação de profissional? Consulte a equipe pelo WhatsApp.</p>
@@ -481,7 +520,7 @@
       <div class="wrap">
         <header class="sec-head sec-head--row">
           <div>
-            <p class="eyebrow" data-reveal>08 · Inspiração</p>
+            <p class="eyebrow" data-reveal>09 · Inspiração</p>
             <h2 class="sec-title" id="insp-title" data-reveal>Ambientes que <span class="hl">ganham forma.</span></h2>
           </div>
           <p class="sec-lead" data-reveal>Imagens de referência do manual da marca Drysul. Espaço pronto para receber fotos de obras atendidas pela loja.</p>
@@ -501,7 +540,7 @@
       <div class="about__pattern" data-parallax="0.08" aria-hidden="true"></div>
       <div class="wrap about__grid">
         <div class="about__copy">
-          <p class="eyebrow eyebrow--light" data-reveal>09 · A Drysul</p>
+          <p class="eyebrow eyebrow--light" data-reveal>10 · A Drysul</p>
           <h2 class="sec-title sec-title--light" id="about-title" data-reveal>Precisão em <span class="hl">cada camada.</span></h2>
           <p class="about__lead" data-reveal>A Drysul é especializada em materiais para construção a seco: drywall, gesso e acabamento. Atendimento direto para montar a lista certa e manter a obra andando.</p>
           <ul class="values" data-stagger>
@@ -524,7 +563,7 @@
       <div class="contact__pattern" data-parallax="0.1" aria-hidden="true"></div>
       <div class="wrap">
         <header class="contact__head">
-          <p class="eyebrow eyebrow--light" data-reveal>10 · Contato</p>
+          <p class="eyebrow eyebrow--light" data-reveal>11 · Contato</p>
           <h2 class="contact__title" id="contact-title" data-reveal>Sua obra começa <span class="hl">com a lista certa.</span></h2>
           <div class="contact__cta" data-reveal>
             <a class="btn btn--whats btn--lg" data-store-link="whatsapp" data-whats="contato" href="https://wa.me/5555992010668" target="_blank" rel="noopener" data-magnetic><svg class="ic"><use href="#i-whats"/></svg><span>Chamar no WhatsApp</span></a>
@@ -569,7 +608,7 @@
       </div>
       <nav class="footer__col" aria-label="Rodapé — navegação">
         <p class="footer__k">Navegação</p>
-        <a href="#produtos">Produtos</a><a href="#ofertas">Ofertas</a><a href="#calculadora">Calculadora</a><a href="#a-drysul">A Drysul</a>
+        <a href="#produtos">Produtos</a><a href="#ofertas">Ofertas</a><a href="#calculadora">Calculadora</a><a href="#simulador">Simulador</a><a href="#a-drysul">A Drysul</a>
       </nav>
       <div class="footer__col">
         <p class="footer__k">Categorias</p>
@@ -748,6 +787,10 @@
     </div>
   </dialog>
 
+  <dialog data-lenis-prevent class="sim-dlg" id="simulador-dlg" aria-labelledby="sim-titulo">
+    <div class="sim" id="sim-app"></div>
+  </dialog>
+
   <dialog data-lenis-prevent class="sheet sheet--center" id="sobre-demo" aria-labelledby="about-demo-title">
     <div class="sheet__in">
       <header class="sheet__head">
@@ -777,6 +820,7 @@
         </ul>
         <h3>Créditos das imagens</h3>
         <p class="muted">Chapas: modelo 3D com a textura da foto <a href="https://commons.wikimedia.org/wiki/File:Stapel_Gipskartonplatten.jpg" target="_blank" rel="noopener">“Stapel Gipskartonplatten”</a>, de RossKur (Wikimedia Commons), licença <a href="https://creativecommons.org/licenses/by/4.0/deed.pt-br" target="_blank" rel="noopener">CC BY 4.0</a>, modificada (recorte, cores RU e RF). Perfis: modelos 3D ilustrativos.</p>
+        <p class="muted">Simulador: foto de exemplo <a href="https://commons.wikimedia.org/wiki/File:Unverputzte_Ziegelwand_in_Wohnraum_im_Erdgescho%C3%9F,_Carrer_de_l%27Arquebisbe_Company,_75,_46011_Val%C3%A8ncia,_Valencia,_Spain.jpg" target="_blank" rel="noopener">“Unverputzte Ziegelwand in Wohnraum”</a>, de Kai Kemmann (Wikimedia Commons), licença <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.pt-br" target="_blank" rel="noopener">CC BY-SA 4.0</a>; a imagem “depois” é uma modificação feita pelo simulador, sob a mesma licença. Os acabamentos são gerados pelo próprio site.</p>
         <p class="muted">Nesta demonstração nenhum pagamento é cobrado e nenhum dado é enviado. Na versão final, o cartão é digitado apenas no ambiente seguro do provedor de pagamento.</p>
       </div>
     </div>
@@ -784,14 +828,14 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script defer src="js/data.js?v=13"></script>
-  <script defer src="js/calculator-model.js?v=13"></script>
-  <script defer src="js/checkout-model.js?v=13"></script>
-  <script defer src="js/app.js?v=13"></script>
-  <script defer src="js/receipt.js?v=13"></script>
-  <script defer src="js/checkout.js?v=13"></script>
+  <script defer src="js/data.js?v=14"></script>
+  <script defer src="js/calculator-model.js?v=14"></script>
+  <script defer src="js/checkout-model.js?v=14"></script>
+  <script defer src="js/app.js?v=14"></script>
+  <script defer src="js/receipt.js?v=14"></script>
+  <script defer src="js/checkout.js?v=14"></script>
   <script defer src="js/vendor/lenis.min.js?v=1"></script>
-  <script defer src="js/motion.js?v=13"></script>
-  <script defer src="js/som.js?v=13"></script>
+  <script defer src="js/motion.js?v=14"></script>
+  <script defer src="js/som.js?v=14"></script>
 </body>
 </html>

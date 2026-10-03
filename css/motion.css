@@ -90,6 +90,9 @@
 
 /* Resultado da calculadora */
 .motion-on .res__list li { animation: fade-up 480ms var(--ease) both; animation-delay: calc(var(--i, 0) * 40ms); }
+/* o total entra depois da lista, subindo de leve em perspectiva */
+.motion-on .res__total { animation: pop-in 560ms var(--ease) 420ms both; }
+.motion-on .res__nota { animation: fade-up 480ms var(--ease) 560ms both; }
 
 /* Diálogos */
 .motion-on .sheet[open] { animation: sheet-in 380ms var(--ease) both; }
@@ -104,6 +107,15 @@
 @keyframes busca-in { from { opacity: 0; transform: translateY(-18px) scale(.97); } }
 @keyframes bres-in { from { opacity: 0; transform: translateY(10px); } }
 @keyframes busca-linha { 0% { transform: scaleX(0); opacity: 1; } 70% { transform: scaleX(1); opacity: 1; } 100% { transform: scaleX(1); opacity: 0; } }
+
+/* Simulador: a janela abre em perspectiva; na seção, a linha do antes/depois varre a foto devagar */
+.motion-on .sim-dlg[open] { animation: pop-in 420ms var(--ease) both; }
+.motion-on .sim-dlg[open]::backdrop { animation: fade-up 300ms linear both; }
+.motion-on .sim-demo__depois { animation: sim-corte 7s var(--ease-io) infinite alternate; }
+.motion-on .sim-demo__linha { animation: sim-linha 7s var(--ease-io) infinite alternate; }
+.motion-on .sim-demo.anim-off .sim-demo__depois, .motion-on .sim-demo.anim-off .sim-demo__linha { animation-play-state: paused; }
+@keyframes sim-corte { from { clip-path: inset(0 0 0 86%); } to { clip-path: inset(0 0 0 14%); } }
+@keyframes sim-linha { from { left: 86%; } to { left: 14%; } }
 
 /* ---------- Pausado / movimento reduzido ---------- */
 .motion-paused *, .motion-paused *::before, .motion-paused *::after { animation: none !important; }

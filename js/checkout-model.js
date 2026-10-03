@@ -38,7 +38,7 @@
 
   function textoMotivo(m, limite, fmtBRL) {
     return {
-      calculo: 'Tem cálculo de parede, forro ou revestimento: a equipe converte a estimativa em embalagens.',
+      calculo: 'Tem cálculo de parede, forro ou revestimento: a equipe confere as quantidades e os preços da estimativa.',
       consulta: 'Tem itens sob consulta: preço e disponibilidade são confirmados pela equipe.',
       limite: 'Pedido acima de ' + fmtBRL(limite) + ': atendimento para condições e entrega.'
     }[m];

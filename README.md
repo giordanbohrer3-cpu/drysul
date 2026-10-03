@@ -11,13 +11,14 @@ Proposta de site para a **Drysul — gesso e acabamento**. HTML, CSS e JavaScrip
 
 | Arquivo | Função |
 |---|---|
-| `index.html` | Página única: hero, categorias, linha Drysul, catálogo, ofertas, calculadora, como funciona, soluções, inspiração, a Drysul, contato |
+| `index.html` | Página única: hero, categorias, linha Drysul, catálogo, ofertas, calculadora, simulador, como funciona, soluções, inspiração, a Drysul, contato |
 | `js/data.js` | **Fonte única de dados**: contato, categorias, produtos, preços e ofertas |
-| `js/calculator-model.js` | Coeficientes e validação da calculadora (sem DOM, testável no Node) |
+| `js/calculator-model.js` | Coeficientes, validação, embalagens de compra e orçamento da calculadora (sem DOM, testável no Node) |
 | `js/app.js` | Catálogo, busca, filtros, pedido/orçamento, WhatsApp, calculadora, menu |
 | `js/checkout-model.js` | Regras da central de vendas: canal (site x WhatsApp), limite, validações (testável no Node) |
 | `js/checkout.js` | Central de vendas: pedido → entrega → pagamento (Pix, crédito, débito, WhatsApp) → confirmação |
 | `js/motion.js` | Hero fixo que desmonta a parede em 4 etapas (fita, chapa, parafusos, estrutura), escrita animada dos títulos, rolagem suave no computador (Lenis), canvas técnico, fundos que andam com a rolagem, pausa de efeitos; anima só o que está perto da tela |
+| `js/simulador.js` | Simulador de acabamento: foto da parede ou do teto, 4 cantos (perspectiva), pincel para proteger objetos e 6 acabamentos gerados no próprio navegador (WebGL 2). Carregado só quando a seção se aproxima; a foto não sai do aparelho |
 | `js/som.js` | Sons sintetizados no navegador (sem arquivos), todos bem baixos: clique, passar o mouse nos botões, papel na rolagem (segue a velocidade), virada de página nas etapas do topo e trilha de cordas lenta ao fundo. Começam no primeiro clique/toque; o botão "Som" liga e desliga tudo |
 | `js/vendor/lenis.min.js` | Lenis 1.3.26 (MIT, licença em `js/vendor/LENIS-LICENSE.txt`); só no computador com mouse/trackpad |
 | `css/styles.css` | Design system (tokens semânticos com tema claro e escuro, componentes, seções, responsivo) |
@@ -31,6 +32,8 @@ Proposta de site para a **Drysul — gesso e acabamento**. HTML, CSS e JavaScrip
 - **Preço, produto ou oferta:** edite `js/data.js`. `preco: null` mostra "Sob consulta".
 - **Foto real de produto:** imagem 4:3 em `assets/img/` e, no produto, `foto` (800 px) e `fotoMini` (400 px). Sem foto, aparece o desenho técnico.
 - **Telefone, endereço, Instagram:** objeto `loja` em `js/data.js` (rodapé, contato e WhatsApp leem dali).
+- **Preços da calculadora:** cada material vira embalagem de compra (`COMPRA` no `js/calculator-model.js`) e usa o preço do produto da loja em `js/data.js`; sem preço da loja, usa a tabela `precosMedios` (médias de mercado de 03/10/2026, marcadas com “≈ média”). Para usar o preço da Drysul, preencha `preco` no produto. A mensagem do WhatsApp leva só os itens, sem preços da estimativa.
+- **Simulador:** acabamentos, cores e tons em `ACABS` no `js/simulador.js`; a foto de exemplo e as áreas protegidas dela em `EXEMPLO`.
 - **Limite da compra pelo site:** `vendas.limiteOnline` em `js/data.js` (atual: R$ 1.000).
 - **WhatsApp:** as mensagens prontas ficam em `MSG_WHATS` no `js/app.js` (saudação pelo horário + motivo: contato, produto ou busca sem resultado).
 - **Busca rápida:** botão no cabeçalho, tecla `/` ou `Ctrl+K`; usa os mesmos dados do catálogo. Os termos sugeridos estão em `POPULARES` no `js/app.js`.
@@ -55,6 +58,14 @@ Na demonstração nenhum pagamento é processado. Para a versão real:
 ```bash
 node --test tests/calculator.test.js tests/checkout.test.js
 ```
+
+## Simulador de acabamento
+
+Tudo roda no navegador do cliente, sem servidor nem serviço de IA: os 4 cantos definem a perspectiva, o acabamento é
+gerado em metros reais e aplicado com mipmaps, e a luz da foto (luminância bem desfocada, ignorando as áreas protegidas)
+multiplica o acabamento. Precisa de WebGL 2 (navegadores atuais); sem ele, o simulador avisa e o resto do site segue normal.
+Foto de exemplo: [“Unverputzte Ziegelwand in Wohnraum”](https://commons.wikimedia.org/wiki/File:Unverputzte_Ziegelwand_in_Wohnraum_im_Erdgescho%C3%9F,_Carrer_de_l%27Arquebisbe_Company,_75,_46011_Val%C3%A8ncia,_Valencia,_Spain.jpg),
+de Kai Kemmann, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/); `sim-depois-960.webp` é uma modificação feita pelo simulador, sob a mesma licença.
 
 ## Imagens ilustrativas
 

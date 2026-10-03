@@ -105,5 +105,27 @@
     demo: true          // demonstração: nenhum pagamento é processado
   };
 
-  root.DRYSUL = { loja: loja, categorias: categorias, produtos: produtos, vendas: vendas };
+  // Preços médios de mercado, usados só na estimativa da calculadora enquanto a loja não informa o preço dela.
+  // Mediana de preços publicados por lojas de drywall do Brasil (pesquisa de 03/10/2026). Preço da loja (produto com
+  // `preco`) sempre tem prioridade. Para trocar pelo preço da Drysul: preencha `preco` no produto ou ajuste aqui.
+  // Sem valor aqui nem no produto (ex.: junção H) = "sob consulta", fora do total.
+  var precosMedios = {
+    data: '03/10/2026',
+    precos: {
+      'chapa-st': 58.00,     // chapa ST 12,5 mm, 1,20 × 2,40 m
+      'guia-70': 23.00,      // barra de 3 m
+      'montante-70': 29.00,  // barra de 3 m
+      'perfil-forro': 16.00, // perfil S47/F530, barra de 3 m
+      'cantoneira': 8.50,    // 25 × 30 mm, barra de 3 m
+      'regulador': 1.20,     // unidade
+      'uniao': 1.30,         // emenda S47/F530, unidade
+      'arame-10': 19.00,     // kg (cerca de 14 m)
+      'arame-18': 13.00,     // kg
+      'gesso-cola': 60.00,   // saco de 20 kg
+      'la-vidro': 280.00,    // rolo de 15 m², 50 mm
+      'nervura': 20.00       // m² de chapa em tiras
+    }
+  };
+
+  root.DRYSUL = { loja: loja, categorias: categorias, produtos: produtos, vendas: vendas, precosMedios: precosMedios };
 })(typeof self !== 'undefined' ? self : this);

@@ -1,7 +1,8 @@
 /* Drysul — sons do site, todos sintetizados no navegador (sem arquivos de áudio).
    - Clique: um "toc" redondo e grave; adicionar ao pedido toca duas notas suaves.
    - Passar o mouse num botão: um sopro curto que sobe junto com o preenchimento de cor.
-   - Rolagem: um sopro de ar macio (ruído marrom, só graves e médios, sem chiado) que acompanha a velocidade.
+   - Rolagem: um sopro de ar macio (ruído marrom, só graves e médios, sem chiado) que acompanha a velocidade;
+     ao mudar de etapa na parede do topo, um "swoosh" leve.
    - Trilha: piano de feltro sobre uma base aberta, em Ré maior. Oito frases curtas se repetem em ciclos de tamanhos
      diferentes (17,9 s, 19,7 s, 21,3 s…), a técnica de "Music for Airports" (Brian Eno, 1978): as frases se encontram
      sempre de um jeito novo, então a música é contínua e não se repete. Todas as notas são da mesma escala, então
@@ -112,6 +113,17 @@
       rol.lp.frequency.setTargetAtTime(450 + 800 * forca, t, 0.15);
     };
     M.pararRolagem = function (t) { if (rol) rol.bus.gain.setTargetAtTime(0, t == null ? c.currentTime : t, 0.22); };
+    // mudança de etapa no topo: um swoosh de ar que sobe e desce
+    M.swoosh = function (t) {
+      if (!rol) return;
+      t = t == null ? c.currentTime + 0.01 : t;
+      var s = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain();
+      s.buffer = rol.ar; f.type = 'bandpass'; f.Q.value = 0.8;
+      f.frequency.setValueAtTime(320, t); f.frequency.exponentialRampToValueAtTime(900, t + 0.22); f.frequency.exponentialRampToValueAtTime(480, t + 0.52);
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.021, t + 0.16); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.56);
+      s.connect(f); f.connect(g); g.connect(mix);
+      s.start(t, Math.random() * 3); s.stop(t + 0.6);
+    };
 
     /* ---------- trilha: piano de feltro em ciclos de tamanhos diferentes ---------- */
     // [período (s), início (s), notas: [midi, atraso (s)]] — Ré, Mi, Fá#, Lá, Si, Dó# (Ré maior sem o Sol)
@@ -299,6 +311,14 @@
     clearTimeout(rolParar);
     rolParar = setTimeout(function () { M.pararRolagem(); }, 120);
   }, { passive: true });
+  var hero = document.querySelector('.hero');
+  if (hero && 'MutationObserver' in window) {
+    var passo = hero.getAttribute('data-step');
+    new MutationObserver(function () {
+      var novo = hero.getAttribute('data-step');
+      if (novo !== passo) { passo = novo; if (M && ligado()) M.swoosh(); }
+    }).observe(hero, { attributes: true, attributeFilter: ['data-step'] });
+  }
   // aba escondida: o áudio pausa (economiza bateria) e volta junto
   document.addEventListener('visibilitychange', function () {
     if (!ctx) return;

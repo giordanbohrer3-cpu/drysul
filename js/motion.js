@@ -35,7 +35,7 @@
     if (v) { revealVisibleNow(); requestUpdate(); startCanvas(); ligarLenis(); }
     else { resetTransforms(); stopCanvas(); drawStatic(); desligarLenis(); }
   }
-  function syncPin() { if (typeof aplicarEstatica === 'function') aplicarEstatica(); }
+  function syncPin() { if (typeof syncParede === 'function') syncParede(false); }
   if (toggle) toggle.addEventListener('click', function () {
     var next = !on;
     try { localStorage.setItem(KEY, next ? 'on' : 'off'); } catch (e) {}
@@ -235,10 +235,14 @@
   var parallax = $$('[data-parallax]'), photos = $$('[data-parallax-img]'), drift = $('[data-drift]');
   var hero = $('.hero');
 
-  /* ---------- hero: parede drywall em vista explodida ----------
-     O topo é compacto (sem palco fixo): a parede fica parada com as camadas abertas e os rótulos; só acompanha
-     o mouse de leve (--rmx/--rmy, mais abaixo). */
-  var heroEl = $('.hero'), pinEl = $('.hero__pin'), rig = $('#wall-rig');
+  /* ---------- hero: parede drywall que desmonta com a rolagem ----------
+     Sem palco fixo (o topo é compacto e a página não fica presa). Ao abrir, a parede se monta sozinha a partir das
+     peças soltas; rolando, desmonta enquanto passa pela tela: a fita sai, as chapas abrem, os parafusos aparecem e
+     fica a estrutura (guias e montantes). O valor desenhado persegue o da rolagem com amortecimento, então a roda do
+     mouse não dá degraus. Sem efeitos fica uma pose parada, com as chapas entreabertas. --rmx/--rmy seguem o mouse. */
+  var heroEl = $('.hero'), pinEl = $('.hero__pin'), rig = $('#wall-rig'), arteEl = $('.hero__art');
+  var P0 = 0.14; // parede montada e já girada em 3D: a pose do começo
+  var parede = { alvo: P0, atual: P0, intro: false, semPar: null, passo: -1, ini: 0, fim: 1, vista: false, paralaxe: false, desloc: 0 };
   (function montarParafusos() {
     var box = $('#wall-screws'); if (!box) return;
     var cols = [100, 194, 206, 300], rows = [40, 120, 200, 280, 360, 440], html = ''; // bordas ficam na dobradiça das chapas
@@ -251,11 +255,113 @@
     });
     box.innerHTML = html;
   })();
+  function suave(t) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
+  function trecho(p, a, b) { return clamp((p - a) / (b - a), 0, 1); }
+  // Cada variável vai só para os elementos que a usam e só é gravada quando muda: mexer na parede inteira
+  // a cada quadro recalcularia o estilo de centenas de elementos (pesado no celular).
+  var VARS_PAREDE = rig ? {
+    '--rot': [rig], '--rot2': [rig],
+    '--tape': [$('.wl--tape', rig)], '--tapeo': [$('.wl--tape', rig)],
+    '--sep': [$('.wl--back', rig), $('.wl--plate-a', rig), $('.wl--plate-b', rig), $('#wall-screws'), $('.wl-label--parafuso', rig)],
+    '--scr': [$('#wall-screws')]
+  } : {};
+  var gravadas = {};
+  function pv(nome, v) {
+    var txt = typeof v === 'number' ? v.toFixed(4) : String(v);
+    if (gravadas[nome] === txt || !VARS_PAREDE[nome]) return;
+    gravadas[nome] = txt;
+    VARS_PAREDE[nome].forEach(function (el) { if (el) el.style.setProperty(nome, txt); });
+  }
+  function aplicarParede(p) {
+    if (!rig) return;
+    pv('--rot', suave(trecho(p, 0, 0.16)));
+    pv('--rot2', suave(trecho(p, 0.36, 0.82)));
+    pv('--tape', suave(trecho(p, 0.14, 0.3)));
+    pv('--tapeo', trecho(p, 0.33, 0.4));
+    pv('--sep', suave(trecho(p, 0.36, 0.54)));
+    var scr = trecho(p, 0.53, 0.72);
+    pv('--scr', scr);
+    var semPar = scr <= 0;
+    if (semPar !== parede.semPar) { parede.semPar = semPar; rig.classList.toggle('sem-parafusos', semPar); }
+    // etapa: 0 montada, 1 fita, 2 chapas, 3 parafusos, 4 guias e montantes (acende o rótulo da peça)
+    var passo = p < 0.2 ? 0 : p < 0.35 ? 1 : p < 0.53 ? 2 : p < 0.73 ? 3 : 4;
+    if (passo !== parede.passo && heroEl) { parede.passo = passo; heroEl.setAttribute('data-step', passo); }
+  }
   function aplicarEstatica() {
     if (!rig) return;
     // chapas entreabertas: dá para ver estrutura, fita e parafusos sem peças soltas no ar
-    [['--rot', 1], ['--rot2', 0], ['--tape', 0.2], ['--tapeo', 0], ['--sep', 0.35], ['--scr', 1]].forEach(function (v) { rig.style.setProperty(v[0], v[1]); });
-    rig.classList.remove('sem-parafusos');
+    [['--rot', 1], ['--rot2', 0], ['--tape', 0.2], ['--tapeo', 0], ['--sep', 0.35], ['--scr', 1]].forEach(function (v) { pv(v[0], v[1]); });
+    rig.classList.remove('sem-parafusos'); parede.semPar = false;
+    if (heroEl) heroEl.removeAttribute('data-step');
+    parede.passo = -1;
+  }
+  function paredeViva() { return on && parede.vista; }
+  // trecho da rolagem em que a parede desmonta: começa quando ela está inteira na tela (ou no topo da página)
+  // e termina quando o meio dela chega perto do cabeçalho; mede no resize, não a cada quadro
+  // Computador: a parede está à direita, já na tela; ela sobe mais devagar que a página (paralaxe de 30%) para
+  // dar tempo de ver as 4 etapas. Tablet e celular: ela vem depois dos atalhos e desmonta enquanto atravessa a tela.
+  var mqLado = window.matchMedia('(min-width: 1024px)');
+  function medirParede() {
+    parede.vista = !!rig && !!arteEl && arteEl.offsetHeight > 0;
+    if (!parede.vista) return;
+    var r = arteEl.getBoundingClientRect(), y0 = window.scrollY, topo = r.top + y0 - (parede.desloc || 0), vh = window.innerHeight;
+    var cab = parseFloat(getComputedStyle(root).getPropertyValue('--header-h')) || 64;
+    parede.paralaxe = mqLado.matches;
+    if (parede.paralaxe) {
+      parede.ini = 0;
+      parede.fim = Math.max(320, (topo + r.height - cab) * 0.75);
+    } else {
+      parede.ini = Math.max(0, topo + r.height * 0.7 - vh);
+      parede.fim = Math.max(parede.ini + 260, topo + r.height * 0.5 - cab - vh * 0.08);
+    }
+    if (!parede.paralaxe && parede.desloc) { parede.desloc = 0; arteEl.style.transform = ''; }
+  }
+  function paralaxeParede() {
+    if (!parede.paralaxe || !paredeViva()) return;
+    var d = Math.round(clamp(window.scrollY, 0, parede.fim * 1.4) * 0.3);
+    if (d !== parede.desloc) { parede.desloc = d; arteEl.style.transform = 'translate3d(0,' + d + 'px,0)'; }
+  }
+  function progressoParede() { return P0 + (1 - P0) * clamp((window.scrollY - parede.ini) / (parede.fim - parede.ini), 0, 1); }
+  var paredeRaf = 0, paredeT = 0;
+  function seguirParede() {
+    if (paredeRaf || parede.intro || !paredeViva()) return;
+    paredeT = performance.now();
+    paredeRaf = requestAnimationFrame(passoParede);
+  }
+  function passoParede(t) {
+    paredeRaf = 0;
+    if (!paredeViva() || parede.intro) return;
+    var dt = Math.min(64, Math.max(0, t - paredeT)); paredeT = t;
+    parede.alvo = progressoParede();
+    var d = parede.alvo - parede.atual;
+    parede.atual = Math.abs(d) < 0.0004 ? parede.alvo : parede.atual + d * (1 - Math.exp(-dt / (lenis ? 60 : 95)));
+    aplicarParede(parede.atual);
+    if (parede.atual !== parede.alvo) paredeRaf = requestAnimationFrame(passoParede);
+  }
+  // abertura: as peças soltas se juntam (só se a parede já está na tela; senão ela entra montada pela rolagem)
+  function introParede() {
+    var r = arteEl.getBoundingClientRect();
+    if (r.top > window.innerHeight * 0.75 || r.bottom < 0) return;
+    var t0 = performance.now(), de = 0.7, dur = 1700;
+    parede.intro = true;
+    (function passo(t) {
+      if (!paredeViva()) { parede.intro = false; return; }
+      parede.alvo = progressoParede();
+      var k = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - k, 3);
+      parede.atual = de + (parede.alvo - de) * e;
+      aplicarParede(parede.atual);
+      if (k < 1) requestAnimationFrame(passo); else { parede.intro = false; parede.atual = parede.alvo; aplicarParede(parede.atual); }
+    })(t0);
+  }
+  // liga/desliga junto com os efeitos e com a largura da tela
+  function syncParede(comIntro) {
+    if (!rig) return;
+    medirParede();
+    if (!paredeViva()) { aplicarEstatica(); return; }
+    parede.alvo = parede.atual = progressoParede();
+    aplicarParede(parede.atual);
+    paralaxeParede();
+    if (comIntro) introParede();
   }
   var visible = new Set();
   var visIO = hasIO ? new IntersectionObserver(function (es) {
@@ -287,6 +393,7 @@
       var prog = clamp((r.top + r.height / 2 - vh / 2) / (vh / 2 + r.height / 2), -1, 1);
       img.style.transform = 'translate3d(0,' + (-prog * r.height * 0.06 * k).toFixed(1) + 'px,0)';
     });
+    if (rig && hero && visible.has(hero)) { paralaxeParede(); seguirParede(); }
     if (drift && visible.has(drift.parentElement)) {
       var dr = drift.parentElement.getBoundingClientRect();
       var dp = clamp((vh - dr.top) / (vh + dr.height), 0, 1);
@@ -297,11 +404,12 @@
     completarEscrita();
     parallax.concat(photos, drift ? [drift] : []).forEach(function (el) { el.style.transform = ''; });
     if (rig) { aplicarEstatica(); rig.style.setProperty('--rmx', 0); rig.style.setProperty('--rmy', 0); }
+    if (arteEl) { arteEl.style.transform = ''; parede.desloc = 0; }
     $$('.is-tilting').forEach(function (el) { el.classList.remove('is-tilting'); el.style.transform = ''; });
     $$('[data-magnetic]').forEach(function (el) { el.style.transform = ''; });
   }
   window.addEventListener('scroll', requestUpdate, { passive: true });
-  window.addEventListener('resize', requestUpdate);
+  window.addEventListener('resize', function () { if (rig) { var antes = paredeViva(); medirParede(); if (antes && !paredeViva()) aplicarEstatica(); } requestUpdate(); });
 
   /* ---------- ponteiro: luz, inclinação e magnetismo (só mouse/trackpad) ---------- */
   var tiltEl = null, magEl = null, pointerFrame = 0, lastEv = null, luzHero = $('.hero__light');
@@ -467,7 +575,8 @@
     var go = function () { if (on) startCanvas(); };
     if ('requestIdleCallback' in window) requestIdleCallback(go, { timeout: 1500 }); else setTimeout(go, 600);
   }
-  aplicarEstatica();
+  // parede: mede no próximo quadro (o layout já sai junto com a pintura, sem um layout extra no meio do script)
+  if (rig) { aplicarEstatica(); if (on) requestAnimationFrame(function () { syncParede(true); }); }
   if (on) {
     requestUpdate();
     if (document.readyState === 'complete') startWhenIdle(); else window.addEventListener('load', startWhenIdle, { once: true });

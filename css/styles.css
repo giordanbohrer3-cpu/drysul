@@ -398,8 +398,8 @@ ul, ol { padding: 0; list-style: none; }
 .progress span { display: block; height: 100%; background: var(--orange); transform-origin: left; transform: scaleX(0); }
 
 /* ---------- Hero: compacto e comercial ----------
-   Uma tela no máximo: título, busca (material ou obra), categorias e atalhos. A parede ilustrada, parada em
-   vista explodida, fica à direita só no computador. */
+   Uma tela no máximo: título, busca (material ou obra), categorias e atalhos. A parede 3D, que desmonta com a
+   rolagem, fica à direita no computador e logo abaixo dos atalhos no tablet e no celular. */
 .hero { position: relative; isolation: isolate; background: radial-gradient(120% 90% at 85% 10%, #1B2656 0%, var(--navy-deep) 55%) var(--navy-deep); color: var(--on-dark); }
 .hero__pin { position: relative; overflow: clip; isolation: isolate; display: flex; align-items: center; padding: var(--s-7) 0 var(--s-8); }
 /* fundo técnico animado: no máximo uma tela de altura (desenhar seções inteiras, de milhares de px, a 30 quadros
@@ -446,17 +446,26 @@ ul, ol { padding: 0; list-style: none; }
 .hero__selos .ic { width: 18px; height: 18px; color: var(--orange-on-dark); }
 .hero__art { position: relative; justify-self: end; width: 100%; max-width: 520px; color: var(--sand); }
 .hero .wall { height: 500px; --k: .9; }
-/* nessa pose as chapas cobrem parafuso, montante e fita: ficam só os rótulos visíveis */
-.hero .wl-label--parafuso, .hero .wl-label--montante, .hero .wl-label--fita { display: none; }
-/* tablet e celular: uma coluna, sem a parede e sem o fundo animado (mais leve) */
+/* tablet e celular: uma coluna; a parede vem depois dos atalhos (a primeira tela segue sendo busca e categorias)
+   e desmonta enquanto a pessoa rola até o catálogo. Sem o fundo animado (mais leve). */
 @media (max-width: 1023px) {
-  .hero__grid { grid-template-columns: minmax(0, 1fr); }
-  .hero__art { display: none; }
-  .hero__pin { padding: var(--s-6) 0 var(--s-7); }
+  .hero__grid { grid-template-columns: minmax(0, 1fr); gap: var(--s-4); }
+  .hero__art { justify-self: center; max-width: 460px; }
+  .hero .wall { height: 380px; --k: .7; }
+  .hero .wl-label { font-size: 13px; } /* a parede encolhe (--k): o rótulo compensa para continuar legível */
+  .hero__pin { padding: var(--s-6) 0 var(--s-5); }
+}
+/* celular deitado: pouca altura — título menor e sem o parágrafo, para a busca caber na primeira tela */
+@media (max-width: 1023px) and (max-height: 500px) and (orientation: landscape) {
+  .hero__pin { padding-top: var(--s-4); }
+  .hero__title { font-size: clamp(2rem, 11vh, 2.8rem); margin: var(--s-2) 0 var(--s-4); }
+  .hero__lead { display: none; }
 }
 @media (max-width: 560px) {
   .hero__cats { display: grid; grid-template-columns: 1fr 1fr; }
   .hero__selos { display: grid; gap: var(--s-1); }
+  .hero .wall { height: 300px; --k: .56; }
+  .hero .wl-label { font-size: 16px; padding: 7px 12px 7px 10px; }
 }
 
 /* Parede drywall em 3D — camadas controladas por variáveis (0 → 1) que o motion.js ajusta com a rolagem:
@@ -533,9 +542,22 @@ ul, ol { padding: 0; list-style: none; }
 .wl-label--guia { left: 150px; top: -46px; }
 .wl-label--montante { left: 112px; top: 322px; transform: translateZ(8px); }
 .wl-label--parafuso { left: 116px; top: 150px; transform: translateZ(calc(var(--sep) * 34px + 10px)); }
-/* etapa ativa: rótulo aceso, peça com contorno laranja e o resto esmaecido */
-/* topo compacto: vista explodida parada, com todos os rótulos */
-.wl-label { opacity: 1; }
+/* etapa ativa (data-step no .hero, gravado pelo motion.js conforme a parede desmonta): rótulo aceso,
+   peça com contorno laranja e o resto esmaecido. 0 = parede montada */
+.hero[data-step="0"] .wl-label--chapa, .hero[data-step="0"] .wl-label--guia,
+.hero[data-step="1"] .wl-label--fita, .hero[data-step="2"] .wl-label--chapa, .hero[data-step="3"] .wl-label--parafuso,
+.hero[data-step="4"] .wl-label--guia, .hero[data-step="4"] .wl-label--montante { opacity: 1; }
+.hero[data-step="2"] .wl--plate { outline-color: var(--orange); }
+.hero[data-step="2"] .wl--frame, .hero[data-step="2"] .wl--back { opacity: .6; }
+.hero[data-step="3"] .wl--plate { opacity: .3; }
+.hero[data-step="3"] .wl--back { opacity: .5; }
+.hero[data-step="4"] .wl--plate { opacity: .16; }
+.hero[data-step="4"] .wl--back { opacity: .35; }
+.hero[data-step="4"] .wl--frame g[fill^="url"] { stroke: var(--orange); }
+.hero[data-step="4"] .wall__rig { --sdim: .35; }
+.hero[data-step="3"] .sc__head { box-shadow: 0 0 0 3px rgba(239, 80, 35, .55), 0 2px 5px rgba(0, 0, 0, .45); }
+/* sem efeitos (pose parada, sem data-step): só os rótulos que a pose deixa à mostra */
+.hero:not([data-step]) .wl-label--chapa, .hero:not([data-step]) .wl-label--guia { opacity: 1; }
 
 /* ---------- Faixa ---------- */
 .marquee { background: var(--orange); color: var(--ink); overflow: hidden; border-block: 1px solid rgba(16, 22, 43, .2); }
@@ -1058,7 +1080,11 @@ a.info-card:hover { border-color: var(--orange); background: rgba(239, 80, 35, .
   .qtd-step { min-height: 44px; }
   .qtd-step button { width: 44px; height: 42px; }
   .q-item__ctrl button { width: 40px; height: 40px; }
-  .atalho__dica button { padding: 6px 2px; }
+  /* área de toque de 44 px sem mudar o desenho: o preenchimento cresce e a margem negativa devolve o espaço */
+  .atalho__dica button { padding: 12px 3px; margin: -12px -1px; }
+  .hero__selos a { min-height: 44px; margin-block: -6px; }
+  .link-arrow { padding-block: 9px; margin-block: -9px; }
+  .prod-card__src { padding-block: 12px; margin-block: -10px -12px; }
   .footer__link { min-height: 44px; }
 }
 

@@ -20,8 +20,8 @@
   <meta name="twitter:card" content="summary_large_image">
 
   <link rel="preload" href="assets/fonts/archivo-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="css/styles.css?v=20">
-  <link rel="stylesheet" href="css/motion.css?v=20">
+  <link rel="stylesheet" href="css/styles.css?v=21">
+  <link rel="stylesheet" href="css/motion.css?v=21">
   <script>
     (function () {
       var root = document.documentElement, pref = null, tema = null;
@@ -204,6 +204,20 @@
             </div>
           </div>
           </figure>
+        </div>
+
+        <!-- VITRINE 3D: produtos, preços e ofertas girando num anel (montada pelo js/vitrine.js a partir do data.js) -->
+        <div class="vitrine" id="vitrine" role="region" aria-labelledby="vitrine-titulo">
+          <div class="wrap vitrine__topo">
+            <p class="vitrine__titulo" id="vitrine-titulo"><span class="vitrine__ponto" aria-hidden="true"></span>Vitrine Drysul <small>preços da loja e ofertas</small></p>
+            <div class="vitrine__ctrl">
+              <span class="vitrine__dica" aria-hidden="true">Arraste para girar</span>
+              <button class="vitrine__pausa" type="button" aria-pressed="false" aria-label="Pausar a vitrine"><svg class="ic" aria-hidden="true"><use href="#i-pause"/></svg></button>
+            </div>
+          </div>
+          <div class="vitrine__palco">
+            <ul class="vitrine__anel" aria-label="Produtos e preços. Use as setas para passar de um produto a outro."></ul>
+          </div>
         </div>
       </div>
     </section>
@@ -723,15 +737,16 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script defer src="js/data.js?v=20"></script>
-  <script defer src="js/calculator-model.js?v=20"></script>
-  <script defer src="js/checkout-model.js?v=20"></script>
-  <script defer src="js/busca.js?v=20"></script>
-  <script defer src="js/app.js?v=20"></script>
-  <script defer src="js/receipt.js?v=20"></script>
-  <script defer src="js/checkout.js?v=20"></script>
+  <script defer src="js/data.js?v=21"></script>
+  <script defer src="js/calculator-model.js?v=21"></script>
+  <script defer src="js/checkout-model.js?v=21"></script>
+  <script defer src="js/busca.js?v=21"></script>
+  <script defer src="js/app.js?v=21"></script>
+  <script defer src="js/receipt.js?v=21"></script>
+  <script defer src="js/checkout.js?v=21"></script>
   <script defer src="js/vendor/lenis.min.js?v=1"></script>
-  <script defer src="js/motion.js?v=20"></script>
-  <script defer src="js/som.js?v=20"></script>
+  <script defer src="js/motion.js?v=21"></script>
+  <script defer src="js/vitrine.js?v=21"></script>
+  <script defer src="js/som.js?v=21"></script>
 </body>
 </html>

@@ -1110,6 +1110,7 @@
     abrirOrcamento: abrirOrcamento, estado: function () { return q; }, mensagem: mensagem,
     avaliacao: avaliacao, produto: function (id) { return produtoPorId[id]; },
     limparPedido: limparPedido, toast: toast, copiar: copiar, BRL: BRL, esc: esc, ill: ill, mini: mini, icon: icon,
+    irProduto: irProduto, // leva ao cartão do produto no catálogo (usado pela vitrine)
     abrirDialogo: function (d, origem) {
       d._retorno = origem || document.activeElement;
       if (typeof d.showModal === 'function') d.showModal(); else d.setAttribute('open', '');

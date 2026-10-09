@@ -409,7 +409,7 @@ ul, ol { padding: 0; list-style: none; }
    Uma tela no máximo: título, busca (material ou obra), categorias e atalhos. A parede 3D, que desmonta com a
    rolagem, fica à direita no computador e logo abaixo dos atalhos no tablet e no celular. */
 .hero { position: relative; isolation: isolate; background: radial-gradient(120% 90% at 85% 10%, #1B2656 0%, var(--navy-deep) 55%) var(--navy-deep); color: var(--on-dark); }
-.hero__pin { position: relative; overflow: clip; isolation: isolate; display: flex; align-items: center; padding: var(--s-7) 0 var(--s-8); }
+.hero__pin { position: relative; overflow: clip; isolation: isolate; display: flex; flex-direction: column; justify-content: center; padding: var(--s-7) 0 var(--s-3); }
 /* fundo técnico animado: no máximo uma tela de altura (desenhar seções inteiras, de milhares de px, a 30 quadros
    pesava na carga) e só onde há folga — no celular é decoração que custa bateria, então sai */
 .tech-canvas { position: absolute; inset: 0 0 auto 0; width: 100%; height: min(100%, 100vh); z-index: -1; pointer-events: none; opacity: 0; transition: opacity 1200ms var(--ease); }
@@ -461,7 +461,7 @@ ul, ol { padding: 0; list-style: none; }
   .hero__art { justify-self: center; max-width: 460px; }
   .hero .wall { height: 380px; --k: .7; }
   .hero .wl-label { font-size: 13px; } /* a parede encolhe (--k): o rótulo compensa para continuar legível */
-  .hero__pin { padding: var(--s-6) 0 var(--s-5); }
+  .hero__pin { padding: var(--s-6) 0 var(--s-3); }
 }
 /* celular deitado: pouca altura — título menor e sem o parágrafo, para a busca caber na primeira tela */
 @media (max-width: 1023px) and (max-height: 500px) and (orientation: landscape) {
@@ -474,6 +474,105 @@ ul, ol { padding: 0; list-style: none; }
   .hero__selos { display: grid; gap: var(--s-1); }
   .hero .wall { height: 300px; --k: .56; }
   .hero .wl-label { font-size: 16px; padding: 7px 12px 7px 10px; }
+}
+
+/* ---------- Vitrine 3D: anel de produtos e preços logo abaixo da parede ----------
+   Sem fundo próprio: os cartões flutuam sobre o azul do topo. As pontas se dissolvem (máscara), o chão tem um
+   brilho laranja sob o cartão da frente e o reflexo dos cartões. Só o anel gira (js/vitrine.js). */
+.vitrine { --vt-w: 252px; --vt-h: 102px; --vt-gap: 18px; position: relative; z-index: 2; isolation: isolate; width: 100%; margin-top: var(--s-6); padding-top: var(--s-4); color: var(--on-dark); }
+.vitrine::before { /* fio de luz separando do topo */
+  content: ""; position: absolute; left: 0; right: 0; top: 0; height: 1px; pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgba(216, 217, 210, .18) 22%, rgba(244, 106, 66, .65) 50%, rgba(216, 217, 210, .18) 78%, transparent);
+}
+.vitrine__topo { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3) var(--s-5); flex-wrap: wrap; margin-bottom: var(--s-2); }
+.vitrine__titulo { display: inline-flex; align-items: baseline; flex-wrap: wrap; gap: 4px 12px; font-size: var(--fs-label); font-weight: 800; letter-spacing: .16em; text-transform: uppercase; font-stretch: var(--wide); color: var(--sand); }
+.vitrine__titulo small { font-size: var(--fs-xs); font-weight: 600; letter-spacing: .02em; text-transform: none; font-stretch: 100%; color: var(--on-dark-muted); }
+.vitrine__ponto { position: relative; align-self: center; width: 8px; height: 8px; border-radius: 50%; background: var(--orange); }
+.vitrine__ponto::after { content: ""; position: absolute; inset: -5px; border-radius: 50%; border: 1.5px solid rgba(244, 106, 66, .6); opacity: 0; }
+.motion-on .vitrine__ponto::after { animation: vt-pulso 2.4s var(--ease) infinite; }
+@keyframes vt-pulso { 0% { opacity: .9; transform: scale(.5); } 100% { opacity: 0; transform: scale(1.6); } }
+.vitrine__ctrl { display: flex; align-items: center; gap: var(--s-3); }
+.vitrine__dica { font-size: var(--fs-xs); color: var(--on-dark-muted); }
+html:not(.motion-on) .vitrine .vitrine__dica { display: none; }
+.vitrine__pausa { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; border: 1.5px solid var(--line-dark); color: var(--on-dark); background: rgba(255, 255, 255, .04); transition: border-color var(--t-fast), background-color var(--t-fast); }
+.vitrine__pausa:hover { border-color: var(--orange); background: rgba(239, 80, 35, .12); }
+.vitrine__pausa .ic { width: 16px; height: 16px; }
+html:not(.motion-on) .vitrine .vitrine__pausa { display: none; }
+@media (pointer: coarse) { .vitrine__pausa { width: 44px; height: 44px; } }
+
+/* palco: perspectiva vista um pouco de cima; as pontas somem no azul */
+.vitrine__palco {
+  position: relative; height: calc(var(--vt-h) + 64px); perspective: 1700px; perspective-origin: 50% 30%;
+  touch-action: pan-y; cursor: grab; user-select: none; -webkit-user-select: none;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, rgba(0, 0, 0, .35) 10%, #000 24%, #000 76%, rgba(0, 0, 0, .35) 90%, transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0, rgba(0, 0, 0, .35) 10%, #000 24%, #000 76%, rgba(0, 0, 0, .35) 90%, transparent 100%);
+}
+.vitrine__palco.is-arrastando { cursor: grabbing; }
+/* chão: brilho laranja sob o cartão da frente + linha de luz que varre o chão de tempos em tempos */
+.vitrine__palco::before {
+  content: ""; position: absolute; left: 18%; right: 18%; bottom: 8px; height: 60px; pointer-events: none; z-index: -1;
+  background: radial-gradient(50% 100% at 50% 100%, rgba(239, 80, 35, .3), rgba(239, 80, 35, .08) 45%, transparent 72%);
+}
+.vitrine__palco::after {
+  content: ""; position: absolute; left: 0; bottom: 14px; width: 26%; height: 1px; pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgba(244, 106, 66, .95), transparent); opacity: 0;
+}
+.motion-on .vitrine__palco::after { animation: vt-varre 7s var(--ease-io) infinite; }
+@keyframes vt-varre { 0% { opacity: 0; transform: translateX(-30%); } 10% { opacity: 1; } 55% { opacity: 1; } 70%, 100% { opacity: 0; transform: translateX(385%); } }
+
+.vitrine__anel { position: absolute; left: 50%; top: 14px; width: var(--vt-w); height: var(--vt-h); margin: 0 0 0 calc(var(--vt-w) / -2); padding: 0; list-style: none; transform-style: preserve-3d; }
+.vt { position: absolute; inset: 0; transform-style: preserve-3d; backface-visibility: hidden; -webkit-backface-visibility: hidden;
+  transform: rotateY(calc(var(--i) * var(--passo, 14.4deg))) translateZ(var(--raio, 1000px)); }
+.vt__card {
+  position: relative; display: grid; grid-template-columns: 84px minmax(0, 1fr); align-items: center; gap: 12px;
+  width: 100%; height: 100%; padding: 9px 12px 9px 9px; text-align: left; color: var(--on-dark);
+  border: 1px solid rgba(216, 217, 210, .16); border-radius: var(--r-m);
+  background: linear-gradient(160deg, rgba(255, 255, 255, .11), rgba(255, 255, 255, .02) 58%), rgba(17, 26, 56, .82);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .09), 0 24px 34px -24px rgba(0, 0, 0, .95);
+  -webkit-box-reflect: below 6px linear-gradient(transparent 58%, rgba(255, 255, 255, .13));
+  transition: transform 420ms var(--ease), border-color 420ms var(--ease), box-shadow 420ms var(--ease);
+}
+.vt__card--oferta { border-color: rgba(239, 80, 35, .4); }
+/* o cartão que passa pela frente acende; com o mouse ou o foco, ele vem para perto */
+.vt.is-frente .vt__card { border-color: rgba(244, 106, 66, .75); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .12), 0 0 0 1px rgba(239, 80, 35, .25), 0 0 38px -10px rgba(239, 80, 35, .55), 0 24px 34px -24px rgba(0, 0, 0, .95); }
+.vt__card:hover, .vt__card:focus-visible { transform: translateZ(28px); border-color: var(--orange); }
+.vt__card:focus-visible { outline: 2px solid var(--orange); outline-offset: 3px; }
+.vt__foto { display: grid; place-items: center; width: 84px; aspect-ratio: 4 / 3; overflow: hidden; border-radius: var(--r-s); background: var(--foto-bg); }
+.vt__foto img { width: 100%; height: 100%; object-fit: cover; -webkit-user-drag: none; pointer-events: none; }
+.vt__foto .ill { width: 78%; height: auto; color: var(--sand); }
+.vt__info { display: grid; justify-items: start; gap: 3px; min-width: 0; }
+.vt__selo { padding: 2px 6px; border-radius: 2px; font-size: 10px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; font-stretch: var(--wide); background: var(--orange); color: var(--ink); }
+.vt__selo--linha { background: transparent; color: var(--sand); box-shadow: inset 0 0 0 1px rgba(216, 217, 210, .45); }
+.vt__nome { max-width: 100%; font-size: var(--fs-xs); font-weight: 700; line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.vt__preco { display: flex; align-items: baseline; gap: 3px; white-space: nowrap; }
+.vt__preco b { font-size: 22px; font-weight: 850; font-stretch: 64%; line-height: 1; font-variant-numeric: tabular-nums; color: var(--orange-on-dark); }
+.vt__preco b.is-consulta { font-size: var(--fs-sm); font-weight: 700; font-stretch: 100%; color: var(--on-dark-muted); }
+.vt__preco small { font-size: var(--fs-label); color: var(--on-dark-muted); }
+
+/* sem efeitos: faixa plana com rolagem lateral (nada gira sozinho). Decidido pela classe da página, que existe antes
+   da primeira pintura: a altura da faixa já nasce certa e o catálogo não pula quando o anel é montado. */
+html:not(.motion-on) .vitrine .vitrine__palco { height: auto; perspective: none; cursor: auto; -webkit-mask-image: none; mask-image: none; }
+html:not(.motion-on) .vitrine .vitrine__palco::before, html:not(.motion-on) .vitrine .vitrine__palco::after { content: none; }
+html:not(.motion-on) .vitrine .vitrine__anel {
+  position: static; display: flex; gap: var(--vt-gap); width: auto; height: auto; min-height: calc(var(--vt-h) + 14px); margin: 0; padding: 4px var(--gut) 10px;
+  overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: var(--gut); scrollbar-width: thin; transform: none;
+}
+html:not(.motion-on) .vitrine .vt { position: relative; flex: 0 0 var(--vt-w); height: var(--vt-h); transform: none; scroll-snap-align: start; }
+html:not(.motion-on) .vitrine .vt__card { -webkit-box-reflect: unset; }
+@media (max-width: 560px) {
+  .vitrine { --vt-w: 218px; --vt-h: 90px; --vt-gap: 14px; margin-top: var(--s-4); }
+  /* tela estreita: título e pausa numa linha só; a faixa já mostra que gira, a dica fica para telas maiores */
+  .vitrine__topo { flex-wrap: nowrap; }
+  .vitrine__titulo small { display: none; }
+  .vitrine__dica { display: none; }
+  .vitrine__palco {
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 9%, #000 91%, transparent 100%);
+    mask-image: linear-gradient(90deg, transparent 0, #000 9%, #000 91%, transparent 100%);
+  }
+  .vt__card { grid-template-columns: 72px minmax(0, 1fr); gap: 10px; padding: 8px 10px 8px 8px; }
+  .vt__foto { width: 72px; }
+  .vt__preco b { font-size: 20px; }
+  .vitrine__palco { height: calc(var(--vt-h) + 56px); }
 }
 
 /* Parede drywall em 3D — camadas controladas por variáveis (0 → 1) que o motion.js ajusta com a rolagem:

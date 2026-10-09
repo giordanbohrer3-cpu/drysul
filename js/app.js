@@ -882,8 +882,7 @@
           '<span class="res__preco">' + preco + '</span></li>';
       }).join('') + '</ul>' +
       totalResultado(o) +
-      (calc.acabamento ? '<p class="res__acab">' + icon('i-spark') + '<span>Acabamento desejado: <b>' + esc(calc.acabamento.nome) + '</b>. Vai junto no pedido.</span>' +
-        (calc.acabamento.id ? '<button class="link-arrow" type="button" data-res-action="simular">Ver como fica ' + icon('i-arrow') + '</button>' : '') + '</p>' : '') +
+      (calc.acabamento ? '<p class="res__acab">' + icon('i-spark') + '<span>Acabamento desejado: <b>' + esc(calc.acabamento.nome) + '</b>. Vai junto no pedido.</span></p>' : '') +
       (o.itens.some(function (i) { return i.opcional; }) ? '<label class="res__opc"><input type="checkbox" data-res-opc> Incluir os opcionais na lista (' +
         esc(o.itens.filter(function (i) { return i.opcional; }).map(function (i) { return i.nome.replace(/\s*\(opcional\)/, '').toLowerCase(); }).join(', ')) + ')</label>' : '') +
       '<div class="res__actions">' +
@@ -960,7 +959,6 @@
     if (acao === 'lista') adicionarCalculo();
     else if (acao === 'ver') abrirOrcamento(b);
     else if (acao === 'whats') b.href = linkWhats(mensagemCalculo());
-    else if (acao === 'simular') abrirSim({ acabamento: calc.acabamento.id, sup: C.sistema(calc.sistema).entrada === 'area' ? 'teto' : 'parede' });
     else {
       var txt = ['Estimativa Drysul — ' + r.nome + ', ' + descMedidas(r)].concat(r.itens.map(function (i) {
         return '• ' + i.nome + ': ' + qtdEstimativa(i);
@@ -970,134 +968,12 @@
   });
   document.addEventListener('click', function (ev) {
     var b = ev.target.closest && ev.target.closest('[data-calc-system]'); if (!b) return;
-    // o simulador manda junto o acabamento escolhido ("Ripado de madeira · Freijó"), que vai para o pedido
-    var ac = b.getAttribute('data-calc-acab');
-    calc.acabamento = ac ? { id: b.getAttribute('data-calc-acab-id') || '', nome: ac } : null; // de outro lugar: sem acabamento
-    b.removeAttribute('data-calc-acab');
+    calc.acabamento = null; // vindo das soluções: sem acabamento escolhido
     selecionarSistema(b.getAttribute('data-calc-system'));
     rolar(document.getElementById('calculadora'));
     setTimeout(function () { var f = $('input', campos); if (f) f.focus({ preventScroll: true }); }, 500);
   });
   renderSistema();
-
-  /* ==========================================================================
-     Simulador de acabamento — o js/simulador.js só é baixado quando a seção se aproxima ou alguém clica
-     ========================================================================== */
-  var simCarregando = null;
-  function carregarSim() {
-    if (window.DrysulSim) return Promise.resolve(window.DrysulSim);
-    if (!simCarregando) simCarregando = new Promise(function (ok, erro) {
-      var sc = document.createElement('script');
-      sc.src = 'js/simulador.js?v=19'; sc.async = true;
-      sc.onload = function () { ok(window.DrysulSim); };
-      sc.onerror = function () { simCarregando = null; sc.remove(); erro(new Error('simulador')); };
-      document.head.appendChild(sc);
-    });
-    return simCarregando;
-  }
-  function abrirSim(op) {
-    carregarSim().then(function (sim) { sim.abrir(op); }, function () { toast('Não foi possível abrir o simulador. Confira a conexão e tente de novo.'); });
-  }
-  $$('[data-sim-foto]').forEach(function (b) {
-    b.addEventListener('click', function () { document.getElementById('sim-sec-' + b.getAttribute('data-sim-foto')).click(); });
-  });
-  ['camera', 'galeria'].forEach(function (n) {
-    var inp = document.getElementById('sim-sec-' + n); if (!inp) return;
-    inp.addEventListener('change', function () { var f = inp.files && inp.files[0]; if (f) abrirSim({ arquivo: f }); inp.value = ''; });
-  });
-  $$('[data-sim-exemplo]').forEach(function (b) { b.addEventListener('click', function () { abrirSim({ exemplo: true }); }); });
-  /* ---------- demonstração animada do simulador (o "vídeo" dos 4 passos) ----------
-     Uma linha do tempo leve: a foto aparece, um dedo arrasta os 4 cantos, pinta a janela de verde, toca em Simular e
-     arrasta a linha do antes/depois. Só anima com a demonstração na tela e com efeitos ligados; clicar num passo pula
-     até ele. Também é usada dentro do simulador, antes da foto (window.DrysulTutorial). */
-  var TUT_INI = [[205, 135], [1075, 135], [1075, 825], [205, 825]], TUT_FIM = [[18, 18], [1262, 18], [1262, 942], [18, 942]];
-  var TUT_BTN = [640, 820], TUT_FIM_MS = 15800;
-  var TUT_PASSOS = [0, 1500, 5700, 9100];
-  var TUT_LEG = ['Tire a foto de frente', 'Arraste os 4 cantos até as quinas', 'Pinte o que não pode mudar', 'Toque em Simular', 'Arraste a linha e compare'];
-  function suaveIO(k) { return k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2; }
-  function faixa(t, a, b) { return Math.max(0, Math.min(1, (t - a) / (b - a))); }
-  function lerpP(a, b, k) { return [a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k]; }
-  function iniciarTutorial(el) {
-    if (!el || el._tut) return; el._tut = true;
-    var palco = el.querySelector('.sim-tut__palco'), circ = $$('.sim-tut__cantos circle', el), area = el.querySelector('.sim-tut__area');
-    var traco = el.querySelector('.sim-tut__traco'), dedo = el.querySelector('.sim-tut__dedo'), leg = el.querySelector('.sim-tut__legenda');
-    var comp = 0, larg = 1, alt = 1, t0 = 0, raf = 0, visivel = false, legAtual = -1, passoAtual = '';
-    function medir() { var r = palco.getBoundingClientRect(); larg = r.width || 1; alt = r.height || 1; }
-    function px(p) { return [p[0] / 1280 * larg, p[1] / 960 * alt]; }
-    function ponto(k) { if (!comp) comp = traco.getTotalLength(); var q = traco.getPointAtLength(comp * k); return [q.x, q.y]; }
-    function estado(t) {
-      var passo = t < TUT_PASSOS[1] ? 1 : t < TUT_PASSOS[2] ? 2 : t < TUT_PASSOS[3] ? 3 : 4, i, k, h = [], d = null, dv = 0, aperto = 1;
-      // cantos: cada um leva 1,05 s (o dedo chega em 0,35 s e arrasta em 0,7 s)
-      for (i = 0; i < 4; i++) {
-        var s0 = 1500 + i * 1050;
-        k = suaveIO(faixa(t, s0 + 350, s0 + 1050)); h.push(lerpP(TUT_INI[i], TUT_FIM[i], k));
-        if (t >= s0 && t < s0 + 1050) { d = t < s0 + 350 ? lerpP(i ? TUT_FIM[i - 1] : [640, 480], TUT_INI[i], suaveIO(faixa(t, s0, s0 + 350))) : h[i]; dv = 1; }
-      }
-      var pinta = faixa(t, 6000, 9000);
-      if (t >= 5700 && t < 9100) { d = t < 6000 ? lerpP(TUT_FIM[3], ponto(0), suaveIO(faixa(t, 5700, 6000))) : ponto(pinta); dv = 1; }
-      if (t >= 9100 && t < 10100) { d = lerpP(ponto(1), TUT_BTN, suaveIO(faixa(t, 9100, 9700))); dv = 1 - faixa(t, 9950, 10100); aperto = t > 9700 && t < 9900 ? 0.78 : 1; }
-      var rev = suaveIO(faixa(t, 9900, 11100)) * 100, corte = 100;
-      if (t >= 11100) {
-        corte = t < 12500 ? 100 - 70 * suaveIO(faixa(t, 11300, 12500)) : t < 13500 ? 30 + 40 * suaveIO(faixa(t, 12500, 13500)) : 70 - 20 * suaveIO(faixa(t, 13500, 14300));
-        d = [corte / 100 * 1280, 600]; dv = faixa(t, 11100, 11300) * (1 - faixa(t, 15000, 15400));
-      }
-      return { passo: passo, h: h, d: d, dv: dv, aperto: aperto, pinta: pinta, rev: rev, corte: corte,
-        ov: t < 1500 ? 0 : 1 - faixa(t, 9900, 10500), flash: t > 250 && t < 650 ? 1 - Math.abs(t - 450) / 200 : 0,
-        btn: t >= 9100 && t < 10300 ? 1 - faixa(t, 10000, 10300) : 0, leg: passo === 4 ? (t < 11100 ? 3 : 4) : passo - 1,
-        prog: passo === 4 ? faixa(t, 9100, TUT_FIM_MS) : faixa(t, TUT_PASSOS[passo - 1], TUT_PASSOS[passo]), fim: t >= 11100 };
-    }
-    function aplicar(e) {
-      e.h.forEach(function (p, i) { circ[i].setAttribute('cx', p[0].toFixed(1)); circ[i].setAttribute('cy', p[1].toFixed(1)); });
-      area.setAttribute('points', e.h.map(function (p) { return p[0].toFixed(1) + ',' + p[1].toFixed(1); }).join(' '));
-      traco.style.strokeDashoffset = (1 - e.pinta).toFixed(4);
-      var st = el.style;
-      st.setProperty('--ov', e.ov.toFixed(3)); st.setProperty('--flash', e.flash.toFixed(3)); st.setProperty('--btn', e.btn.toFixed(3));
-      st.setProperty('--a', (e.fim ? e.corte : 0).toFixed(2) + '%'); st.setProperty('--b', (e.fim ? 100 : e.rev).toFixed(2) + '%');
-      st.setProperty('--corte', e.corte.toFixed(2) + '%'); st.setProperty('--prog', e.prog.toFixed(3));
-      el.classList.toggle('is-fim', e.fim);
-      if (e.d) { var q = px(e.d); dedo.style.transform = 'translate(' + q[0].toFixed(1) + 'px,' + q[1].toFixed(1) + 'px) scale(' + e.aperto + ')'; }
-      dedo.style.opacity = e.dv.toFixed(3);
-      if (String(e.passo) !== passoAtual) { passoAtual = String(e.passo); el.setAttribute('data-passo', passoAtual); }
-      if (e.leg !== legAtual) { legAtual = e.leg; leg.innerHTML = '<b>' + Math.min(4, e.leg + 1) + '</b><span>' + TUT_LEG[e.leg] + '</span>'; }
-    }
-    function quadro(agora) {
-      raf = 0;
-      if (!visivel || document.documentElement.classList.contains('dialog-open') && !el.closest('dialog')) return;
-      var t = (agora - t0) % TUT_FIM_MS;
-      aplicar(estado(t));
-      raf = requestAnimationFrame(quadro);
-    }
-    function ligar() { if (!raf && visivel && document.documentElement.classList.contains('motion-on')) { medir(); raf = requestAnimationFrame(quadro); } }
-    function estatico() { var e = estado(14400); e.dv = 0; aplicar(e); el.setAttribute('data-passo', '4'); }
-    $$('[data-tut]', el).forEach(function (b) {
-      b.addEventListener('click', function () {
-        var n = +b.getAttribute('data-tut');
-        t0 = performance.now() - TUT_PASSOS[n - 1];
-        if (!document.documentElement.classList.contains('motion-on')) { aplicar(estado(n === 4 ? 14400 : TUT_PASSOS[n] - 1)); }
-        else ligar();
-      });
-    });
-    if ('ResizeObserver' in window) new ResizeObserver(medir).observe(palco);
-    estatico();
-    if ('IntersectionObserver' in window) {
-      new IntersectionObserver(function (es) {
-        visivel = es[es.length - 1].isIntersecting;
-        if (visivel) { if (!t0) t0 = performance.now(); ligar(); }
-      }, { threshold: 0.2 }).observe(el);
-    }
-    new MutationObserver(function () { if (document.documentElement.classList.contains('motion-on')) ligar(); else { cancelAnimationFrame(raf); raf = 0; estatico(); } })
-      .observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
-  }
-  window.DrysulTutorial = { iniciar: iniciarTutorial };
-  $$('[data-sim-tut]').forEach(iniciarTutorial);
-
-  var secSim = document.getElementById('simulador');
-  if (secSim && 'IntersectionObserver' in window) {
-    var simIO = new IntersectionObserver(function (es) {
-      if (es.some(function (e) { return e.isIntersecting; })) { simIO.disconnect(); carregarSim().catch(function () {}); }
-    }, { rootMargin: '600px 0px' });
-    simIO.observe(secSim);
-  }
 
   /* ==========================================================================
      Tema claro / escuro — a escolha fica salva; sem escolha, segue o aparelho
@@ -1156,25 +1032,35 @@
     if (header.classList.contains('menu-open') && !header.contains(ev.target)) { fecharMenu(); $('use', menuBtn).setAttribute('href', '#i-menu'); }
   });
 
-  // a altura da página fica guardada (medida só quando algo muda de tamanho): ler scrollHeight a cada
-  // quadro forçava um layout extra no meio da rolagem
-  var pend = false, maxRolagem = 0, compacto = null;
-  function medirPagina() { maxRolagem = document.documentElement.scrollHeight - window.innerHeight; }
-  function onScroll() {
-    if (pend) return; pend = true;
-    requestAnimationFrame(function () {
-      pend = false;
-      var y = window.scrollY, c = y > 24;
-      if (c !== compacto) { compacto = c; header.classList.toggle('is-compact', c); }
-      bar.style.transform = 'scaleX(' + (maxRolagem > 0 ? Math.min(1, y / maxRolagem) : 0).toFixed(4) + ')';
-    });
+  /* Rolagem sem leituras de posição no JavaScript: ler scrollY durante a rolagem obriga o navegador a
+     recalcular a página no meio do quadro (no celular, isso dava os trancos).
+     - Cabeçalho compacto: um marcador invisível a 24 px do topo; saiu da tela, o cabeçalho encolhe.
+     - Barra de progresso: CSS ligado à rolagem (animation-timeline). Só sem esse suporte o JS faz a conta. */
+  var marcoTopo = document.createElement('div');
+  marcoTopo.setAttribute('aria-hidden', 'true');
+  marcoTopo.style.cssText = 'position:absolute;top:24px;left:0;width:1px;height:1px;pointer-events:none';
+  document.body.prepend(marcoTopo);
+  function compactar(c) { header.classList.toggle('is-compact', c); }
+  if ('IntersectionObserver' in window) new IntersectionObserver(function (es) { compactar(!es[es.length - 1].isIntersecting); }).observe(marcoTopo);
+  var barraCss = !!(window.CSS && CSS.supports && CSS.supports('animation-timeline: scroll()'));
+  if (!barraCss || !('IntersectionObserver' in window)) {
+    var pend = false, maxRolagem = 0, rolY = window.scrollY;
+    var medirPagina = function () { maxRolagem = document.documentElement.scrollHeight - window.innerHeight; };
+    var onScroll = function () {
+      rolY = window.scrollY; // lido no evento; o quadro só escreve
+      if (pend) return; pend = true;
+      requestAnimationFrame(function () {
+        pend = false;
+        if (!('IntersectionObserver' in window)) compactar(rolY > 24);
+        if (!barraCss) bar.style.transform = 'scaleX(' + (maxRolagem > 0 ? Math.min(1, rolY / maxRolagem) : 0).toFixed(4) + ')';
+      });
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', function () { medirPagina(); onScroll(); });
+    if ('ResizeObserver' in window) new ResizeObserver(function () { medirPagina(); onScroll(); }).observe(document.body);
+    else window.addEventListener('load', function () { medirPagina(); onScroll(); });
+    onScroll();
   }
-  window.addEventListener('scroll', onScroll, { passive: true });
-  window.addEventListener('resize', function () { medirPagina(); onScroll(); });
-  // a primeira medida vem do próprio ResizeObserver, depois do layout normal (medir já na carga forçava um layout extra)
-  if ('ResizeObserver' in window) new ResizeObserver(function () { medirPagina(); onScroll(); }).observe(document.body);
-  else window.addEventListener('load', function () { medirPagina(); onScroll(); });
-  onScroll();
 
   if ('IntersectionObserver' in window) {
     var navLinks = $$('.nav__list a');

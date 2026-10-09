@@ -12,6 +12,13 @@
   var mqFine = window.matchMedia('(hover: hover) and (pointer: fine)');
   var clamp = function (v, a, b) { return Math.max(a, Math.min(b, v)); };
   var on = root.classList.contains('motion-on');
+  // efeitos pesados (3D ligado à rolagem, paralaxe) só no computador com mouse; no toque a página rola leve
+  var mqRico = window.matchMedia('(min-width: 1024px) and (hover: hover) and (pointer: fine)');
+  // a posição da rolagem é lida uma vez, no evento de rolagem (com estilo e layout em dia); os quadros só usam o valor.
+  // Ler scrollY dentro do quadro, depois de escrever estilos, obrigava o navegador a recalcular tudo no meio da rolagem.
+  // Só se lê enquanto o topo (a parede) está perto da tela; depois disso a rolagem não tem nenhuma leitura em JS.
+  var rolY = window.scrollY, topoPerto = true;
+  window.addEventListener('scroll', function () { if (topoPerto || mqRico.matches) rolY = window.scrollY; }, { passive: true });
   var hasIO = 'IntersectionObserver' in window;
 
   function pref() { try { return localStorage.getItem(KEY); } catch (e) { return null; } }
@@ -52,7 +59,8 @@
     es.forEach(function (e) {
       if (e.isIntersecting) { e.target.classList.add('is-in'); revealIO.unobserve(e.target); }
     });
-  }, { rootMargin: '0px 0px -8% 0px', threshold: 0.12 }) : null;
+  }, mqRico.matches ? { rootMargin: '0px 0px -8% 0px', threshold: 0.12 }
+    : { rootMargin: '0px 0px 6% 0px', threshold: 0 }) : null; // no toque, começa um pouco antes de entrar: nada fica escondido na tela
   function observeReveals() {
     $$('[data-reveal]:not(.is-in)').forEach(function (el) {
       if (revealIO) revealIO.observe(el); else el.classList.add('is-in');
@@ -140,7 +148,8 @@
   function escHtml(t) { return t.replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   var digitando = [];
   // seções de compra (catálogo e calculadora, .sec-head--compacto) ficam com o texto parado: leitura imediata
-  function semEfeito(el) { return !!el.closest('.sec-head--compacto'); }
+  // no toque (celular e tablet) os títulos ficam inteiros: dividir em letras animadas custava quadros na rolagem
+  function semEfeito(el) { return !mqRico.matches || !!el.closest('.sec-head--compacto'); }
   $$('.sec-head .eyebrow, .contact__head .eyebrow, .about__copy > .eyebrow').filter(function (el) { return !semEfeito(el); }).forEach(function (el) {
     var txt = el.textContent.replace(/\s+/g, ' ').trim();
     el._tw = txt;
@@ -204,14 +213,21 @@
      de distância ganham .s3d, então o navegador atualiza poucas linhas de tempo por quadro, não todas. */
   var S3D = '.marquee, .cat-card, .dest-card, .prod-card, .offer, .calc__panel, ' +
     '.step, .acc__item, .values li, .info-card, .about__media, .ph, .footer__grid > *';
+  // No celular (toque) não há 3D na rolagem: as fotos ficam paradas e nítidas, e a rolagem não paga camadas 3D.
   var s3dIO = hasIO && window.CSS && CSS.supports && CSS.supports('animation-timeline: view()') ? new IntersectionObserver(function (es) {
     es.forEach(function (e) {
       if (!e.target.isConnected) { s3dIO.unobserve(e.target); return; }
-      e.target.classList.toggle('s3d', e.isIntersecting);
+      e.target.classList.toggle('s3d', e.isIntersecting && mqRico.matches);
     });
   }, { rootMargin: '100% 0px' }) : null;
-  function observar3d(raiz) { if (s3dIO) $$(S3D, raiz).forEach(function (el) { s3dIO.observe(el); }); }
+  function observar3d(raiz) { if (s3dIO && mqRico.matches) $$(S3D, raiz).forEach(function (el) { s3dIO.observe(el); }); }
   observar3d();
+  if (s3dIO && mqRico.addEventListener) mqRico.addEventListener('change', function () {
+    if (mqRico.matches) { observar3d(); $$('.section').forEach(function (el) { secIO.observe(el); }); return; }
+    s3dIO.disconnect(); secIO.disconnect();
+    $$('.s3d').forEach(function (el) { el.classList.remove('s3d'); });
+    $$('.sec-on').forEach(function (el) { el.classList.remove('sec-on'); });
+  });
   var gradeCatalogo = $('#prod-grid'); // o catálogo é redesenhado a cada filtro
   if (s3dIO && gradeCatalogo && 'MutationObserver' in window) {
     new MutationObserver(function () { observar3d(gradeCatalogo); }).observe(gradeCatalogo, { childList: true });
@@ -221,7 +237,7 @@
     var secIO = new IntersectionObserver(function (es) {
       es.forEach(function (e) { e.target.classList.toggle('sec-on', e.isIntersecting); });
     }, { rootMargin: '50% 0px' });
-    $$('.section').forEach(function (el) { secIO.observe(el); });
+    if (mqRico.matches) $$('.section').forEach(function (el) { secIO.observe(el); });
   }
   // animações contínuas (parede flutuando, faixa, ícones da calculadora) param fora da tela
   if (hasIO) {
@@ -285,14 +301,14 @@
     if (semPar !== parede.semPar) { parede.semPar = semPar; rig.classList.toggle('sem-parafusos', semPar); }
     // etapa: 0 montada, 1 fita, 2 chapas, 3 parafusos, 4 guias e montantes (acende o rótulo da peça)
     var passo = p < 0.2 ? 0 : p < 0.35 ? 1 : p < 0.53 ? 2 : p < 0.73 ? 3 : 4;
-    if (passo !== parede.passo && heroEl) { parede.passo = passo; heroEl.setAttribute('data-step', passo); }
+    if (passo !== parede.passo) { parede.passo = passo; rig.setAttribute('data-step', passo); }
   }
   function aplicarEstatica() {
     if (!rig) return;
     // chapas entreabertas: dá para ver estrutura, fita e parafusos sem peças soltas no ar
     [['--rot', 1], ['--rot2', 0], ['--tape', 0.2], ['--tapeo', 0], ['--sep', 0.35], ['--scr', 1]].forEach(function (v) { pv(v[0], v[1]); });
     rig.classList.remove('sem-parafusos'); parede.semPar = false;
-    if (heroEl) heroEl.removeAttribute('data-step');
+    rig.removeAttribute('data-step');
     parede.passo = -1;
   }
   function paredeViva() { return on && parede.vista; }
@@ -304,7 +320,8 @@
   function medirParede() {
     parede.vista = !!rig && !!arteEl && arteEl.offsetHeight > 0;
     if (!parede.vista) return;
-    var r = arteEl.getBoundingClientRect(), y0 = window.scrollY, topo = r.top + y0 - (parede.desloc || 0), vh = window.innerHeight;
+    rolY = window.scrollY; // medição fora da rolagem (carga e resize): aqui a leitura é barata
+    var r = arteEl.getBoundingClientRect(), topo = r.top + rolY - (parede.desloc || 0), vh = window.innerHeight;
     var cab = parseFloat(getComputedStyle(root).getPropertyValue('--header-h')) || 64;
     parede.paralaxe = mqLado.matches;
     if (parede.paralaxe) {
@@ -318,10 +335,10 @@
   }
   function paralaxeParede() {
     if (!parede.paralaxe || !paredeViva()) return;
-    var d = Math.round(clamp(window.scrollY, 0, parede.fim * 1.4) * 0.3);
+    var d = Math.round(clamp(rolY, 0, parede.fim * 1.4) * 0.3);
     if (d !== parede.desloc) { parede.desloc = d; arteEl.style.transform = 'translate3d(0,' + d + 'px,0)'; }
   }
-  function progressoParede() { return P0 + (1 - P0) * clamp((window.scrollY - parede.ini) / (parede.fim - parede.ini), 0, 1); }
+  function progressoParede() { return P0 + (1 - P0) * clamp((rolY - parede.ini) / (parede.fim - parede.ini), 0, 1); }
   var paredeRaf = 0, paredeT = 0;
   function seguirParede() {
     if (paredeRaf || parede.intro || !paredeViva()) return;
@@ -365,7 +382,10 @@
   }
   var visible = new Set();
   var visIO = hasIO ? new IntersectionObserver(function (es) {
-    es.forEach(function (e) { if (e.isIntersecting) visible.add(e.target); else visible.delete(e.target); });
+    es.forEach(function (e) {
+      if (e.isIntersecting) visible.add(e.target); else visible.delete(e.target);
+      if (e.target === hero) { topoPerto = e.isIntersecting; if (topoPerto) rolY = window.scrollY; }
+    });
     requestUpdate();
   }, { rootMargin: '120px 0px' }) : null;
   var targets = parallax.map(function (el) { return el.parentElement; })
@@ -375,30 +395,34 @@
 
   var ticking = false;
   function requestUpdate() { if (!ticking) { ticking = true; requestAnimationFrame(update); } }
+  var paralaxeLimpa = false;
   function update() {
     ticking = false;
     if (!on) return;
-    var vh = window.innerHeight, small = window.innerWidth < 720, k = small ? 0.5 : 1;
-
+    if (rig && hero && visible.has(hero)) { paralaxeParede(); seguirParede(); }
+    // paralaxe de fotos e camadas: só no computador (no celular, mexer em fotos a cada quadro dava tranco)
+    if (!mqRico.matches) {
+      if (!paralaxeLimpa) { paralaxeLimpa = true; parallax.concat(photos, drift ? [drift] : []).forEach(function (el) { el.style.transform = ''; }); }
+      return;
+    }
+    paralaxeLimpa = false;
+    var vh = window.innerHeight, escritas = [];
+    // 1º todas as leituras (posições), 2º todas as escritas: intercalar as duas forçava um layout por elemento
     parallax.forEach(function (el) {
       var p = el.parentElement; if (!visible.has(p)) return;
-      var r = p.getBoundingClientRect();
-      var s = parseFloat(el.getAttribute('data-parallax')) || 0.1;
-      var y = clamp((r.top + r.height / 2 - vh / 2) * -s, -48, 48) * k;
-      el.style.transform = 'translate3d(0,' + y.toFixed(1) + 'px,0)';
+      var r = p.getBoundingClientRect(), s = parseFloat(el.getAttribute('data-parallax')) || 0.1;
+      escritas.push([el, 'translate3d(0,' + clamp((r.top + r.height / 2 - vh / 2) * -s, -48, 48).toFixed(1) + 'px,0)']);
     });
     photos.forEach(function (img) {
       var f = img.parentElement; if (!visible.has(f)) return;
-      var r = f.getBoundingClientRect();
-      var prog = clamp((r.top + r.height / 2 - vh / 2) / (vh / 2 + r.height / 2), -1, 1);
-      img.style.transform = 'translate3d(0,' + (-prog * r.height * 0.06 * k).toFixed(1) + 'px,0)';
+      var r = f.getBoundingClientRect(), prog = clamp((r.top + r.height / 2 - vh / 2) / (vh / 2 + r.height / 2), -1, 1);
+      escritas.push([img, 'translate3d(0,' + (-prog * r.height * 0.06).toFixed(1) + 'px,0)']);
     });
-    if (rig && hero && visible.has(hero)) { paralaxeParede(); seguirParede(); }
     if (drift && visible.has(drift.parentElement)) {
       var dr = drift.parentElement.getBoundingClientRect();
-      var dp = clamp((vh - dr.top) / (vh + dr.height), 0, 1);
-      drift.style.transform = 'translate3d(' + (-dp * 22).toFixed(2) + 'vw,0,0)';
+      escritas.push([drift, 'translate3d(' + (-clamp((vh - dr.top) / (vh + dr.height), 0, 1) * 22).toFixed(2) + 'vw,0,0)']);
     }
+    escritas.forEach(function (w) { w[0].style.transform = w[1]; });
   }
   function resetTransforms() {
     completarEscrita();

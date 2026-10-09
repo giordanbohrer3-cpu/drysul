@@ -64,6 +64,14 @@
 
 /* Cartões entram como painéis encaixando */
 .motion-on .offer[data-reveal]:not(.is-in) { transform: translateY(40px) scale(.985); }
+/* Celular e tablet (toque): sem cortina sobre as fotos e com entradas curtas. A foto aparece na hora (a cortina
+   branca deixava um quadro vazio e a foto "caía" depois) e o texto assenta rápido, sem atrasar a leitura. */
+@media not all and (min-width: 1024px) and (hover: hover) and (pointer: fine) {
+  .motion-on [data-reveal] { transition-duration: 420ms, 420ms, 0ms; }
+  .motion-on [data-reveal]:not(.is-in), .motion-on .offer[data-reveal]:not(.is-in) { transform: translateY(14px); }
+  .motion-on [data-reveal="clip"]::after { content: none; }
+  .motion-on [data-reveal="clip"]:not(.is-in) img { scale: 1; }
+}
 
 /* Parallax — deslocamentos pequenos aplicados via JS */
 [data-parallax], [data-parallax-img], [data-drift] { will-change: transform; }
@@ -98,37 +106,6 @@
 @keyframes busca-in { from { opacity: 0; transform: translateY(-18px) scale(.97); } }
 @keyframes bres-in { from { opacity: 0; transform: translateY(10px); } }
 @keyframes busca-linha { 0% { transform: scaleX(0); opacity: 1; } 70% { transform: scaleX(1); opacity: 1; } 100% { transform: scaleX(1); opacity: 0; } }
-
-/* Simulador: a janela abre em perspectiva */
-/* passo a passo: cantos pulsam até o primeiro arrasto; as mini animações mostram o gesto de cada passo */
-.motion-on .sim__quadro.is-guiar .sim__canto::after { animation: canto-pulsa 1.6s var(--ease) infinite; }
-.motion-on .sim__quadro.is-guiar .sim__canto:nth-of-type(2)::after { animation-delay: .4s; }
-.motion-on .sim__quadro.is-guiar .sim__canto:nth-of-type(3)::after { animation-delay: .8s; }
-.motion-on .sim__quadro.is-guiar .sim__canto:nth-of-type(4)::after { animation-delay: 1.2s; }
-@keyframes canto-pulsa { 0% { opacity: .9; transform: scale(1); } 100% { opacity: 0; transform: scale(2.1); } }
-.motion-on .sim-guia { animation: bres-in 420ms var(--ease) both; }
-.motion-on .mini--cantos .mini__area { animation: mini-area 2.6s var(--ease-io) infinite; }
-.motion-on .mini--cantos .mini__p1 { animation: mini-p1 2.6s var(--ease-io) infinite; }
-.motion-on .mini--cantos .mini__p2 { animation: mini-p2 2.6s var(--ease-io) infinite; }
-.motion-on .mini--cantos .mini__p3 { animation: mini-p3 2.6s var(--ease-io) infinite; }
-.motion-on .mini--cantos .mini__p4 { animation: mini-p4 2.6s var(--ease-io) infinite; }
-@keyframes mini-area { 0%, 15% { transform: scale(.55); } 60%, 100% { transform: scale(1); } }
-@keyframes mini-p1 { 0%, 15% { transform: translate(12.6px, 9px); } 60%, 100% { transform: none; } }
-@keyframes mini-p2 { 0%, 15% { transform: translate(-12.6px, 9px); } 60%, 100% { transform: none; } }
-@keyframes mini-p3 { 0%, 15% { transform: translate(-12.6px, -9px); } 60%, 100% { transform: none; } }
-@keyframes mini-p4 { 0%, 15% { transform: translate(12.6px, -9px); } 60%, 100% { transform: none; } }
-.motion-on .mini--proteger .mini__tinta { animation: mini-tinta 2.8s linear infinite; }
-@keyframes mini-tinta { 0%, 10% { stroke-dashoffset: 1; } 75%, 100% { stroke-dashoffset: 0; } }
-.motion-on .mini--acab .mini__novo { animation: mini-novo 2.8s var(--ease-io) infinite; }
-.motion-on .mini--acab .mini__btn { animation: mini-btn 2.8s var(--ease) infinite; }
-@keyframes mini-novo { 0%, 35% { clip-path: inset(0 100% 0 0); } 70%, 100% { clip-path: inset(0 0 0 0); } }
-@keyframes mini-btn { 0%, 22% { transform: none; } 28% { transform: scale(.82); } 34%, 100% { transform: none; opacity: 1; } 60% { opacity: 0; } }
-.motion-on .mini--res .mini__novo--meio { animation: mini-meio 3s var(--ease-io) infinite alternate; }
-.motion-on .mini--res .mini__linha { animation: mini-linha 3s var(--ease-io) infinite alternate; }
-@keyframes mini-meio { from { clip-path: inset(0 0 0 22%); } to { clip-path: inset(0 0 0 78%); } }
-@keyframes mini-linha { from { transform: translateX(-10px); } to { transform: translateX(10px); } }
-.motion-on .sim-dlg[open] { animation: pop-in 420ms var(--ease) both; }
-.motion-on .sim-dlg[open]::backdrop { animation: fade-up 300ms linear both; }
 
 /* ---------- Pausado / movimento reduzido ---------- */
 .motion-paused *, .motion-paused *::before, .motion-paused *::after { animation: none !important; }
@@ -169,9 +146,6 @@
       transform: perspective(1200px) translate3d(var(--s3d-x), var(--s3d-y), var(--s3d-z)) rotateX(var(--s3d-rx)) rotateY(var(--s3d-ry));
     }
   }
-  @keyframes s3d-out {
-    to { opacity: .2; transform: perspective(1100px) translate3d(0, -40px, -180px) rotateX(14deg); }
-  }
   @keyframes s3d-spin { from { opacity: 0; transform: perspective(600px) rotateY(-120deg) scale(.7); } }
   @keyframes s3d-media { from { transform: perspective(800px) rotateY(-14deg) rotateX(8deg) scale(1.22); } }
   @keyframes s3d-ribbon {
@@ -180,9 +154,9 @@
     100% { transform: perspective(700px) rotateX(34deg) scale(1.03); }
   }
   @keyframes s3d-gallery {
-    0% { opacity: .2; transform: perspective(1400px) translateZ(-180px) rotateY(var(--g-ry)) rotateX(6deg); }
+    0% { opacity: .55; transform: perspective(1400px) translateZ(-180px) rotateY(var(--g-ry)) rotateX(6deg); }
     34%, 66% { opacity: 1; transform: none; }
-    100% { opacity: .5; transform: perspective(1400px) translateZ(-130px) rotateY(calc(var(--g-ry) * -.6)) rotateX(-5deg); }
+    100% { opacity: 1; transform: perspective(1400px) translateZ(-90px) rotateY(calc(var(--g-ry) * -.4)) rotateX(-3deg); }
   }
   @keyframes s3d-stage {
     from { transform: perspective(1300px) rotateY(-14deg) rotateX(7deg); }
@@ -208,7 +182,7 @@
       .acc__item, .values li, .info-card, .footer__grid > *).s3d {
     animation: s3d-in cubic-bezier(.16, 1, .3, 1) both;
     animation-timeline: view();
-    animation-range: entry 0% cover 40%;
+    animation-range: entry 0% entry 100%; /* pronto assim que entra inteiro: nada fica apagado na metade de baixo da tela */
   }
   .motion-on .prod-card { --s3d-rx: 18deg; --s3d-ry: 6deg; --s3d-z: -110px; --s3d-y: 60px; }
   .motion-on .prod-card:nth-child(even) { --s3d-ry: -6deg; }
@@ -221,12 +195,12 @@
   .motion-on .info-card { --s3d-rx: 20deg; --s3d-z: -100px; }
   .motion-on .footer__grid > * { --s3d-rx: 16deg; --s3d-z: -80px; animation-range: entry 0% entry 100%; }
 
-  /* Fotos: giram em profundidade na entrada e recuam na saída */
+  /* Fotos: giram em profundidade na entrada e ficam inteiras até sair (sem tombar nem apagar enquanto são vistas) */
   .motion-on .about__media { --s3d-ry: -22deg; --s3d-x: 60px; --s3d-z: -180px; --s3d-y: 40px; }
   .motion-on .about__media.s3d {
-    animation: s3d-in cubic-bezier(.16, 1, .3, 1) both, s3d-out linear none;
-    animation-timeline: view(), view();
-    animation-range: entry 0% cover 48%, exit 0% exit 100%;
+    animation: s3d-in cubic-bezier(.16, 1, .3, 1) both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 100%;
   }
   .motion-on .ph.s3d { animation: s3d-gallery linear both; animation-timeline: view(); animation-range: cover 0% cover 100%; }
   .motion-on .ph--b { --g-ry: -14deg; }
@@ -237,11 +211,11 @@
   /* Dentro dos cartões: a foto assenta girando e os desenhos viram como moeda */
   .motion-on :where(.prod-card, .offer).s3d { view-timeline-name: --card; }
   .motion-on :where(.dest-card, .prod-card, .offer).s3d :is(.dest-card__media, .prod-card__media, .offer__media) > img {
-    animation: s3d-media cubic-bezier(.16, 1, .3, 1) both; animation-timeline: --card; animation-range: entry 0% cover 48%;
+    animation: s3d-media cubic-bezier(.16, 1, .3, 1) both; animation-timeline: --card; animation-range: entry 0% entry 100%;
   }
   .motion-on :where(.dest-card, .prod-card).s3d :is(.dest-card__media, .prod-card__media) > .ill,
   .motion-on .cat-card.s3d > .ill {
-    animation: s3d-spin cubic-bezier(.16, 1, .3, 1) both; animation-timeline: --card; animation-range: entry 10% cover 48%;
+    animation: s3d-spin cubic-bezier(.16, 1, .3, 1) both; animation-timeline: --card; animation-range: entry 10% entry 100%;
   }
 
   /* A faixa laranja passa torcida como fita */
@@ -253,7 +227,7 @@
   /* Em grade, cada coluna entra um pouco depois da anterior */
   @media (min-width: 720px) {
     .motion-on :is(.cat-grid, .dest-grid, .prod-grid, .offer-grid, .contact__grid, .values) > :nth-child(n) {
-      animation-range: entry calc(var(--s3d-k) * 6%) cover calc(40% + var(--s3d-k) * 6%);
+      animation-range: entry calc(var(--s3d-k) * 6%) entry calc(82% + var(--s3d-k) * 6%);
     }
     /* o rodapé termina a página: a faixa fica dentro da entrada para sempre chegar ao fim */
     .motion-on .footer__grid > :nth-child(n) { animation-range: entry calc(var(--s3d-k) * 6%) entry calc(64% + var(--s3d-k) * 12%); }

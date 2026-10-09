@@ -8,15 +8,14 @@ Site da **Drysul — gesso e acabamento**. HTML, CSS e JavaScript puros, sem bui
 
 | Arquivo | Função |
 |---|---|
-| `index.html` | Página única, na ordem da compra: topo com busca, catálogo, calculadora, simulador, ofertas, como funciona, soluções, inspiração, a Drysul, contato |
+| `index.html` | Página única, na ordem da compra: topo com busca, catálogo, calculadora, ofertas, como funciona, soluções, inspiração, a Drysul, contato |
 | `js/data.js` | **Fonte única de dados**: contato, categorias, produtos, preços e ofertas |
 | `js/calculator-model.js` | Coeficientes, validação, embalagens de compra e orçamento da calculadora, e o atalho `entender()` que lê "parede de 4 × 2,8 m com madeira" (sem DOM, testável no Node) |
 | `js/busca.js` | Regras da busca (sem DOM, testável no Node): sem acento, plural, sinônimos de balcão, erro de digitação, relevância e o filtro do catálogo, que nunca devolve a grade vazia havendo produtos |
 | `js/app.js` | Catálogo, filtros, busca rápida, pedido/lista e barra do pedido, WhatsApp, calculadora e atalho "descreva a obra", menu |
 | `js/checkout-model.js` | Regras da central de vendas: canal (site x WhatsApp), limite, validações (testável no Node) |
 | `js/checkout.js` | Central de vendas: pedido → entrega → pagamento (Pix, crédito, débito, WhatsApp) → confirmação |
-| `js/motion.js` | Parede 3D do topo: se monta ao abrir e desmonta com a rolagem em 4 etapas (fita, chapas, parafusos, estrutura), sem prender a página; escrita animada dos títulos, rolagem suave no computador (Lenis), canvas técnico, fundos que andam com a rolagem, pausa de efeitos; anima só o que está perto da tela |
-| `js/simulador.js` | Simulador de acabamento em passos guiados (foto → cantos → proteger → Simular → resultado): perspectiva pelos 4 cantos, pincel para proteger objetos (verde = fica igual, laranja = muda) e 6 acabamentos gerados no próprio navegador (WebGL 2). Carregado só quando a seção se aproxima; a foto não sai do aparelho. A demonstração animada dos 4 passos fica no `app.js` (`iniciarTutorial`) |
+| `js/motion.js` | Parede 3D do topo: se monta ao abrir e desmonta com a rolagem em 4 etapas (fita, chapas, parafusos, estrutura), sem prender a página; escrita animada dos títulos, rolagem suave no computador (Lenis), canvas técnico, fundos que andam com a rolagem, pausa de efeitos; anima só o que está perto da tela. **Celular e tablet (toque):** sem 3D ligado à rolagem, sem paralaxe, sem cortina nas fotos, títulos inteiros e cabeçalho sem desfoque: as fotos ficam paradas e nítidas e a rolagem fica leve. Nada lê a posição da rolagem em JavaScript durante a rolagem (barra de progresso em CSS, cabeçalho compacto por IntersectionObserver) |
 | `js/som.js` | Sons sintetizados no navegador (sem arquivos): clique, passar o mouse nos botões, sopro de ar na rolagem (segue a velocidade), swoosh nas etapas da parede do topo e trilha de piano generativa (8 frases em ciclos de tamanhos diferentes, à la *Music for Airports*: contínua e sem repetição). Começam no primeiro clique/toque; o ícone de som no canto direito do cabeçalho liga e desliga, e com o som ligado mostra o volume (salvo no aparelho) |
 | `js/vendor/lenis.min.js` | Lenis 1.3.26 (MIT, licença em `js/vendor/LENIS-LICENSE.txt`); só no computador com mouse/trackpad |
 | `css/styles.css` | Design system: tokens de cor (claro e escuro), escala de tipografia (`--fs-*`), de espaçamento (`--s-*`, `--sec-pad`) e de altura de botão (`--bh-*`); componentes, seções, responsivo, alvos de 44 px no toque |
@@ -41,7 +40,6 @@ Site da **Drysul — gesso e acabamento**. HTML, CSS e JavaScript puros, sem bui
   com aviso e botão do WhatsApp. Com uma categoria escolhida e nada nela, a busca vale para todas ("massa" em Chapas mostra a massa).
 - **Textos de exemplo dos campos:** `placeholder` (longo) e `data-ph-curto` (curto) no `index.html`; o site usa o longo quando cabe no campo.
 - **Preços da calculadora:** cada material vira embalagem de compra (`COMPRA` no `js/calculator-model.js`) e usa o preço do produto da loja em `js/data.js`; sem preço da loja, usa a tabela `precosMedios` (médias de mercado de 03/10/2026, marcadas com “≈ média”). Para usar o preço da Drysul, preencha `preco` no produto. A mensagem do WhatsApp leva só os itens, sem preços da estimativa.
-- **Simulador:** acabamentos, cores e tons em `ACABS` no `js/simulador.js`; a foto de exemplo e as áreas protegidas dela em `EXEMPLO`.
 - **Limite da compra pelo site:** `vendas.limiteOnline` em `js/data.js` (atual: R$ 1.000).
 - **WhatsApp:** as mensagens prontas ficam em `MSG_WHATS` no `js/app.js` (saudação pelo horário + motivo: contato, produto ou busca sem resultado).
 - **Busca rápida:** botão no cabeçalho, tecla `/` ou `Ctrl+K`; usa os mesmos dados do catálogo. Os termos sugeridos estão em `POPULARES` no `js/app.js`.
@@ -67,14 +65,6 @@ o cliente vê o aviso "Pagamento online em fase de testes" e o comprovante leva 
 ```bash
 node --test tests/calculator.test.js tests/busca.test.js tests/checkout.test.js
 ```
-
-## Simulador de acabamento
-
-Tudo roda no navegador do cliente, sem servidor nem serviço de IA: os 4 cantos definem a perspectiva, o acabamento é
-gerado em metros reais e aplicado com mipmaps, e a luz da foto (luminância bem desfocada, ignorando as áreas protegidas)
-multiplica o acabamento. Precisa de WebGL 2 (navegadores atuais); sem ele, o simulador avisa e o resto do site segue normal.
-Foto de exemplo: [“Unverputzte Ziegelwand in Wohnraum”](https://commons.wikimedia.org/wiki/File:Unverputzte_Ziegelwand_in_Wohnraum_im_Erdgescho%C3%9F,_Carrer_de_l%27Arquebisbe_Company,_75,_46011_Val%C3%A8ncia,_Valencia,_Spain.jpg),
-de Kai Kemmann, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/); `sim-depois-960.webp` é uma modificação feita pelo simulador, sob a mesma licença.
 
 ## Imagens ilustrativas
 

@@ -311,7 +311,7 @@
     clearTimeout(rolParar);
     rolParar = setTimeout(function () { M.pararRolagem(); }, 120);
   }, { passive: true });
-  var hero = document.querySelector('.hero');
+  var hero = document.getElementById('wall-rig'); // a etapa fica na própria parede
   if (hero && 'MutationObserver' in window) {
     var passo = hero.getAttribute('data-step');
     new MutationObserver(function () {

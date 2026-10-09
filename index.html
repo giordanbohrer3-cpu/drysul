@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Drysul — Drywall, gesso e acabamento</title>
-  <meta name="description" content="Drysul: chapas, perfis, fixação, massas e fitas para drywall. Catálogo com busca, calculadora de materiais, simulador de acabamento e pedido pelo WhatsApp.">
+  <meta name="description" content="Drysul: chapas, perfis, fixação, massas e fitas para drywall. Catálogo com busca, calculadora de materiais e pedido pelo WhatsApp.">
   <meta name="robots" content="noindex, nofollow">
   <meta name="theme-color" content="#111A38">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
@@ -12,7 +12,7 @@
   <meta property="og:type" content="website">
   <meta property="og:locale" content="pt_BR">
   <meta property="og:title" content="Drysul — gesso e acabamento">
-  <meta property="og:description" content="Materiais para drywall e gesso: catálogo com busca, calculadora de materiais, simulador de acabamento e pedido pelo WhatsApp.">
+  <meta property="og:description" content="Materiais para drywall e gesso: catálogo com busca, calculadora de materiais e pedido pelo WhatsApp.">
   <meta property="og:url" content="https://giordanbohrer3-cpu.github.io/drysul/">
   <meta property="og:image" content="https://giordanbohrer3-cpu.github.io/drysul/assets/img/og-drysul.jpg">
   <meta property="og:image:width" content="1200">
@@ -20,8 +20,8 @@
   <meta name="twitter:card" content="summary_large_image">
 
   <link rel="preload" href="assets/fonts/archivo-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="css/styles.css?v=19">
-  <link rel="stylesheet" href="css/motion.css?v=19">
+  <link rel="stylesheet" href="css/styles.css?v=20">
+  <link rel="stylesheet" href="css/motion.css?v=20">
   <script>
     (function () {
       var root = document.documentElement, pref = null, tema = null;
@@ -63,8 +63,6 @@
     <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
     <symbol id="i-list" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01"/></symbol>
     <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3.5 13.9 10l6.6 2-6.6 2L12 20.5 10.1 14l-6.6-2 6.6-2zM19 3v4M17 5h4"/></symbol>
-    <symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 8.5A1.5 1.5 0 0 1 5.5 7h2.2l1.6-2.5h5.4L16.3 7h2.2A1.5 1.5 0 0 1 20 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5z"/><circle cx="12" cy="13" r="3.6"/></symbol>
-    <symbol id="i-image" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="14" rx="1.5"/><circle cx="9" cy="10" r="1.6"/><path d="m4 17 5-5 4 4 2.5-2.5L20 18"/></symbol>
     <symbol id="i-calc" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="1.5"/><path d="M8 7h8M8.5 11.5h.01M12 11.5h.01M15.5 11.5h.01M8.5 15h.01M12 15h.01M15.5 15v2.5M8.5 18h.01M12 18h.01"/></symbol>
     <symbol id="i-pause" viewBox="0 0 24 24"><path d="M9 6v12M15 6v12"/></symbol>
     <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13l10.5-6.5z"/></symbol>
@@ -105,7 +103,6 @@
         <ul class="nav__list">
           <li><a href="#produtos">Produtos</a></li>
           <li><a href="#calculadora">Calculadora</a></li>
-          <li><a href="#simulador">Simulador</a></li>
           <li><a href="#ofertas">Ofertas</a></li>
           <li><a href="#a-drysul">A Drysul</a></li>
           <li><a href="#contato">Contato</a></li>
@@ -298,63 +295,12 @@
       </div>
     </section>
 
-    <!-- SIMULADOR -->
-    <section class="section section--paper sim-sec" id="simulador" aria-labelledby="sim-sec-title">
-      <div class="wrap">
-        <header class="sec-head sim-sec__head">
-          <p class="eyebrow" data-reveal>03 · Simulador</p>
-          <h2 class="sec-title" id="sim-sec-title" data-reveal>Veja na sua parede <span class="hl">antes de fazer.</span></h2>
-        </header>
-
-        <div class="sim-tut" data-sim-tut data-passo="1" data-reveal>
-          <button class="sim-tut__palco" type="button" data-sim-exemplo data-sim="exemplo" aria-label="Demonstração do simulador. Toque para experimentar com esta foto">
-            <img class="sim-tut__img" src="assets/img/sim-exemplo.webp" srcset="assets/img/sim-antes-960.webp 960w, assets/img/sim-exemplo.webp 1280w" sizes="(min-width: 1000px) 800px, 100vw" width="1280" height="960" alt="" loading="lazy" decoding="async">
-            <img class="sim-tut__img sim-tut__depois" src="assets/img/sim-depois-1280.webp" srcset="assets/img/sim-depois-960.webp 960w, assets/img/sim-depois-1280.webp 1280w" sizes="(min-width: 1000px) 800px, 100vw" width="1280" height="960" alt="" loading="lazy" decoding="async">
-            <svg class="sim-tut__svg" viewBox="0 0 1280 960" aria-hidden="true">
-              <polygon class="sim-tut__area" points="205,135 1075,135 1075,825 205,825"/>
-              <path class="sim-tut__traco" pathLength="1" d="M315 262 H930 V357 H315 V452 H930 V547 H315 V642 H930 V737 H315 V832 H930 V912 H220"/>
-              <g class="sim-tut__cantos"><circle cx="205" cy="135" r="17"/><circle cx="1075" cy="135" r="17"/><circle cx="1075" cy="825" r="17"/><circle cx="205" cy="825" r="17"/></g>
-            </svg>
-            <span class="sim-tut__corte"></span>
-            <span class="sim-tut__btn"><svg class="ic"><use href="#i-spark"/></svg>Simular</span>
-            <span class="sim-tut__flash"></span>
-            <span class="sim-tut__dedo"></span>
-            <span class="sim-tut__legenda"><b>1</b><span>Tire a foto de frente</span></span>
-            <span class="sim-tut__tag sim-tut__tag--a">Antes</span><span class="sim-tut__tag sim-tut__tag--d">Depois</span>
-          </button>
-          <ol class="sim-tut__passos">
-            <li><button type="button" data-tut="1"><b>1</b><span><strong>Tire a foto</strong>De frente para a parede ou o teto, com boa luz.</span><i aria-hidden="true"></i></button></li>
-            <li><button type="button" data-tut="2"><b>2</b><span><strong>Marque os 4 cantos</strong>Arraste as bolinhas laranja até as quinas.</span><i aria-hidden="true"></i></button></li>
-            <li><button type="button" data-tut="3"><b>3</b><span><strong>Proteja o que fica</strong>Pinte janela, porta e móveis: o que ficar verde não muda.</span><i aria-hidden="true"></i></button></li>
-            <li><button type="button" data-tut="4"><b>4</b><span><strong>Toque em Simular</strong>Escolha o acabamento e arraste a linha para comparar.</span><i aria-hidden="true"></i></button></li>
-          </ol>
-        </div>
-        <!-- depois de ver os 4 passos, a chamada: texto à esquerda, botões à direita (no celular, um embaixo do outro) -->
-        <div class="sim-sec__cta" data-reveal>
-          <p class="sim-sec__lead">Tire uma foto da parede ou do teto e veja como fica com <b>drywall liso, forro com tabica, placa 3D, ripado, lambri ou cimento queimado</b>. Leva menos de um minuto, e a foto não sai do seu celular.</p>
-          <div class="btn-row sim-sec__acoes">
-            <button class="btn btn--primary btn--lg" type="button" data-sim-foto="camera" data-magnetic><svg class="ic"><use href="#i-camera"/></svg><span>Tirar foto e simular</span></button>
-            <button class="btn btn--outline btn--lg" type="button" data-sim-foto="galeria"><svg class="ic"><use href="#i-image"/></svg><span>Escolher foto</span></button>
-          </div>
-        </div>
-        <p class="sim-sec__rodape" data-reveal>
-          <button class="link-arrow" type="button" data-sim-exemplo>Experimentar com esta foto de exemplo <svg class="ic"><use href="#i-arrow"/></svg></button>
-          <span class="sim-sec__priv"><svg class="ic"><use href="#i-lock"/></svg> Tudo roda no seu aparelho: a foto não é enviada para lugar nenhum.</span>
-          <span class="sim-sec__cred">Foto de exemplo: Kai Kemmann, CC BY-SA 4.0.</span>
-        </p>
-        <input type="file" accept="image/*" capture="environment" id="sim-sec-camera" hidden>
-        <input type="file" accept="image/*" id="sim-sec-galeria" hidden>
-        <button type="button" class="sim-calc" data-calc-system="colado" hidden tabindex="-1"></button>
-        <button type="button" class="sim-calc" data-calc-system="fge" hidden tabindex="-1"></button>
-      </div>
-    </section>
-
     <!-- OFERTAS -->
     <section class="section section--sand" id="ofertas" aria-labelledby="of-title">
       <div class="wrap">
         <header class="sec-head sec-head--row">
           <div>
-            <p class="eyebrow" data-reveal>04 · Ofertas publicadas</p>
+            <p class="eyebrow" data-reveal>03 · Ofertas publicadas</p>
             <h2 class="sec-title" id="of-title" data-reveal>Direto do <span class="hl">@drysul.loja</span></h2>
           </div>
           <div class="sec-side" data-reveal>
@@ -381,7 +327,7 @@
       <div class="wrap story__grid">
         <div class="story__sticky">
           <header class="sec-head">
-            <p class="eyebrow eyebrow--light">05 · Como funciona</p>
+            <p class="eyebrow eyebrow--light">04 · Como funciona</p>
             <h2 class="sec-title sec-title--light" id="story-title">Seu projeto, <span class="hl">passo a passo.</span></h2>
           </header>
           <div class="story__stage" id="story-stage" data-step="1" aria-hidden="true">
@@ -434,7 +380,7 @@
     <section class="section section--paper" id="solucoes" aria-labelledby="sol-title">
       <div class="wrap sol">
         <header class="sec-head">
-          <p class="eyebrow" data-reveal>06 · Soluções</p>
+          <p class="eyebrow" data-reveal>05 · Soluções</p>
           <h2 class="sec-title" id="sol-title" data-reveal>Cada sistema, <span class="hl">o material certo.</span></h2>
           <span class="rule" data-reveal="line" aria-hidden="true"></span>
           <p class="sec-lead" data-reveal>Precisa de instalação ou indicação de profissional? Consulte a equipe pelo WhatsApp.</p>
@@ -488,7 +434,7 @@
       <div class="wrap">
         <header class="sec-head sec-head--row">
           <div>
-            <p class="eyebrow" data-reveal>07 · Inspiração</p>
+            <p class="eyebrow" data-reveal>06 · Inspiração</p>
             <h2 class="sec-title" id="insp-title" data-reveal>Ambientes que <span class="hl">ganham forma.</span></h2>
           </div>
           <p class="sec-lead" data-reveal>Imagens de referência do manual da marca Drysul. Espaço pronto para receber fotos de obras atendidas pela loja.</p>
@@ -508,7 +454,7 @@
       <div class="about__pattern" data-parallax="0.08" aria-hidden="true"></div>
       <div class="wrap about__grid">
         <div class="about__copy">
-          <p class="eyebrow eyebrow--light" data-reveal>08 · A Drysul</p>
+          <p class="eyebrow eyebrow--light" data-reveal>07 · A Drysul</p>
           <h2 class="sec-title sec-title--light" id="about-title" data-reveal>Precisão em <span class="hl">cada camada.</span></h2>
           <p class="about__lead" data-reveal>A Drysul é especializada em materiais para construção a seco: drywall, gesso e acabamento. Atendimento direto para montar a lista certa e manter a obra andando.</p>
           <ul class="values" data-stagger>
@@ -531,7 +477,7 @@
       <div class="contact__pattern" data-parallax="0.1" aria-hidden="true"></div>
       <div class="wrap">
         <header class="contact__head">
-          <p class="eyebrow eyebrow--light" data-reveal>09 · Contato</p>
+          <p class="eyebrow eyebrow--light" data-reveal>08 · Contato</p>
           <h2 class="contact__title" id="contact-title" data-reveal>Sua obra começa <span class="hl">com a lista certa.</span></h2>
           <div class="contact__cta" data-reveal>
             <a class="btn btn--whats btn--lg" data-store-link="whatsapp" data-whats="contato" href="https://wa.me/5555992010668" target="_blank" rel="noopener" data-magnetic><svg class="ic"><use href="#i-whats"/></svg><span>Chamar no WhatsApp</span></a>
@@ -576,7 +522,7 @@
       </div>
       <nav class="footer__col" aria-label="Rodapé — navegação">
         <p class="footer__k">Navegação</p>
-        <a href="#produtos">Produtos</a><a href="#calculadora">Calculadora</a><a href="#simulador">Simulador</a><a href="#ofertas">Ofertas</a><a href="#a-drysul">A Drysul</a>
+        <a href="#produtos">Produtos</a><a href="#calculadora">Calculadora</a><a href="#ofertas">Ofertas</a><a href="#a-drysul">A Drysul</a>
       </nav>
       <div class="footer__col">
         <p class="footer__k">Categorias</p>
@@ -759,10 +705,6 @@
     </div>
   </dialog>
 
-  <dialog data-lenis-prevent class="sim-dlg" id="simulador-dlg" aria-labelledby="sim-titulo">
-    <div class="sim" id="sim-app"></div>
-  </dialog>
-
   <dialog data-lenis-prevent class="sheet sheet--center" id="creditos" aria-labelledby="creditos-title">
     <div class="sheet__in">
       <header class="sheet__head">
@@ -774,7 +716,6 @@
       </header>
       <div class="sheet__body prose">
         <p class="muted">Chapas: modelo 3D com a textura da foto <a href="https://commons.wikimedia.org/wiki/File:Stapel_Gipskartonplatten.jpg" target="_blank" rel="noopener">“Stapel Gipskartonplatten”</a>, de RossKur (Wikimedia Commons), licença <a href="https://creativecommons.org/licenses/by/4.0/deed.pt-br" target="_blank" rel="noopener">CC BY 4.0</a>, modificada (recorte, cores RU e RF). Perfis: modelos 3D ilustrativos.</p>
-        <p class="muted">Simulador: foto de exemplo <a href="https://commons.wikimedia.org/wiki/File:Unverputzte_Ziegelwand_in_Wohnraum_im_Erdgescho%C3%9F,_Carrer_de_l%27Arquebisbe_Company,_75,_46011_Val%C3%A8ncia,_Valencia,_Spain.jpg" target="_blank" rel="noopener">“Unverputzte Ziegelwand in Wohnraum”</a>, de Kai Kemmann (Wikimedia Commons), licença <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.pt-br" target="_blank" rel="noopener">CC BY-SA 4.0</a>; a imagem “depois” é uma modificação feita pelo simulador, sob a mesma licença. Os acabamentos são gerados pelo próprio site.</p>
         <p class="muted">Logotipo, cores, padrão gráfico e fotos da loja: Drysul.</p>
       </div>
     </div>
@@ -782,15 +723,15 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script defer src="js/data.js?v=19"></script>
-  <script defer src="js/calculator-model.js?v=19"></script>
-  <script defer src="js/checkout-model.js?v=19"></script>
-  <script defer src="js/busca.js?v=19"></script>
-  <script defer src="js/app.js?v=19"></script>
-  <script defer src="js/receipt.js?v=19"></script>
-  <script defer src="js/checkout.js?v=19"></script>
+  <script defer src="js/data.js?v=20"></script>
+  <script defer src="js/calculator-model.js?v=20"></script>
+  <script defer src="js/checkout-model.js?v=20"></script>
+  <script defer src="js/busca.js?v=20"></script>
+  <script defer src="js/app.js?v=20"></script>
+  <script defer src="js/receipt.js?v=20"></script>
+  <script defer src="js/checkout.js?v=20"></script>
   <script defer src="js/vendor/lenis.min.js?v=1"></script>
-  <script defer src="js/motion.js?v=19"></script>
-  <script defer src="js/som.js?v=19"></script>
+  <script defer src="js/motion.js?v=20"></script>
+  <script defer src="js/som.js?v=20"></script>
 </body>
 </html>

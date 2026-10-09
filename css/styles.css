@@ -26,13 +26,24 @@
   --orange: #EF5023;
   --orange-hover: #FF6A3D;
   --orange-text: #B83A15;          /* laranja com contraste AA sobre claro (inclui o areia das ofertas) */
-  --orange-on-dark: #F46A42;       /* laranja com contraste AA para texto pequeno sobre os azuis */
+  --orange-on-dark: #FF845C;       /* laranja com contraste AA para texto pequeno sobre os azuis (no tema claro os azuis
+                                      são um tom mais claros, então este laranja é um pouco mais vivo) */
   --sand: #D8D9D2;
   --sand-soft: #E9E9E3;
   --paper: #F5F5F1;
   --white: #FFFFFF;
   --gray: #6F726E;
   --char: #242625;
+
+  /* Partes escuras (cabeçalho, topo, seções azuis, rodapé, menu do celular). No tema claro elas ficam um tom mais
+     claras que no escuro, ainda azuis e com texto branco e laranja legíveis (AA): a troca de tema aparece já no topo.
+     O tema escuro volta aos azuis profundos da marca. */
+  --escuro-1: #22325F;             /* topo, cabeçalho, seção funda, menu */
+  --escuro-2: #25346A;             /* seção azul ("Seu projeto, passo a passo") */
+  --escuro-3: #1B2851;             /* rodapé */
+  --escuro-luz: #34487F;           /* brilho do degradê do topo */
+  --escuro-vidro: rgba(31, 45, 88, .84);  /* cartões da vitrine sobre o topo */
+  --cab-compacto: rgba(34, 50, 95, .92);  /* cabeçalho depois de rolar */
 
   /* Superfícies e texto por tema (o tema escuro redefine só estes) */
   --bg: var(--paper);              /* fundo da página e das seções "papel" */
@@ -107,6 +118,9 @@
 /* Tema escuro: as seções claras viram tons de marinho; as seções que já são escuras não mudam.
    Contraste conferido: texto #ECECE6 e --muted #A9AEC0 passam AA sobre todas as superfícies abaixo. */
 [data-theme="dark"] {
+  --escuro-1: #111A38; --escuro-2: #1E2852; --escuro-3: #0B1128; --escuro-luz: #1B2656;
+  --escuro-vidro: rgba(17, 26, 56, .82); --cab-compacto: rgba(17, 26, 56, .9);
+  --orange-on-dark: #F46A42;
   --bg: #0C1330;
   --sec-light: #10183A;
   --sec-sand: #141D42;
@@ -274,19 +288,20 @@ ul, ol { padding: 0; list-style: none; }
   border-bottom: 1.5px solid currentColor; padding-bottom: 2px;
 }
 .link-arrow .ic { transition: transform var(--t) var(--ease); }
+.section--navy .link-arrow, .section--deep .link-arrow, .hero .link-arrow, .footer .link-arrow { color: var(--orange-on-dark); } /* texto pequeno no azul */
 .link-arrow:hover .ic { transform: translateX(4px); }
 
 /* ---------- Cabeçalho ---------- */
 .site-header {
   position: sticky; top: 0; z-index: 60;
-  background: var(--navy-deep); color: var(--on-dark);
+  background: var(--escuro-1); color: var(--on-dark);
   transition: background-color var(--t) var(--ease), box-shadow var(--t) var(--ease);
 }
 .site-header__in { display: flex; align-items: center; gap: 24px; height: var(--header-h); transition: height var(--t) var(--ease); }
-.site-header.is-compact { background: rgba(17, 26, 56, .9); box-shadow: 0 1px 0 var(--line-dark), 0 18px 40px -30px rgba(0, 0, 0, .8); }
+.site-header.is-compact { background: var(--cab-compacto); box-shadow: 0 1px 0 var(--line-dark), 0 18px 40px -30px rgba(0, 0, 0, .8); }
 /* desfoque atrás do cabeçalho só no computador: no celular ele é refeito a cada quadro da rolagem e dava tranco */
 @supports (backdrop-filter: blur(1px)) { @media (min-width: 1024px) and (hover: hover) and (pointer: fine) { .site-header.is-compact { backdrop-filter: saturate(140%) blur(10px); } } }
-@media not all and (min-width: 1024px) and (hover: hover) and (pointer: fine) { .site-header.is-compact { background: rgba(17, 26, 56, .97); } }
+@media not all and (min-width: 1024px) and (hover: hover) and (pointer: fine) { .site-header.is-compact { background: var(--escuro-1); } }
 .site-header.is-compact .site-header__in { height: 62px; }
 .brand { flex: none; display: block; padding: 6px 0; }
 .site-header .logo { height: 42px; transition: height var(--t) var(--ease); }
@@ -340,7 +355,7 @@ ul, ol { padding: 0; list-style: none; }
 .motion-on .som.is-tocando .som__onda--2 { animation: som-onda 2.6s ease-in-out .65s infinite; }
 @keyframes som-onda { 50% { opacity: .3; } }
 .som__painel { position: absolute; top: calc(100% + 10px); right: -4px; z-index: 2; display: grid; gap: 6px; width: 184px; padding: 12px 14px 10px;
-  border: 1px solid var(--line-dark); border-radius: var(--r-m); background: var(--navy-deep); box-shadow: 0 18px 40px -16px rgba(0, 0, 0, .75);
+  border: 1px solid var(--line-dark); border-radius: var(--r-m); background: var(--escuro-1); box-shadow: 0 18px 40px -16px rgba(0, 0, 0, .75);
   opacity: 0; visibility: hidden; transform: translateY(-4px); transition: opacity 180ms var(--ease), transform 180ms var(--ease), visibility 0s linear 180ms; }
 .som__painel::before { content: ""; position: absolute; left: 0; right: 0; top: -12px; height: 12px; } /* ponte: o mouse vai do botão ao painel sem fechar */
 .som.is-aberto .som__painel, .som:not(.is-mudo):has(:focus-visible) .som__painel { opacity: 1; visibility: visible; transform: none; transition-delay: 0s; }
@@ -408,7 +423,7 @@ ul, ol { padding: 0; list-style: none; }
 /* ---------- Hero: compacto e comercial ----------
    Uma tela no máximo: título, busca (material ou obra), categorias e atalhos. A parede 3D, que desmonta com a
    rolagem, fica à direita no computador e logo abaixo dos atalhos no tablet e no celular. */
-.hero { position: relative; isolation: isolate; background: radial-gradient(120% 90% at 85% 10%, #1B2656 0%, var(--navy-deep) 55%) var(--navy-deep); color: var(--on-dark); }
+.hero { position: relative; isolation: isolate; background: radial-gradient(120% 90% at 85% 10%, var(--escuro-luz) 0%, var(--escuro-1) 55%) var(--escuro-1); color: var(--on-dark); }
 .hero__pin { position: relative; overflow: clip; isolation: isolate; display: flex; flex-direction: column; justify-content: center; padding: var(--s-7) 0 var(--s-3); }
 /* fundo técnico animado: no máximo uma tela de altura (desenhar seções inteiras, de milhares de px, a 30 quadros
    pesava na carga) e só onde há folga — no celular é decoração que custa bateria, então sai */
@@ -527,7 +542,7 @@ html:not(.motion-on) .vitrine .vitrine__pausa { display: none; }
   position: relative; display: grid; grid-template-columns: 84px minmax(0, 1fr); align-items: center; gap: 12px;
   width: 100%; height: 100%; padding: 9px 12px 9px 9px; text-align: left; color: var(--on-dark);
   border: 1px solid rgba(216, 217, 210, .16); border-radius: var(--r-m);
-  background: linear-gradient(160deg, rgba(255, 255, 255, .11), rgba(255, 255, 255, .02) 58%), rgba(17, 26, 56, .82);
+  background: linear-gradient(160deg, rgba(255, 255, 255, .11), rgba(255, 255, 255, .02) 58%), var(--escuro-vidro);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, .09), 0 24px 34px -24px rgba(0, 0, 0, .95);
   -webkit-box-reflect: below 6px linear-gradient(transparent 58%, rgba(255, 255, 255, .13));
   transition: transform 420ms var(--ease), border-color 420ms var(--ease), box-shadow 420ms var(--ease);
@@ -688,8 +703,8 @@ html:not(.motion-on) .vitrine .vt__card { -webkit-box-reflect: unset; }
 .section--paper::before { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, color-mix(in srgb, var(--bg) 55%, transparent), color-mix(in srgb, var(--bg) 92%, transparent)); }
 .section--light { background: var(--sec-light); --reveal-bg: var(--sec-light); }
 .section--sand { background: var(--sec-sand); }
-.section--navy { background: var(--navy); color: var(--on-dark); --reveal-bg: var(--navy); }
-.section--deep { background: var(--navy-deep); color: var(--on-dark); }
+.section--navy { background: var(--escuro-2); color: var(--on-dark); --reveal-bg: var(--escuro-2); }
+.section--deep { background: var(--escuro-1); color: var(--on-dark); }
 
 /* ---------- Categorias ---------- */
 
@@ -1149,14 +1164,14 @@ a.info-card:hover { border-color: var(--orange); background: rgba(239, 80, 35, .
 .info-card__a--txt { color: var(--on-dark-muted); font-weight: 600; }
 
 /* ---------- Rodapé ---------- */
-.footer { background: var(--navy-night); color: var(--on-dark-muted); padding: 64px 0 28px; font-size: var(--fs-sm); }
+.footer { background: var(--escuro-3); color: var(--on-dark-muted); padding: 64px 0 28px; font-size: var(--fs-sm); }
 .footer__grid { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1.2fr; gap: 32px; padding-bottom: 40px; border-bottom: 1px solid var(--line-dark); }
 .footer__brand .logo { height: 50px; margin-bottom: 16px; }
 .footer__brand p { max-width: 32ch; }
 .footer__col { display: grid; align-content: start; gap: 4px; }
 .footer__col > a, .footer__col > span { display: block; padding: 5px 0; min-height: 32px; }
 .footer__col a:hover { color: var(--white); text-decoration: underline; text-underline-offset: 3px; }
-.footer__k { font-size: var(--fs-2xs); font-weight: 700; letter-spacing: .16em; text-transform: uppercase; font-stretch: var(--wide); color: var(--orange); margin-bottom: 4px; }
+.footer__k { font-size: var(--fs-2xs); font-weight: 700; letter-spacing: .16em; text-transform: uppercase; font-stretch: var(--wide); color: var(--orange-on-dark); margin-bottom: 4px; } /* texto pequeno no azul: laranja com contraste AA */
 .footer__bottom { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px; padding-top: 24px; font-size: var(--fs-xs); }
 .footer__extra { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 20px; margin-right: auto; }
 .footer__link { display: inline-flex; align-items: center; gap: 6px; min-height: 32px; padding: 4px 0; color: var(--on-dark-muted); font-size: var(--fs-xs); transition: color var(--t-fast); }
@@ -1165,6 +1180,49 @@ a.info-card:hover { border-color: var(--orange); background: rgba(239, 80, 35, .
 .to-top { display: grid; place-items: center; width: 48px; height: 48px; border: 1.5px solid var(--line-dark); border-radius: var(--r-s); color: var(--on-dark); transition: border-color var(--t), background-color var(--t); }
 .to-top .ic { transform: rotate(-90deg); }
 .to-top:hover { border-color: var(--orange); background: rgba(239, 80, 35, .1); }
+
+/* ---------- WhatsApp flutuante: canto inferior direito, a página toda ----------
+   No celular ele sobe acima da barra "Ver pedido" e das ações fixas da calculadora: nunca cobre um botão.
+   Ícone branco sobre o verde escuro do WhatsApp (no verde claro o contraste do ícone ficava em 2:1). */
+.zap {
+  position: fixed; right: max(16px, env(safe-area-inset-right)); bottom: calc(16px + env(safe-area-inset-bottom)); z-index: 56;
+  display: flex; align-items: center; gap: 10px; color: #fff; -webkit-tap-highlight-color: transparent;
+  transition: bottom var(--t) var(--ease);
+}
+.zap__bola {
+  position: relative; display: grid; place-items: center; width: 58px; height: 58px; border-radius: 50%;
+  background: radial-gradient(120% 120% at 30% 18%, #34DE77 0%, #1DA851 52%, #128C4F 100%);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .2), inset 0 2px 0 rgba(255, 255, 255, .22), 0 14px 26px -10px rgba(18, 140, 79, .75), 0 4px 10px rgba(0, 0, 0, .22);
+  transition: transform var(--t) var(--ease), box-shadow var(--t) var(--ease);
+}
+.zap__bola .ic { width: 30px; height: 30px; stroke-width: 1.7; }
+/* anel que se abre duas vezes depois da carga, para a pessoa notar o botão (e para) */
+.zap__bola::after { content: ""; position: absolute; inset: 0; border-radius: 50%; border: 2px solid rgba(37, 211, 102, .75); opacity: 0; pointer-events: none; }
+.motion-on .zap__bola::after { animation: zap-onda 2s var(--ease) 3.2s 2; }
+@keyframes zap-onda { 0% { opacity: .9; transform: scale(1); } 100% { opacity: 0; transform: scale(1.65); } }
+.motion-on .zap { animation: zap-entra 640ms var(--ease) 500ms both; }
+@keyframes zap-entra { from { opacity: 0; transform: translateY(20px) scale(.88); } }
+/* no computador, o nome aparece ao passar o mouse */
+.zap__txt {
+  padding: 9px 14px; border-radius: 999px; background: var(--surface); color: var(--fg); box-shadow: var(--sh-1);
+  font-size: var(--fs-sm); font-weight: 700; white-space: nowrap; pointer-events: none;
+  opacity: 0; transform: translateX(10px); transition: opacity var(--t) var(--ease), transform var(--t) var(--ease);
+}
+@media (hover: hover) and (pointer: fine) {
+  .zap:hover .zap__bola { transform: scale(1.07); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .25), inset 0 2px 0 rgba(255, 255, 255, .25), 0 18px 32px -10px rgba(18, 140, 79, .85), 0 6px 14px rgba(0, 0, 0, .25); }
+  .zap:hover .zap__txt, .zap:focus-visible .zap__txt { opacity: 1; transform: none; }
+}
+.zap:focus-visible { outline: none; }
+.zap:focus-visible .zap__bola { outline: 3px solid var(--orange); outline-offset: 3px; }
+.zap:active .zap__bola { transform: scale(.96); }
+@media (max-width: 1023px) {
+  body:has(.fab:not(.is-hidden):not([hidden])) .zap { bottom: calc(84px + env(safe-area-inset-bottom)); }
+  body.com-acoes-calc .zap { bottom: calc(150px + env(safe-area-inset-bottom)); }
+}
+@media (max-width: 720px) { .zap__bola { width: 56px; height: 56px; } }
+/* o fim da página não fica escondido atrás do botão */
+.footer { padding-bottom: calc(28px + 64px + env(safe-area-inset-bottom)); }
+@media print { .zap { display: none; } }
 
 /* ---------- Botão flutuante (celular) ---------- */
 .fab {
@@ -1183,7 +1241,7 @@ a.info-card:hover { border-color: var(--orange); background: rgba(239, 80, 35, .
   .fab__total { margin-left: auto; font-size: var(--fs-md); }
 }
 /* com a barra na tela, o fim da página não fica escondido atrás dela */
-@media (max-width: 1023px) { body:has(.fab:not(.is-hidden):not([hidden])) .footer { padding-bottom: calc(var(--s-8) + 72px); } }
+@media (max-width: 1023px) { body:has(.fab:not(.is-hidden):not([hidden])) .footer { padding-bottom: calc(28px + 150px + env(safe-area-inset-bottom)); } }
 /* toque: alvos com pelo menos 44 px */
 @media (pointer: coarse) {
   .chip { min-height: 44px; }
@@ -1470,15 +1528,22 @@ a.info-card:hover { border-color: var(--orange); background: rgba(239, 80, 35, .
 /* ---------- Toast ---------- */
 .toast {
   position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom)); z-index: 90;
-  display: flex; align-items: center; gap: 14px; max-width: calc(100vw - 32px);
+  display: flex; align-items: center; gap: 14px; width: max-content; max-width: calc(100vw - 32px); /* largura do texto (antes, preso à metade da tela, quebrava em 5 linhas) */
   padding: 12px 14px 12px 18px; background: var(--ink); color: var(--white); border-radius: var(--r-s);
   font-size: var(--fs-sm); font-weight: 600; box-shadow: 0 20px 40px -20px rgba(0, 0, 0, .6);
   transform: translate(-50%, 24px); opacity: 0; pointer-events: none; transition: transform var(--t) var(--ease), opacity var(--t);
 }
 .toast.is-on { transform: translate(-50%, 0); opacity: 1; pointer-events: auto; }
-@media (max-width: 560px) { .toast.is-alto { bottom: calc(150px + env(safe-area-inset-bottom)); } }
+/* celular: o aviso fica à esquerda do botão do WhatsApp, na mesma linha, e sobe junto com ele
+   (acima da barra "Ver pedido" e das ações fixas da calculadora) */
+@media (max-width: 720px) {
+  .toast { left: 16px; right: 88px; width: auto; max-width: none; bottom: calc(16px + env(safe-area-inset-bottom)); transform: translateY(24px); }
+  .toast.is-on { transform: none; }
+  body:has(.fab:not(.is-hidden):not([hidden])) .toast { bottom: calc(84px + env(safe-area-inset-bottom)); }
+  .toast.is-alto, body.com-acoes-calc .toast { bottom: calc(150px + env(safe-area-inset-bottom)); }
+}
 .toast:empty { display: none; }
-.toast button { color: var(--orange); font-weight: 800; padding: 6px 8px; border-radius: var(--r-s); }
+.toast button { flex: none; white-space: nowrap; color: var(--orange); font-weight: 800; padding: 6px 8px; border-radius: var(--r-s); }
 .toast button:hover { background: rgba(255, 255, 255, .08); }
 
 /* ==========================================================================
@@ -1494,7 +1559,7 @@ a.info-card:hover { border-color: var(--orange); background: rgba(239, 80, 35, .
   .menu-btn { display: grid; }
   .nav {
     position: absolute; left: 0; right: 0; top: 100%; margin: 0;
-    background: var(--navy-deep); border-top: 1px solid var(--line-dark); box-shadow: 0 30px 40px -20px rgba(0, 0, 0, .6);
+    background: var(--escuro-1); border-top: 1px solid var(--line-dark); box-shadow: 0 30px 40px -20px rgba(0, 0, 0, .6);
     visibility: hidden; opacity: 0; transform: translateY(-8px);
     transition: opacity var(--t) var(--ease), transform var(--t) var(--ease), visibility 0s linear var(--t);
   }

@@ -20,8 +20,8 @@
   <meta name="twitter:card" content="summary_large_image">
 
   <link rel="preload" href="assets/fonts/archivo-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="css/styles.css?v=21">
-  <link rel="stylesheet" href="css/motion.css?v=21">
+  <link rel="stylesheet" href="css/styles.css?v=22">
+  <link rel="stylesheet" href="css/motion.css?v=22">
   <script>
     (function () {
       var root = document.documentElement, pref = null, tema = null;
@@ -560,6 +560,14 @@
   </footer>
 
   <!-- pedido sempre à mão no celular: aparece assim que a lista tem algo, com o total estimado -->
+  <!-- WhatsApp sempre à mão: canto inferior direito durante toda a rolagem (mensagem pronta montada pelo app.js) -->
+  <aside class="zap-area" aria-label="Atendimento">
+    <a class="zap" id="zap" data-store-link="whatsapp" data-whats="contato" href="https://wa.me/5555992010668" target="_blank" rel="noopener" aria-label="Conversar com a Drysul no WhatsApp (abre em nova aba)">
+      <span class="zap__txt" aria-hidden="true">Fale no WhatsApp</span>
+      <span class="zap__bola"><svg class="ic" aria-hidden="true"><use href="#i-whats"/></svg></span>
+    </a>
+  </aside>
+
   <button class="fab" type="button" data-open-quote id="fab" hidden>
     <svg class="ic" aria-hidden="true"><use href="#i-bag"/></svg><span class="fab__t">Ver pedido</span><span class="quote-count" data-quote-count>0</span>
     <span class="fab__total" id="fab-total"></span>
@@ -737,16 +745,16 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script defer src="js/data.js?v=21"></script>
-  <script defer src="js/calculator-model.js?v=21"></script>
-  <script defer src="js/checkout-model.js?v=21"></script>
-  <script defer src="js/busca.js?v=21"></script>
-  <script defer src="js/app.js?v=21"></script>
-  <script defer src="js/receipt.js?v=21"></script>
-  <script defer src="js/checkout.js?v=21"></script>
+  <script defer src="js/data.js?v=22"></script>
+  <script defer src="js/calculator-model.js?v=22"></script>
+  <script defer src="js/checkout-model.js?v=22"></script>
+  <script defer src="js/busca.js?v=22"></script>
+  <script defer src="js/app.js?v=22"></script>
+  <script defer src="js/receipt.js?v=22"></script>
+  <script defer src="js/checkout.js?v=22"></script>
   <script defer src="js/vendor/lenis.min.js?v=1"></script>
-  <script defer src="js/motion.js?v=21"></script>
-  <script defer src="js/vitrine.js?v=21"></script>
-  <script defer src="js/som.js?v=21"></script>
+  <script defer src="js/motion.js?v=22"></script>
+  <script defer src="js/vitrine.js?v=22"></script>
+  <script defer src="js/som.js?v=22"></script>
 </body>
 </html>

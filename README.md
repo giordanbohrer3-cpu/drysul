@@ -45,7 +45,8 @@ Site da **Drysul — gesso e acabamento**. HTML, CSS e JavaScript puros, sem bui
 - **Limite da compra pelo site:** `vendas.limiteOnline` em `js/data.js` (atual: R$ 1.000).
 - **WhatsApp:** as mensagens prontas ficam em `MSG_WHATS` no `js/app.js` (saudação pelo horário + motivo: contato, produto ou busca sem resultado).
 - **Busca rápida:** botão no cabeçalho, tecla `/` ou `Ctrl+K`; usa os mesmos dados do catálogo. Os termos sugeridos estão em `POPULARES` no `js/app.js`.
-- **Tema claro/escuro:** botão no cabeçalho; a escolha fica salva no navegador e, sem escolha, segue o aparelho. Cores em `:root` e `[data-theme="dark"]` no `css/styles.css`.
+- **Tema claro/escuro:** botão no cabeçalho; a escolha fica salva no navegador e, sem escolha, segue o aparelho. Cores em `:root` e `[data-theme="dark"]` no `css/styles.css`. As partes escuras (cabeçalho, topo, seções azuis, rodapé) usam `--escuro-1`, `--escuro-2`, `--escuro-3`: no tema claro elas ficam um tom mais claras, para a troca de tema aparecer já no topo.
+- **WhatsApp flutuante:** botão `.zap` no canto inferior direito, a página toda, com a mensagem de contato de `MSG_WHATS`. No celular ele sobe acima da barra "Ver pedido" e das ações da calculadora.
 
 ## Central de vendas
 

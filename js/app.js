@@ -1098,6 +1098,8 @@
       fab.hidden = false;
       var co = document.getElementById('checkout');
       fab.classList.toggle('is-hidden', (resVisivel && !!calc.resultado) || dlg.open || (co && co.open) || !!document.querySelector('dialog[open]') || totalLinhas() === 0);
+      // com as ações da calculadora fixas no pé da tela, o WhatsApp flutuante sobe acima delas
+      document.body.classList.toggle('com-acoes-calc', resVisivel && !!calc.resultado);
     };
   }
   atualizarContadores();

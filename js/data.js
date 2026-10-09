@@ -10,15 +10,25 @@
     assinatura: 'gesso e acabamento',
     endereco: 'Rua Albino Brendler, 596',
     bairro: 'Bairro Assis Brasil',
+    cidade: 'Ijuí', uf: 'RS',
     telefone: '(55) 99201-0668',
     whatsapp: '5555992010668',
     instagram: '@drysul.loja',
-    instagramUrl: 'https://www.instagram.com/drysul.loja/'
+    instagramUrl: 'https://www.instagram.com/drysul.loja/',
+    // horário comercial (0 = domingo): o "Aberto agora" do topo é calculado daqui, no fuso da loja (js/horario.js)
+    horario: [
+      { dias: [1, 2, 3, 4, 5], abre: '08:00', fecha: '18:00' },
+      { dias: [6], abre: '08:00', fecha: '12:00' }
+    ]
   };
   loja.telUrl = 'tel:+' + loja.whatsapp;
   loja.whatsUrl = 'https://wa.me/' + loja.whatsapp;
-  loja.mapsUrl = 'https://www.google.com/maps/search/?api=1&query=' +
-    encodeURIComponent(loja.endereco + ' - Assis Brasil');
+  // mapa pelo endereço completo (conferido no Google Maps em 09/10/2026: "R. Albino Brendler, 596 - Assis Brasil, Ijuí - RS").
+  // Pelo nome não: "Drysul Ijuí" no Maps cai em outra empresa enquanto a loja não tiver o Perfil da Empresa no Google.
+  var enderecoMapa = loja.endereco + ' - ' + loja.bairro.replace(/^Bairro /, '') + ', ' + loja.cidade + ' - ' + loja.uf;
+  loja.mapsUrl = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(enderecoMapa);
+  loja.rotaUrl = 'https://www.google.com/maps/dir/?api=1&destination=' + encodeURIComponent(enderecoMapa);
+  loja.mapaEmbed = 'https://www.google.com/maps?q=' + encodeURIComponent(enderecoMapa) + '&z=16&hl=pt-BR&output=embed';
 
   var categorias = [
     { id: 'chapas', nome: 'Chapas', icone: 'p-chapa', desc: 'Drywall ST, RU e RF para paredes, forros e revestimentos.' },

@@ -20,8 +20,8 @@
   <meta name="twitter:card" content="summary_large_image">
 
   <link rel="preload" href="assets/fonts/archivo-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="css/styles.css?v=23">
-  <link rel="stylesheet" href="css/motion.css?v=23">
+  <link rel="stylesheet" href="css/styles.css?v=24">
+  <link rel="stylesheet" href="css/motion.css?v=24">
   <script>
     (function () {
       var root = document.documentElement, pref = null, tema = null;
@@ -92,6 +92,20 @@
 
   <a class="skip" href="#conteudo">Pular para o conteúdo</a>
 
+  <!-- FAIXA DE INFORMAÇÕES: no computador ficam todas à vista; no celular passam uma por vez (pausa ao tocar, ao
+       focar ou no botão; com os efeitos pausados vira uma fileira que se arrasta). O status vem do js/abertura.js -->
+  <div class="topbar" id="topbar" role="region" aria-label="Informações da loja">
+    <div class="wrap topbar__in">
+      <ul class="topbar__lista">
+        <li class="topbar__item is-on"><span class="topbar__status" data-status-loja><i class="status-ponto" aria-hidden="true"></i><span data-status-curto>Seg. a sex. 8h–18h · sáb. 8h–12h</span></span></li>
+        <li class="topbar__item"><a data-store-link="rota" href="https://www.google.com/maps/dir/?api=1&amp;destination=Rua%20Albino%20Brendler%2C%20596%20-%20Assis%20Brasil%2C%20Iju%C3%AD%20-%20RS" target="_blank" rel="noopener"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>Retire na loja em Ijuí</a></li>
+        <li class="topbar__item"><a href="#calculadora"><svg class="ic" aria-hidden="true"><use href="#i-calc"/></svg>Calcule o material pela medida da obra</a></li>
+        <li class="topbar__item"><a data-store-link="whatsapp" data-whats="contato" href="https://wa.me/5555992010668" target="_blank" rel="noopener"><svg class="ic" aria-hidden="true"><use href="#i-whats"/></svg>Orçamento rápido no WhatsApp</a></li>
+      </ul>
+      <button class="topbar__pausa" type="button" aria-pressed="false" aria-label="Pausar os avisos"><svg class="ic" aria-hidden="true"><use href="#i-pause"/></svg></button>
+    </div>
+  </div>
+
   <header class="site-header" id="topo">
     <div class="wrap site-header__in">
       <a class="brand" href="#top" aria-label="Drysul — gesso e acabamento, início">
@@ -126,6 +140,69 @@
   </header>
 
   <main id="conteudo">
+    <!-- ABERTURA (em teste): quem somos, horário, contato e onde fica, antes da busca e da parede 3D.
+         Para voltar ao formato anterior, basta mover esta <section> para depois do hero ou para perto do contato. -->
+    <section class="abertura" id="quem-somos" aria-labelledby="abertura-titulo">
+      <div class="abertura__fundo" aria-hidden="true"></div>
+      <div class="wrap abertura__grid">
+        <div class="abertura__texto">
+          <p class="eyebrow abertura__eyebrow">Quem somos · Ijuí, RS</p>
+          <h2 class="abertura__titulo" id="abertura-titulo">Drywall, gesso e acabamento <em>aqui em Ijuí.</em></h2>
+          <p class="abertura__lead">A Drysul é especializada em construção a seco: chapas, perfis, fixação, massas e fitas num só lugar, com atendimento de quem entende de obra. A gente ajuda a montar a lista certa para o seu trabalho não parar.</p>
+
+          <div class="abertura__status" data-status-loja>
+            <p class="abertura__agora"><i class="status-ponto" aria-hidden="true"></i><b data-status-texto>Horário comercial</b><span data-status-detalhe></span></p>
+            <dl class="abertura__horas">
+              <div><dt>Seg. a sex.</dt><dd>8h às 18h</dd></div>
+              <div><dt>Sábado</dt><dd>8h às 12h</dd></div>
+              <div><dt>Domingo</dt><dd>Fechado</dd></div>
+            </dl>
+          </div>
+
+          <div class="abertura__acoes">
+            <a class="btn btn--whats btn--lg" data-store-link="whatsapp" data-whats="contato" href="https://wa.me/5555992010668" target="_blank" rel="noopener"><svg class="ic" aria-hidden="true"><use href="#i-whats"/></svg><span>Chamar no WhatsApp</span></a>
+            <a class="btn btn--outline btn--lg" data-store-link="rota" href="https://www.google.com/maps/dir/?api=1&amp;destination=Rua%20Albino%20Brendler%2C%20596%20-%20Assis%20Brasil%2C%20Iju%C3%AD%20-%20RS" target="_blank" rel="noopener"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg><span>Como chegar</span></a>
+          </div>
+          <ul class="abertura__contatos">
+            <li><a data-store-link="tel" href="tel:+5555992010668"><svg class="ic" aria-hidden="true"><use href="#i-phone"/></svg><span>(55) 99201-0668</span></a></li>
+            <li><a data-store-link="instagram" href="https://www.instagram.com/drysul.loja/" target="_blank" rel="noopener"><svg class="ic" aria-hidden="true"><use href="#i-insta"/></svg><span>@drysul.loja</span></a></li>
+          </ul>
+        </div>
+
+        <div class="abertura__midia">
+          <!-- foto só no computador: no celular ela deixava a rolagem dos primeiros segundos travada (medido no Pixel 7 com
+               CPU 4× mais lenta); lá o cartão do mapa é o destaque. A <source> com GIF de 1 px evita baixar a foto no celular -->
+          <figure class="abertura__foto">
+            <picture>
+            <source media="(max-width: 1023px)" srcset="data:image/gif;base64,R0lGODlhAQABAAAAACw=">
+            <img src="assets/img/marca-parede-800.webp" srcset="assets/img/marca-parede-800.webp 800w, assets/img/marca-parede-1600.webp 1600w" sizes="(min-width: 1024px) 600px, 100vw" width="1600" height="900" alt="Logotipo da Drysul, gesso e acabamento, numa parede de drywall em acabamento" decoding="async" fetchpriority="high">
+            </picture>
+          </figure>
+          <!-- mapa: só carrega o do Google quando a pessoa pede (o mapa embutido pesa mais que a página inteira) -->
+          <div class="abertura__mapa" data-mapa>
+            <button class="mapa__capa" type="button" data-mapa-abrir aria-label="Mostrar o mapa da loja aqui: Rua Albino Brendler, 596, Assis Brasil, Ijuí">
+              <svg class="mapa__ruas" viewBox="0 0 320 180" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+                <rect width="320" height="180" class="mapa__chao"/>
+                <path class="mapa__rua" d="M-10 38H330M-10 132H330M44-10V190M126-10V190M214-10V190M292-10V190"/>
+                <path class="mapa__rua mapa__rua--fina" d="M-10 15H330M-10 163H330M85-10V190M170-10V190M253-10V190"/>
+                <path class="mapa__rua mapa__rua--principal" d="M-10 86H330"/>
+                <text class="mapa__nome" x="250" y="78" text-anchor="middle">R. Albino Brendler</text>
+              </svg>
+              <span class="mapa__pin" aria-hidden="true"><svg class="ic"><use href="#i-pin"/></svg></span>
+              <span class="mapa__abrir" aria-hidden="true">Ver mapa aqui</span>
+            </button>
+            <div class="mapa__info">
+              <p class="mapa__end"><b>Rua Albino Brendler, 596</b><span>Assis Brasil · Ijuí, RS</span></p>
+              <a class="mapa__link" data-store-link="maps" href="https://www.google.com/maps/search/?api=1&amp;query=Rua%20Albino%20Brendler%2C%20596%20-%20Assis%20Brasil%2C%20Iju%C3%AD%20-%20RS" target="_blank" rel="noopener">Abrir no Google Maps<svg class="ic" aria-hidden="true"><use href="#i-ext"/></svg></a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="wrap">
+        <a class="abertura__seguir" href="#inicio"><span>Ver produtos, preços e a calculadora</span><span class="abertura__seta" aria-hidden="true"><svg class="ic"><use href="#i-arrow"/></svg></span></a>
+      </div>
+    </section>
+
     <!-- HERO compacto: título, busca que entende material ou obra, categorias e atalhos; a parede ilustrada fica à direita no computador -->
     <section class="hero" id="inicio" aria-labelledby="hero-title">
       <div class="hero__pin">
@@ -550,8 +627,8 @@
   <!-- pedido sempre à mão no celular: aparece assim que a lista tem algo, com o total estimado -->
   <!-- WhatsApp sempre à mão: canto inferior direito durante toda a rolagem (mensagem pronta montada pelo app.js) -->
   <aside class="zap-area" aria-label="Atendimento">
-    <a class="zap" id="zap" data-store-link="whatsapp" data-whats="contato" href="https://wa.me/5555992010668" target="_blank" rel="noopener" aria-label="Conversar com a Drysul no WhatsApp (abre em nova aba)">
-      <span class="zap__txt" aria-hidden="true">Fale no WhatsApp</span>
+    <a class="zap" id="zap" data-store-link="whatsapp" data-whats="contato" href="https://wa.me/5555992010668" target="_blank" rel="noopener" aria-label="Fale conosco pelo WhatsApp (abre em nova aba)">
+      <span class="zap__txt" aria-hidden="true">Fale conosco</span>
       <span class="zap__bola"><svg class="ic" aria-hidden="true"><use href="#i-whats"/></svg></span>
     </a>
   </aside>
@@ -733,16 +810,18 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script defer src="js/data.js?v=23"></script>
-  <script defer src="js/calculator-model.js?v=23"></script>
-  <script defer src="js/checkout-model.js?v=23"></script>
-  <script defer src="js/busca.js?v=23"></script>
-  <script defer src="js/app.js?v=23"></script>
-  <script defer src="js/receipt.js?v=23"></script>
-  <script defer src="js/checkout.js?v=23"></script>
+  <script defer src="js/data.js?v=24"></script>
+  <script defer src="js/calculator-model.js?v=24"></script>
+  <script defer src="js/checkout-model.js?v=24"></script>
+  <script defer src="js/busca.js?v=24"></script>
+  <script defer src="js/horario.js?v=24"></script>
+  <script defer src="js/app.js?v=24"></script>
+  <script defer src="js/abertura.js?v=24"></script>
+  <script defer src="js/receipt.js?v=24"></script>
+  <script defer src="js/checkout.js?v=24"></script>
   <script defer src="js/vendor/lenis.min.js?v=1"></script>
-  <script defer src="js/motion.js?v=23"></script>
-  <script defer src="js/vitrine.js?v=23"></script>
-  <script defer src="js/som.js?v=23"></script>
+  <script defer src="js/motion.js?v=24"></script>
+  <script defer src="js/vitrine.js?v=24"></script>
+  <script defer src="js/som.js?v=24"></script>
 </body>
 </html>

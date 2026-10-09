@@ -43,7 +43,7 @@
   function icon(id) { return '<svg class="ic" aria-hidden="true"><use href="#' + id + '"/></svg>'; }
 
   /* ---------- contatos (fonte única: data.js) ---------- */
-  var links = { whatsapp: loja.whatsUrl, tel: loja.telUrl, instagram: loja.instagramUrl, maps: loja.mapsUrl };
+  var links = { whatsapp: loja.whatsUrl, tel: loja.telUrl, instagram: loja.instagramUrl, maps: loja.mapsUrl, rota: loja.rotaUrl };
   $$('[data-store]').forEach(function (el) { el.textContent = loja[el.getAttribute('data-store')] || ''; });
   $$('[data-store-link]').forEach(function (el) { el.href = links[el.getAttribute('data-store-link')]; });
   // preços citados fora do catálogo (ex.: peças do hero) também vêm do data.js

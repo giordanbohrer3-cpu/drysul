@@ -325,8 +325,10 @@
     var cab = parseFloat(getComputedStyle(root).getPropertyValue('--header-h')) || 64;
     parede.paralaxe = mqLado.matches;
     if (parede.paralaxe) {
-      parede.ini = 0;
-      parede.fim = Math.max(320, (topo + r.height - cab) * 0.75);
+      // começa quando o topo de compras encosta no cabeçalho: com a abertura "Quem somos" (e a faixa) acima, não é no 0
+      var base = Math.max(0, heroEl.getBoundingClientRect().top + rolY - cab);
+      parede.ini = base;
+      parede.fim = base + Math.max(320, (topo - base + r.height - cab) * 0.75);
     } else {
       parede.ini = Math.max(0, topo + r.height * 0.7 - vh);
       parede.fim = Math.max(parede.ini + 260, topo + r.height * 0.5 - cab - vh * 0.08);
@@ -335,13 +337,13 @@
   }
   function paralaxeParede() {
     if (!parede.paralaxe || !paredeViva()) return;
-    var d = Math.round(clamp(rolY, 0, parede.fim * 1.4) * 0.3);
+    var d = Math.round(clamp(rolY - parede.ini, 0, (parede.fim - parede.ini) * 1.4) * 0.3);
     if (d !== parede.desloc) { parede.desloc = d; arteEl.style.transform = 'translate3d(0,' + d + 'px,0)'; }
   }
   function progressoParede() { return P0 + (1 - P0) * clamp((rolY - parede.ini) / (parede.fim - parede.ini), 0, 1); }
   var paredeRaf = 0, paredeT = 0;
   function seguirParede() {
-    if (paredeRaf || parede.intro || !paredeViva()) return;
+    if (paredeRaf || parede.intro || introPendente || !paredeViva()) return;
     paredeT = performance.now();
     paredeRaf = requestAnimationFrame(passoParede);
   }
@@ -355,10 +357,19 @@
     aplicarParede(parede.atual);
     if (parede.atual !== parede.alvo) paredeRaf = requestAnimationFrame(passoParede);
   }
-  // abertura: as peças soltas se juntam (só se a parede já está na tela; senão ela entra montada pela rolagem)
-  function introParede() {
+  // abertura: as peças soltas se juntam. Com a parede fora da tela na carga (a seção "Quem somos" vem antes), ela
+  // espera desmontada e se monta quando aparecer (observador abaixo), em vez de chegar já pronta.
+  var introPendente = false;
+  function introParede(jaNaTela) {
     var r = arteEl.getBoundingClientRect();
-    if (r.top > window.innerHeight * 0.75 || r.bottom < 0) return;
+    if (!jaNaTela && (r.top > window.innerHeight * 0.75 || r.bottom < 0)) {
+      // tablet e celular: entre aparecer e começar a desmontar há pouca rolagem (a montagem não terminaria);
+      // lá ela chega montada, como antes
+      if (!parede.paralaxe) return;
+      introPendente = true; parede.atual = 0.7; aplicarParede(0.7);
+      return;
+    }
+    introPendente = false;
     var t0 = performance.now(), de = 0.7, dur = 1700;
     parede.intro = true;
     (function passo(t) {
@@ -378,8 +389,11 @@
     parede.alvo = parede.atual = progressoParede();
     aplicarParede(parede.atual);
     paralaxeParede();
-    if (comIntro) introParede();
+    if (comIntro) introParede(); else introPendente = false;
   }
+  if (rig && arteEl && hasIO) new IntersectionObserver(function (es) {
+    if (es[es.length - 1].isIntersecting && introPendente && paredeViva()) introParede(true);
+  }, { threshold: 0.3 }).observe(arteEl);
   var visible = new Set();
   var visIO = hasIO ? new IntersectionObserver(function (es) {
     es.forEach(function (e) {

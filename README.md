@@ -8,8 +8,10 @@ Site da **Drysul — gesso e acabamento**. HTML, CSS e JavaScript puros, sem bui
 
 | Arquivo | Função |
 |---|---|
-| `index.html` | Página única, na ordem da compra: topo com busca, catálogo, calculadora, ofertas, como funciona, soluções, inspiração, a Drysul, contato |
-| `js/data.js` | **Fonte única de dados**: contato, categorias, produtos, preços e ofertas |
+| `index.html` | Página única: faixa de informações, abertura "Quem somos" (em teste), topo com busca, catálogo, calculadora, ofertas, como funciona, soluções, inspiração, a Drysul, contato |
+| `js/data.js` | **Fonte única de dados**: contato, cidade, horário, links do mapa, categorias, produtos, preços e ofertas |
+| `js/horario.js` | "Aberto agora · fecha às 18h" / "Fechado agora · abre amanhã às 8h", no fuso da loja (America/Sao_Paulo), a partir de `loja.horario` (sem DOM, testável no Node) |
+| `js/abertura.js` | Status da loja na faixa e na abertura (refeito a cada minuto); faixa de informações (no celular troca uma por vez, pausa com o dedo/foco/botão, vira fileira sem efeitos); "Fale conosco" do botão do WhatsApp quando a pessoa começa a rolar; mapa do Google só quando a pessoa toca |
 | `js/calculator-model.js` | Coeficientes, validação, embalagens de compra e orçamento da calculadora, e o atalho `entender()` que lê "parede de 4 × 2,8 m com madeira" (sem DOM, testável no Node) |
 | `js/busca.js` | Regras da busca (sem DOM, testável no Node): sem acento, plural, sinônimos de balcão, erro de digitação, relevância e o filtro do catálogo, que nunca devolve a grade vazia havendo produtos |
 | `js/app.js` | Catálogo, filtros, busca rápida, pedido/lista e barra do pedido, WhatsApp, calculadora e atalho "descreva a obra", menu |
@@ -25,6 +27,7 @@ Site da **Drysul — gesso e acabamento**. HTML, CSS e JavaScript puros, sem bui
 | `tests/calculator.test.js` | Casos conferidos com a calculadora de referência |
 | `tests/busca.test.js` | Busca com o catálogo real: cada produto acha a si mesmo, plural, sinônimos, erro de digitação, medidas e categoria sem resultado |
 | `tests/checkout.test.js` | Regras de roteamento e validação da central de vendas |
+| `tests/horario.test.js` | Aberto/fechado, "fecha em X min", próximo dia de abertura e fuso da loja |
 
 ## Como editar
 
@@ -46,7 +49,11 @@ Site da **Drysul — gesso e acabamento**. HTML, CSS e JavaScript puros, sem bui
 - **WhatsApp:** as mensagens prontas ficam em `MSG_WHATS` no `js/app.js` (saudação pelo horário + motivo: contato, produto ou busca sem resultado).
 - **Busca rápida:** botão no cabeçalho, tecla `/` ou `Ctrl+K`; usa os mesmos dados do catálogo. Os termos sugeridos estão em `POPULARES` no `js/app.js`.
 - **Tema claro/escuro:** botão no cabeçalho; a escolha fica salva no navegador e, sem escolha, segue o aparelho. Cores em `:root` e `[data-theme="dark"]` no `css/styles.css`. As partes escuras (cabeçalho, topo, seções azuis, rodapé) usam `--escuro-1`, `--escuro-2`, `--escuro-3`: no tema claro elas ficam um tom mais claras, para a troca de tema aparecer já no topo.
-- **WhatsApp flutuante:** botão `.zap` no canto inferior direito, a página toda, com a mensagem de contato de `MSG_WHATS`. No celular ele sobe acima da barra "Ver pedido" e das ações da calculadora.
+- **WhatsApp flutuante:** botão `.zap` no canto inferior direito, a página toda, com a mensagem de contato de `MSG_WHATS`. No celular ele sobe acima da barra "Ver pedido" e das ações da calculadora. O rótulo "Fale conosco" aparece sozinho uma vez quando a pessoa começa a rolar (e no computador ao passar o mouse).
+- **Horário da loja:** `loja.horario` em `js/data.js` (0 = domingo). O "Aberto agora" da faixa e da abertura sai daí; os textos fixos do horário estão na abertura (`.abertura__horas`) e no contato. Feriados não entram.
+- **Faixa de informações (topo):** os quatro itens estão no `index.html` (`.topbar__item`). O primeiro é o status da loja; os outros são links. Mais de quatro não cabem lado a lado no computador.
+- **Abertura "Quem somos" (em teste):** `<section class="abertura">` no início do `<main>`. Para voltar ao formato anterior, basta mover a seção para depois do hero (ou perto do contato). A foto aparece só no computador; no celular ela deixava a rolagem dos primeiros segundos travada, e o cartão do mapa ocupa o lugar. Ao trocar pela foto da fachada, use a mesma `<picture>` e meça a rolagem de novo no celular.
+- **Mapa:** `loja.mapaEmbed` (consulta pelo endereço completo; pelo nome, "Drysul Ijuí" no Google Maps cai em outra empresa até a loja ter o Perfil da Empresa no Google). O mapa do Google só carrega quando a pessoa toca no desenho.
 
 ## Central de vendas
 
@@ -66,7 +73,7 @@ o cliente vê o aviso "Pagamento online em fase de testes" e o comprovante leva 
 ## Testes
 
 ```bash
-node --test tests/calculator.test.js tests/busca.test.js tests/checkout.test.js
+node --test tests/calculator.test.js tests/busca.test.js tests/checkout.test.js tests/horario.test.js
 ```
 
 ## Imagens ilustrativas
@@ -79,6 +86,8 @@ Ao receber fotos reais, troque os arquivos `assets/img/prod-<id>-800.webp`/`-400
 ## Pendências para a versão final
 
 - Fotos originais dos produtos e catálogo completo (preços, marcas, medidas)
-- Cidade/CEP e área de entrega (horário já no site: seg. a sex. 8h–18h, sáb. 8h–12h)
+- Área e taxa de entrega (cidade já no site: Ijuí/RS; horário: seg. a sex. 8h–18h, sáb. 8h–12h — confirmar com a loja, e feriados)
+- Abertura "Quem somos": foto da fachada própria da loja (foto do Google Maps tem direito autoral) e a história real (ano, quem fundou); hoje o texto é genérico e a foto é a da marca
+- Perfil da Empresa no Google para a Drysul (pelo nome, a busca no Maps cai em outra empresa)
 - Pagamento online real (acima) e `vendas.demo: false`
 - Domínio próprio: remover o `noindex`, trocar `og:url`/`og:image`, "© 2026" → "© 2026 Drysul", apagar `proposta/`, SEO local (Schema.org LocalBusiness)

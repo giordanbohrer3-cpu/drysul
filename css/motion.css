@@ -27,6 +27,17 @@
 .motion-on .hero__lead { animation: fade-up 800ms var(--ease) 320ms both; }
 .motion-on .atalho--hero { animation: fade-up 800ms var(--ease) 420ms both; }
 .motion-on .hero__cats, .motion-on .hero__selos { animation: fade-up 800ms var(--ease) 520ms both; }
+/* abertura (quem somos): o título já vem pronto (é o maior texto da primeira tela); o resto sobe em sequência */
+.motion-on .abertura__eyebrow { animation: fade-up 700ms var(--ease) 40ms both; }
+.motion-on .abertura__lead { animation: fade-up 800ms var(--ease) 160ms both; }
+.motion-on .abertura__status { animation: fade-up 800ms var(--ease) 260ms both; }
+.motion-on .abertura__acoes, .motion-on .abertura__contatos { animation: fade-up 800ms var(--ease) 360ms both; }
+@keyframes foto-entra { from { opacity: 0; transform: scale(.97); } to { opacity: 1; transform: none; } }
+.motion-on .abertura__foto { animation: foto-entra 900ms var(--ease) 80ms both; }
+.motion-on .abertura__mapa { animation: fade-up 800ms var(--ease) 520ms both; }
+@keyframes seguir { 50% { transform: translateY(5px); } }
+.motion-on .abertura__seguir { animation: fade-up 800ms var(--ease) 700ms both; }
+.motion-on .abertura__seta { animation: seguir 1.6s var(--ease) 1.6s 4; }
 @keyframes wall-in { from { opacity: 0; } to { opacity: 1; } }
 .motion-on .wall { animation: wall-in 700ms linear 100ms both, float 8s ease-in-out 2.2s infinite; }
 .motion-on .sc-search .caret { animation: blink 1s steps(1) infinite; }

@@ -20,8 +20,8 @@
   <meta name="twitter:card" content="summary_large_image">
 
   <link rel="preload" href="assets/fonts/archivo-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="css/styles.css?v=22">
-  <link rel="stylesheet" href="css/motion.css?v=22">
+  <link rel="stylesheet" href="css/styles.css?v=23">
+  <link rel="stylesheet" href="css/motion.css?v=23">
   <script>
     (function () {
       var root = document.documentElement, pref = null, tema = null;
@@ -56,8 +56,6 @@
     <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
     <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10"/></symbol>
     <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></symbol>
-    <symbol id="i-som" viewBox="0 0 24 24"><path d="M4.5 9.5h3.5L13 5.5v13l-5-4H4.5z"/><path d="M16.5 9a4.2 4.2 0 0 1 0 6M18.8 6.8a7.4 7.4 0 0 1 0 10.4"/></symbol>
-    <symbol id="i-mudo" viewBox="0 0 24 24"><path d="M4.5 9.5h3.5L13 5.5v13l-5-4H4.5z"/><path d="m16.5 9.5 5 5M21.5 9.5l-5 5"/></symbol>
     <symbol id="i-trash" viewBox="0 0 24 24"><path d="M5 7h14M10 7V5h4v2M7 7l1 13h8l1-13"/></symbol>
     <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="1.5"/><path d="M16 8V5.5A1.5 1.5 0 0 0 14.5 4h-9A1.5 1.5 0 0 0 4 5.5v9A1.5 1.5 0 0 0 5.5 16H8"/></symbol>
     <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
@@ -121,16 +119,6 @@
         <button class="btn btn--primary btn--sm quote-btn" type="button" data-open-quote data-magnetic>
           <svg class="ic"><use href="#i-bag"/></svg><span>Pedido</span><span class="quote-count" data-quote-count aria-label="itens no pedido">0</span>
         </button>
-        <!-- som: só o ícone; com o som ligado, o volume aparece embaixo (passando o mouse ou logo depois de ligar) -->
-        <div class="som" id="som" hidden>
-          <button class="som__btn" type="button" id="som-toggle" aria-pressed="true" aria-label="Desligar o som" aria-controls="som-painel">
-            <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 9.5h3.5L13 5.5v13l-5-4H4.5z"/><path class="som__onda som__onda--1" d="M16.5 9a4.2 4.2 0 0 1 0 6"/><path class="som__onda som__onda--2" d="M18.8 6.8a7.4 7.4 0 0 1 0 10.4"/><path class="som__x" d="m16.5 9.5 5 5M21.5 9.5l-5 5"/></svg>
-          </button>
-          <div class="som__painel" id="som-painel">
-            <label class="som__rot" for="som-vol"><span>Volume</span><output id="som-vol-txt" for="som-vol">70%</output></label>
-            <input class="som__vol" id="som-vol" type="range" min="5" max="100" step="1" value="70">
-          </div>
-        </div>
         <button class="menu-btn" type="button" aria-expanded="false" aria-controls="nav" id="menu-btn"><svg class="ic"><use href="#i-menu"/></svg><span class="sr">Abrir menu</span></button>
       </div>
     </div>
@@ -553,7 +541,7 @@
       <p>© 2026</p>
       <div class="footer__extra">
         <button class="footer__link" type="button" data-open="creditos">Créditos das imagens</button>
-        <button class="footer__link" type="button" id="motion-toggle" aria-label="Pausar efeitos"><svg class="ic"><use href="#i-pause"/></svg><span>Pausar efeitos</span></button>
+        <button class="footer__link" type="button" id="motion-toggle" aria-label="Pausar efeitos e sons"><svg class="ic"><use href="#i-pause"/></svg><span>Pausar efeitos e sons</span></button>
       </div>
       <a class="to-top" href="#top" data-magnetic aria-label="Voltar ao início"><svg class="ic"><use href="#i-arrow"/></svg></a>
     </div>
@@ -745,16 +733,16 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script defer src="js/data.js?v=22"></script>
-  <script defer src="js/calculator-model.js?v=22"></script>
-  <script defer src="js/checkout-model.js?v=22"></script>
-  <script defer src="js/busca.js?v=22"></script>
-  <script defer src="js/app.js?v=22"></script>
-  <script defer src="js/receipt.js?v=22"></script>
-  <script defer src="js/checkout.js?v=22"></script>
+  <script defer src="js/data.js?v=23"></script>
+  <script defer src="js/calculator-model.js?v=23"></script>
+  <script defer src="js/checkout-model.js?v=23"></script>
+  <script defer src="js/busca.js?v=23"></script>
+  <script defer src="js/app.js?v=23"></script>
+  <script defer src="js/receipt.js?v=23"></script>
+  <script defer src="js/checkout.js?v=23"></script>
   <script defer src="js/vendor/lenis.min.js?v=1"></script>
-  <script defer src="js/motion.js?v=22"></script>
-  <script defer src="js/vitrine.js?v=22"></script>
-  <script defer src="js/som.js?v=22"></script>
+  <script defer src="js/motion.js?v=23"></script>
+  <script defer src="js/vitrine.js?v=23"></script>
+  <script defer src="js/som.js?v=23"></script>
 </body>
 </html>

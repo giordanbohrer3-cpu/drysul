@@ -27,7 +27,7 @@
   var toggle = $('#motion-toggle');
   function updateToggle() {
     if (!toggle) return;
-    var label = on ? 'Pausar efeitos' : 'Ativar efeitos';
+    var label = on ? 'Pausar efeitos e sons' : 'Ativar efeitos e sons'; // os sons seguem este interruptor
     $('span', toggle).textContent = label;
     toggle.setAttribute('aria-label', label);
     $('use', toggle).setAttribute('href', on ? '#i-pause' : '#i-play');

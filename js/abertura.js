@@ -2,7 +2,7 @@
    - Status da loja ("Aberto agora · fecha às 18h"), calculado no fuso da loja pelo js/horario.js e refeito a cada minuto.
    - Faixa: abaixo de 1100 px mostra uma informação por vez e troca sozinha. Para com o mouse em cima, com o foco do
      teclado, fora da tela e com a aba escondida; o botão de pausa (e os efeitos pausados) mostram todas numa fileira.
-   - Mapa: o do Google só carrega quando a pessoa toca no desenho (o mapa embutido pesa mais que a página inteira). */
+   - Cartão da loja: a fachada no Street View do Google entra sozinha depois da carga; o mapa só carrega a pedido. */
 (function () {
   'use strict';
   var D = window.DRYSUL, H = window.DrysulHorario;
@@ -89,18 +89,88 @@
     } else setTimeout(rotulo, 2500);
   }
 
-  /* ---------- mapa sob demanda ---------- */
+  /* ---------- fachada (Street View) e mapa ----------
+     A fachada entra sozinha uma vez: depois da carga da página, com o cartão perto da tela, sem economia de dados e
+     com a rolagem parada (o Street View baixa uns 700 KB e não deve disputar a rolagem). Ela chega "travada" sob um
+     véu, para o dedo ou a roda do mouse continuarem rolando a página; um toque no véu libera o giro, e o véu volta
+     quando o mouse sai do cartão ou o cartão sai da tela. O mapa só carrega quando a pessoa pede. */
   $$('[data-mapa]').forEach(function (box) {
-    var capa = $('[data-mapa-abrir]', box);
-    if (!capa || !loja.mapaEmbed) return;
-    capa.addEventListener('click', function () {
-      var f = document.createElement('iframe');
-      f.src = loja.mapaEmbed;
-      f.title = 'Mapa da Drysul: ' + loja.endereco + ', ' + loja.bairro + ', ' + loja.cidade;
-      f.setAttribute('allowfullscreen', '');
-      f.referrerPolicy = 'no-referrer-when-downgrade';
-      capa.replaceWith(f);
-      f.focus(); // o botão sumiu: o foco vai para o mapa, não se perde no topo da página
-    });
+    var vista = $('.mapa__vista', box), capa = $('[data-mapa-abrir]', box), veu = $('.mapa__veu', box);
+    var abas = $$('[data-mapa-vista]', box);
+    var fontes = {
+      fachada: { src: loja.fachadaEmbed, titulo: 'Fachada da Drysul no Street View do Google: ' + loja.endereco + ', ' + loja.cidade },
+      mapa: { src: loja.mapaEmbed, titulo: 'Mapa da Drysul: ' + loja.endereco + ', ' + loja.bairro + ', ' + loja.cidade }
+    };
+    if (!vista || !capa || !fontes.fachada.src) return;
+    var mouse = window.matchMedia('(hover: hover) and (pointer: fine)');
+    var frame = null, atual = '';
+
+    // foto própria da fachada (data.js): vira a capa, e aí o Street View não entra sozinho
+    if (loja.fotoFachada) {
+      var img = document.createElement('img');
+      img.src = loja.fotoFachada; img.alt = ''; img.decoding = 'async'; img.className = 'mapa__foto';
+      capa.insertBefore(img, capa.firstChild);
+    }
+
+    function travar(sim) {
+      if (!veu) return;
+      $('span', veu).textContent = (mouse.matches ? 'Clique' : 'Toque') + ' para girar 360°';
+      veu.setAttribute('aria-label', 'Liberar a imagem da fachada para girar e andar pela rua');
+      veu.hidden = !sim;
+    }
+    function marcarAba(qual) {
+      abas.forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-mapa-vista') === qual)); });
+    }
+    function mostrar(qual, pelaPessoa) {
+      var f = fontes[qual];
+      if (!f || !f.src) return;
+      marcarAba(qual);
+      if (!frame) {
+        frame = document.createElement('iframe');
+        frame.setAttribute('allowfullscreen', '');
+        frame.referrerPolicy = 'no-referrer-when-downgrade';
+        frame.addEventListener('load', function () {
+          // um instante para o panorama desenhar antes de cobrir o desenho
+          setTimeout(function () {
+            box.classList.add('is-vivo');
+            setTimeout(function () {
+              var tinhaFoco = document.activeElement === capa;
+              capa.hidden = true;
+              if (tinhaFoco) (veu && !veu.hidden ? veu : frame).focus({ preventScroll: true }); // o foco não se perde
+            }, 450);
+          }, 350);
+        });
+        vista.insertBefore(frame, veu);
+      }
+      if (atual !== qual) { frame.src = f.src; frame.title = f.titulo; atual = qual; }
+      box.setAttribute('data-vista', qual);
+      // a fachada gira com um dedo e prende a rolagem: chega travada, a não ser que a pessoa tenha pedido agora
+      travar(qual === 'fachada' && !pelaPessoa);
+      if (pelaPessoa) { box.classList.add('is-vivo'); capa.hidden = true; }
+    }
+
+    // o botão da capa some: o foco vai para a imagem, não se perde no topo da página
+    capa.addEventListener('click', function () { mostrar('fachada', true); frame.focus(); });
+    abas.forEach(function (b) { b.addEventListener('click', function () { mostrar(b.getAttribute('data-mapa-vista'), true); }); });
+    if (veu) veu.addEventListener('click', function () { veu.hidden = true; if (frame) frame.focus(); });
+    // trava de novo quando o mouse sai do cartão ou o cartão sai da tela
+    vista.addEventListener('pointerleave', function (e) { if (e.pointerType === 'mouse' && atual === 'fachada' && veu && veu.hidden) travar(true); });
+
+    if (!('IntersectionObserver' in window)) return;
+    var economia = navigator.connection && navigator.connection.saveData;
+    var rolouEm = 0, perto = false, pronto = document.readyState === 'complete';
+    window.addEventListener('scroll', function () { rolouEm = Date.now(); }, { passive: true });
+    function tentar() {
+      if (frame || economia || loja.fotoFachada || !perto || !pronto) return;
+      if (Date.now() - rolouEm < 500) { setTimeout(tentar, 300); return; } // espera a rolagem parar
+      var ir = function () { if (!frame && perto) mostrar('fachada', false); };
+      if (window.requestIdleCallback) requestIdleCallback(ir, { timeout: 1500 }); else setTimeout(ir, 200);
+    }
+    if (!pronto) window.addEventListener('load', function () { pronto = true; setTimeout(tentar, 600); });
+    new IntersectionObserver(function (es) {
+      perto = es[es.length - 1].isIntersecting;
+      if (perto) tentar();
+      else if (atual === 'fachada' && veu && veu.hidden) travar(true);
+    }, { rootMargin: '250px 0px' }).observe(vista);
   });
 })();

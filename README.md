@@ -8,10 +8,11 @@ Site da **Drysul — gesso e acabamento**. HTML, CSS e JavaScript puros, sem bui
 
 | Arquivo | Função |
 |---|---|
-| `index.html` | Página única: faixa de informações, abertura "Quem somos" (em teste), topo com busca, catálogo, calculadora, ofertas, como funciona, soluções, inspiração, a Drysul, contato |
-| `js/data.js` | **Fonte única de dados**: contato, cidade, horário, links do mapa, categorias, produtos, preços e ofertas |
+| `index.html` | Página única: faixa de informações, faixa laranja do topo, abertura "Quem somos" (em teste), topo com busca, catálogo, calculadora, ofertas, como funciona, soluções, inspiração, a Drysul, contato |
+| `js/data.js` | **Fonte única de dados**: contato, cidade, horário, links do mapa e da fachada, categorias, produtos, preços, ofertas e as dúvidas da central de ajuda |
 | `js/horario.js` | "Aberto agora · fecha às 18h" / "Fechado agora · abre amanhã às 8h", no fuso da loja (America/Sao_Paulo), a partir de `loja.horario` (sem DOM, testável no Node) |
-| `js/abertura.js` | Status da loja na faixa e na abertura (refeito a cada minuto); faixa de informações (no celular troca uma por vez, pausa com o dedo/foco/botão, vira fileira sem efeitos); "Fale conosco" do botão do WhatsApp quando a pessoa começa a rolar; mapa do Google só quando a pessoa toca |
+| `js/abertura.js` | Status da loja na faixa e na abertura (refeito a cada minuto); faixa de informações (no celular troca uma por vez, pausa com o dedo/foco/botão, vira fileira sem efeitos); "Fale conosco" do botão do WhatsApp quando a pessoa começa a rolar; cartão da loja: fachada no Street View do Google (entra sozinha depois da carga, travada sob um véu para não prender a rolagem) e mapa sob pedido |
+| `js/ajuda.js` | Central de ajuda (botão "Ajuda" no cabeçalho e "Preciso de ajuda" no menu): contato em destaque, busca nas dúvidas (sem acento, plural e palavras parecidas; a busca é testável no Node) e respostas por tema; sem resposta, a pergunta vai pronta para o WhatsApp. Balão de boas-vindas ("Só quero dar uma olhadinha") uma vez a cada 30 dias |
 | `js/calculator-model.js` | Coeficientes, validação, embalagens de compra e orçamento da calculadora, e o atalho `entender()` que lê "parede de 4 × 2,8 m com madeira" (sem DOM, testável no Node) |
 | `js/busca.js` | Regras da busca (sem DOM, testável no Node): sem acento, plural, sinônimos de balcão, erro de digitação, relevância e o filtro do catálogo, que nunca devolve a grade vazia havendo produtos |
 | `js/app.js` | Catálogo, filtros, busca rápida, pedido/lista e barra do pedido, WhatsApp, calculadora e atalho "descreva a obra", menu |
@@ -28,6 +29,7 @@ Site da **Drysul — gesso e acabamento**. HTML, CSS e JavaScript puros, sem bui
 | `tests/busca.test.js` | Busca com o catálogo real: cada produto acha a si mesmo, plural, sinônimos, erro de digitação, medidas e categoria sem resultado |
 | `tests/checkout.test.js` | Regras de roteamento e validação da central de vendas |
 | `tests/horario.test.js` | Aberto/fechado, "fecha em X min", próximo dia de abertura e fuso da loja |
+| `tests/ajuda.test.js` | Dúvidas bem formadas e a busca da ajuda com perguntas do jeito que as pessoas escrevem |
 
 ## Como editar
 
@@ -54,7 +56,12 @@ Site da **Drysul — gesso e acabamento**. HTML, CSS e JavaScript puros, sem bui
 - **Faixa de informações (topo):** os quatro itens estão no `index.html` (`.topbar__item`). O primeiro é o status da loja; os outros são links. Mais de quatro não cabem lado a lado no computador.
 - **Abertura "Quem somos" (em teste):** `<section class="abertura">` no início do `<main>`. Para voltar ao formato anterior, basta mover a seção para depois do hero (ou perto do contato). A foto aparece só no computador; no celular ela deixava a rolagem dos primeiros segundos travada, e o cartão do mapa ocupa o lugar. Ao trocar pela foto da fachada, use a mesma `<picture>` e meça a rolagem de novo no celular.
 - **Foto de exemplo na calculadora:** `fotosSistemas` em `js/data.js` (foto, legenda e enquadramento de cada sistema; hoje fotos da loja, marcadas "Foto ilustrativa"). No computador, passar o mouse (ou focar pelo teclado) numa aba mostra um cartão com a foto, que desliza entre as abas, com luz quente indireta que acompanha o mouse. No celular e no tablet, tocar na aba mostra a foto no topo do formulário, antes de calcular. As fotos só são baixadas na primeira aproximação do mouse ou no toque.
-- **Mapa:** `loja.mapaEmbed` (consulta pelo endereço completo; pelo nome, "Drysul Ijuí" no Google Maps cai em outra empresa até a loja ter o Perfil da Empresa no Google). O mapa do Google só carrega quando a pessoa toca no desenho.
+- **Mapa:** `loja.mapaEmbed` (consulta pelo endereço completo; pelo nome, "Drysul Ijuí" no Google Maps cai em outra empresa até a loja ter o Perfil da Empresa no Google). O mapa só carrega quando a pessoa toca em "Mapa".
+- **Fachada no cartão da loja:** `loja.fachadaEmbed` (Street View do Google embutido, pelas coordenadas de `loja.coordenadas`, olhando a 175°). O Google permite embutir o Street View; **print da imagem do Street View não é permitido**, por isso a foto não é um arquivo do site. Ela entra sozinha depois da carga, perto da tela, com a rolagem parada e sem "economia de dados"; chega sob um véu ("Toque para girar 360°") para o dedo continuar rolando a página. Quando a loja mandar a foto da fachada dela, ponha o arquivo em `assets/img/` e o caminho em `loja.fotoFachada`: a foto vira a capa e o Street View passa a abrir só a pedido.
+- **Faixa laranja do topo:** `.marquee--topo` no início do `<main>`, a mesma faixa de mais abaixo correndo no sentido contrário. As palavras ficam nas duas trilhas (4 cópias cada, para não abrir buraco em telas largas).
+- **Central de ajuda:** as dúvidas ficam em `ajuda` no `js/data.js` (tema, pergunta, resposta, palavras extras para a busca e um botão opcional). Só entra o que a loja confirma; frete e pagamento mandam para o WhatsApp. O horário da resposta é escrito à mão: mudou o `loja.horario`, mude ali também. Essa lista também é a base para um futuro assistente.
+- **Balão de boas-vindas:** criado pelo `js/ajuda.js` 7 s depois da carga, só se a lista estiver vazia e nada estiver aberto; aparece uma vez a cada 30 dias (`localStorage`, chave `drysul-boas-vindas`). Para tirar, apague o bloco "balão de boas-vindas" do arquivo.
+- **Desempenho no celular:** o topo (`.hero`) e o catálogo ficam em camadas próprias no celular e no tablet (`will-change` no `css/styles.css`). Sem isso, mudar o tamanho de algo no topo podia fazer o navegador fundir a vitrine com o catálogo numa camada de ~7.000 px recalculada a cada quadro (medido: 3× mais quadros lentos). Ao mexer no topo, meça a rolagem de novo.
 
 ## Central de vendas
 
@@ -74,7 +81,7 @@ o cliente vê o aviso "Pagamento online em fase de testes" e o comprovante leva 
 ## Testes
 
 ```bash
-node --test tests/calculator.test.js tests/busca.test.js tests/checkout.test.js tests/horario.test.js
+node --test tests/calculator.test.js tests/busca.test.js tests/checkout.test.js tests/horario.test.js tests/ajuda.test.js
 ```
 
 ## Imagens ilustrativas
@@ -88,7 +95,8 @@ Ao receber fotos reais, troque os arquivos `assets/img/prod-<id>-800.webp`/`-400
 
 - Fotos originais dos produtos e catálogo completo (preços, marcas, medidas)
 - Área e taxa de entrega (cidade já no site: Ijuí/RS; horário: seg. a sex. 8h–18h, sáb. 8h–12h — confirmar com a loja, e feriados)
-- Abertura "Quem somos": foto da fachada própria da loja (foto do Google Maps tem direito autoral) e a história real (ano, quem fundou); hoje o texto é genérico e a foto é a da marca
+- Abertura "Quem somos": foto da fachada tirada pela loja (o Street View fica até ela chegar; print do Google não pode) e a história real (ano, quem fundou); hoje o texto é genérico e a foto é a da marca
+- Central de ajuda: a loja confirmar as respostas (retirada, horário, feriados) e completar entrega, frete e pagamento
 - Perfil da Empresa no Google para a Drysul (pelo nome, a busca no Maps cai em outra empresa)
 - Pagamento online real (acima) e `vendas.demo: false`
 - Domínio próprio: remover o `noindex`, trocar `og:url`/`og:image`, "© 2026" → "© 2026 Drysul", apagar `proposta/`, SEO local (Schema.org LocalBusiness)

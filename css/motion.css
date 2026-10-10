@@ -46,7 +46,9 @@
 .motion-on .wl--plate, .motion-on .wl--back, .motion-on .wl--tape, .motion-on .wall__rig { will-change: transform; }
 
 /* ---------- Faixa contínua ---------- */
-.motion-on .marquee__track { animation: marquee 38s linear infinite; }
+/* a trilha tem 4 cópias e anda meia trilha (2 cópias) por volta: cobre telas de até ~2100 px sem buraco à direita */
+.motion-on .marquee__track { animation: marquee 76s linear infinite; }
+.motion-on .marquee--topo .marquee__track { animation-direction: reverse; }
 .motion-on .marquee:hover .marquee__track { animation-play-state: paused; }
 /* fora da tela, as animações contínuas param (o motion.js marca .anim-off) */
 .motion-on .wall.anim-off, .motion-on .marquee.anim-off .marquee__track, .motion-on .calc__ph-ill.anim-off .ill { animation-play-state: paused; }

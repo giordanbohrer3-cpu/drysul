@@ -211,7 +211,7 @@
   /* ---------- 3D na rolagem: só perto da tela ----------
      As animações estão no CSS (animation-timeline). Aqui só se decide quem as recebe: blocos a até uma tela
      de distância ganham .s3d, então o navegador atualiza poucas linhas de tempo por quadro, não todas. */
-  var S3D = '.marquee, .cat-card, .dest-card, .prod-card, .offer, .calc__panel, ' +
+  var S3D = '.marquee:not(.marquee--topo), .cat-card, .dest-card, .prod-card, .offer, .calc__panel, ' +
     '.step, .acc__item, .values li, .info-card, .about__media, .ph, .footer__grid > *';
   // No celular (toque) não há 3D na rolagem: as fotos ficam paradas e nítidas, e a rolagem não paga camadas 3D.
   var s3dIO = hasIO && window.CSS && CSS.supports && CSS.supports('animation-timeline: view()') ? new IntersectionObserver(function (es) {

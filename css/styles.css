@@ -368,14 +368,32 @@ ul, ol { padding: 0; list-style: none; }
 }
 .menu-btn { display: none; width: 44px; height: 44px; place-items: center; border-radius: var(--r-s); color: var(--on-dark); border: 1.5px solid var(--line-dark); }
 .menu-btn .ic { width: 22px; height: 22px; }
-/* item de tema dentro do menu: só abaixo de 360 px, onde o botão do cabeçalho sai para caber a busca e o pedido */
-.nav__tema-item { display: none; }
-.nav__tema { display: flex; align-items: center; gap: 12px; width: 100%; padding: 16px 4px; color: var(--on-dark); font-size: var(--fs-md); font-weight: 700; }
-.nav__tema .ic { width: 22px; height: 22px; }
+/* botão "Ajuda" ao lado do Pedido: com texto no computador e no tablet; no celular só o "?" (o menu tem "Preciso de ajuda") */
+.ajuda-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 40px; padding: 0 15px 0 11px; border-radius: 999px;
+  color: var(--on-dark); border: 1.5px solid var(--line-dark); background: rgba(255, 255, 255, .03); font-size: var(--fs-sm); font-weight: 700;
+  transition: border-color var(--t), background-color var(--t), transform var(--t-fast) var(--ease);
+}
+.ajuda-btn .ic { width: 20px; height: 20px; color: var(--sand); }
+.ajuda-btn:hover { border-color: var(--orange); background: rgba(239, 80, 35, .1); }
+.ajuda-btn:active { transform: scale(.96); }
+@media (max-width: 720px) {
+  .ajuda-btn { width: 40px; padding: 0; }
+  .ajuda-btn__txt { display: none; }
+  .ajuda-btn .ic { width: 22px; height: 22px; color: var(--on-dark); }
+}
+/* itens do menu do celular e do tablet: "Preciso de ajuda" sempre; o de tema no celular (até 720 px), onde o botão de
+   tema sai do cabeçalho para caber a busca, a ajuda, o pedido e o menu sem rolagem lateral */
+.nav__ajuda-item, .nav__tema-item { display: none; }
+.nav__tema, .nav__ajuda { display: flex; align-items: center; gap: 12px; width: 100%; padding: 16px 4px; color: var(--on-dark); font-size: var(--fs-md); font-weight: 700; }
+.nav__tema .ic, .nav__ajuda .ic { width: 22px; height: 22px; }
+.nav__ajuda { border-bottom: 1px solid var(--line-dark); }
+.nav__ajuda .ic { color: var(--orange-on-dark); }
 .nav__tema .ic-sun { display: none; color: #FFC24A; }
 [data-theme="dark"] .nav__tema .ic-sun { display: block; }
 [data-theme="dark"] .nav__tema .ic-moon { display: none; }
-@media (max-width: 359px) {
+@media (max-width: 1023px) { .nav__ajuda-item { display: block; } }
+@media (max-width: 720px) {
   .header-actions .theme-btn { display: none; }
   .nav__tema-item { display: block; }
 }
@@ -440,8 +458,8 @@ ul, ol { padding: 0; list-style: none; }
     linear-gradient(var(--line) 1px, transparent 1px) -1px -1px / 120px 120px,
     linear-gradient(90deg, var(--line) 1px, transparent 1px) -1px -1px / 120px 120px;
   -webkit-mask: linear-gradient(180deg, rgba(0, 0, 0, .55), #000 40%, rgba(0, 0, 0, .3)); mask: linear-gradient(180deg, rgba(0, 0, 0, .55), #000 40%, rgba(0, 0, 0, .3)); }
-@media (min-width: 1024px) {
-  .abertura { min-height: calc(100svh - var(--header-h) - 36px); display: flex; flex-direction: column; justify-content: center; }
+@media (min-width: 1024px) { /* uma tela, menos o cabeçalho, a faixa de informações (36 px) e a faixa laranja (58 px) */
+  .abertura { min-height: calc(100svh - var(--header-h) - 36px - 58px); display: flex; flex-direction: column; justify-content: center; }
 }
 .abertura__grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.02fr); gap: var(--s-7); align-items: center; }
 .abertura__titulo { margin: var(--s-3) 0 var(--s-4); font-size: clamp(2.3rem, 4.5vw, 4.1rem); font-weight: 850; font-stretch: 64%; line-height: .92;
@@ -466,12 +484,28 @@ ul, ol { padding: 0; list-style: none; }
 .abertura__contatos a:hover span { text-decoration-color: var(--orange); }
 .abertura__contatos .ic { width: 18px; height: 18px; color: var(--orange-text); }
 
-.abertura__midia { position: relative; padding-bottom: 150px; } /* o cartão do mapa morde só a base da foto, longe do logo */
+.abertura__midia { position: relative; padding-bottom: 230px; } /* o cartão da loja morde só a base da foto, longe do logo */
+@media (min-width: 1024px) and (max-width: 1279px) { .abertura__midia { padding-bottom: 290px; } } /* foto menor: o cartão desce mais */
 .abertura__foto { overflow: hidden; aspect-ratio: 16 / 10; border-radius: var(--r-m); background: var(--foto-bg); box-shadow: var(--sh-2); }
 .abertura__foto img { width: 100%; height: 100%; object-fit: cover; }
-.abertura__mapa { position: absolute; left: -28px; bottom: 0; width: min(340px, 72%); overflow: hidden;
+.abertura__mapa { position: absolute; left: -28px; bottom: 0; width: min(380px, 74%); overflow: hidden;
   border: 1px solid var(--line); border-radius: var(--r-m); background: var(--surface); box-shadow: var(--sh-2); }
-.mapa__capa { position: relative; display: block; width: 100%; aspect-ratio: 16 / 8; overflow: hidden; }
+/* vista: desenho (ou foto própria) por baixo; o Street View ou o mapa entram por cima e aparecem quando carregam */
+.mapa__vista { position: relative; aspect-ratio: 16 / 10; overflow: hidden; background: var(--mapa-chao); }
+.mapa__capa { position: absolute; inset: 0; display: block; width: 100%; height: 100%; overflow: hidden; }
+.mapa__foto { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.mapa__vista iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; opacity: 0; transition: opacity 450ms var(--ease); }
+.abertura__mapa.is-vivo .mapa__vista iframe { opacity: 1; }
+/* véu transparente sobre a fachada: a rolagem passa por ele; um toque libera o giro (js/abertura.js) */
+.mapa__veu { position: absolute; inset: 0; z-index: 2; display: grid; place-items: end center; padding-bottom: 20%; cursor: pointer; }
+.mapa__veu span { display: inline-flex; align-items: center; min-height: 32px; padding: 6px 14px; border-radius: 999px; background: rgba(16, 22, 43, .8);
+  color: #fff; font-size: var(--fs-xs); font-weight: 800; box-shadow: 0 6px 18px -6px rgba(0, 0, 0, .5); transition: background-color var(--t-fast), color var(--t-fast); }
+.mapa__veu:hover span, .mapa__veu:focus-visible span { background: var(--orange); color: var(--ink); }
+.mapa__veu:focus-visible { outline-offset: -3px; }
+.mapa__abas { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 5px; border-top: 1px solid var(--line); background: var(--surface-2); }
+.mapa__abas button { min-height: 40px; border-radius: 6px; font-size: var(--fs-xs); font-weight: 800; color: var(--muted); transition: background-color var(--t-fast), color var(--t-fast); }
+.mapa__abas button:hover { color: var(--fg); }
+.mapa__abas button[aria-pressed="true"] { background: var(--surface); color: var(--fg); box-shadow: 0 1px 0 var(--line), 0 2px 8px -4px rgba(16, 22, 43, .3); }
 .mapa__ruas { width: 100%; height: 100%; }
 .mapa__chao { fill: var(--mapa-chao); }
 .mapa__rua { fill: none; stroke: var(--mapa-rua); stroke-width: 9; }
@@ -488,7 +522,6 @@ ul, ol { padding: 0; list-style: none; }
   font-size: var(--fs-xs); font-weight: 800; transition: background-color var(--t-fast), color var(--t-fast); }
 .mapa__capa:hover .mapa__abrir, .mapa__capa:focus-visible .mapa__abrir { background: var(--orange); color: var(--ink); }
 .mapa__capa:focus-visible { outline-offset: -3px; }
-.abertura__mapa iframe { display: block; width: 100%; aspect-ratio: 16 / 8; border: 0; }
 .mapa__info { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 14px; padding: 8px 14px; border-top: 1px solid var(--line); }
 .mapa__end { line-height: 1.3; }
 .mapa__end b { display: block; font-size: var(--fs-sm); }
@@ -520,6 +553,11 @@ ul, ol { padding: 0; list-style: none; }
    Uma tela no máximo: título, busca (material ou obra), categorias e atalhos. A parede 3D, que desmonta com a
    rolagem, fica à direita no computador e logo abaixo dos atalhos no tablet e no celular. */
 .hero { position: relative; isolation: isolate; background: radial-gradient(120% 90% at 85% 10%, var(--escuro-luz) 0%, var(--escuro-1) 55%) var(--escuro-1); color: var(--on-dark); }
+/* celular e tablet: o topo (parede, vitrine) e o catálogo em camadas próprias do compositor. Sem isso, as animações do
+   topo obrigam o resto da página a virar camadas "por sobreposição", e o navegador às vezes funde a vitrine com o
+   catálogo numa camada de ~7.000 px que é recalculada a cada quadro: a rolagem chegou a ter 3× mais quadros lentos
+   só por mudar o tamanho do cartão da loja (medido no Pixel 7 com CPU 4× mais lenta). */
+@media not all and (hover: hover) and (pointer: fine) { .hero, .catalog { will-change: transform; } }
 .hero__pin { position: relative; overflow: clip; isolation: isolate; display: flex; flex-direction: column; justify-content: center; padding: var(--s-7) 0 var(--s-3); }
 /* fundo técnico animado: no máximo uma tela de altura (desenhar seções inteiras, de milhares de px, a 30 quadros
    pesava na carga) e só onde há folga — no celular é decoração que custa bateria, então sai */
@@ -788,6 +826,8 @@ html:not(.motion-on) .vitrine .vt__card { -webkit-box-reflect: unset; }
   width: 16px; height: 20px; flex: none; background: var(--ink);
   clip-path: polygon(0 0, 45% 0, 100% 50%, 45% 100%, 0 100%, 55% 50%);
 }
+/* a do topo, logo abaixo do cabeçalho, é um pouco mais baixa e corre no sentido contrário (css/motion.css) */
+.marquee--topo .marquee__track span { padding-block: 12px; }
 
 /* ---------- Seções ---------- */
 .section { position: relative; isolation: isolate; padding: var(--sec-pad) 0; overflow: clip; }
@@ -1366,6 +1406,60 @@ a.info-card:hover { border-color: var(--orange); background: rgba(239, 80, 35, .
 .zap:focus-visible { outline: none; }
 .zap:focus-visible .zap__bola { outline: 3px solid var(--orange); outline-offset: 3px; }
 .zap:active .zap__bola { transform: scale(.96); }
+
+/* ---------- Central de ajuda ----------
+   Letra maior que no resto do site, linhas espaçadas e alvos de toque largos: pensada para quem tem mais idade. */
+.ajuda { gap: 22px; }
+.ajuda__contato { display: grid; gap: 10px; padding: 16px; border: 1px solid var(--line); border-radius: var(--r-m); background: var(--surface-2); }
+.ajuda__intro { font-size: var(--fs-md); font-weight: 800; }
+.ajuda__contato .btn { width: 100%; }
+.ajuda__status { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 8px; font-size: var(--fs-sm); color: var(--muted); }
+.ajuda__status b { color: var(--fg); }
+.ajuda__status span:not(:empty)::before { content: "· "; }
+.ajuda__campo { display: flex; align-items: center; gap: 10px; min-height: 56px; padding: 0 14px; border: 1.5px solid var(--line-strong); border-radius: var(--r-s);
+  background: var(--surface); transition: border-color var(--t), box-shadow var(--t); }
+.ajuda__campo:focus-within { border-color: var(--orange); box-shadow: 0 0 0 4px rgba(239, 80, 35, .16); }
+.ajuda__campo .ic { flex: none; width: 22px; height: 22px; color: var(--muted); }
+.ajuda__campo input { flex: 1; min-width: 0; height: 54px; border: 0; background: transparent; color: var(--fg); font: inherit; font-size: 1.0625rem; outline: none; }
+.ajuda__campo input::placeholder { color: var(--muted); opacity: 1; }
+.ajuda__sem { display: grid; justify-items: start; gap: 10px; padding: 14px 16px; border: 1.5px dashed var(--line-strong); border-radius: var(--r-s); font-size: 1.0625rem; line-height: 1.5; }
+.ajuda__lista { display: grid; gap: 26px; }
+.ajuda__tema { margin-bottom: 4px; font-size: var(--fs-xs); font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--orange-text); }
+.ajuda__item { border-bottom: 1px solid var(--line); }
+.ajuda__item summary { display: flex; align-items: center; justify-content: space-between; gap: 14px; min-height: 58px; padding: 12px 2px; cursor: pointer;
+  list-style: none; font-size: 1.0625rem; font-weight: 700; line-height: 1.3; }
+.ajuda__item summary::-webkit-details-marker { display: none; }
+.ajuda__item summary .ic { flex: none; width: 24px; height: 24px; color: var(--orange-text); transition: transform var(--t) var(--ease); }
+.ajuda__item[open] summary .ic { transform: rotate(45deg); }
+.ajuda__item summary:hover > span { text-decoration: underline; text-decoration-color: var(--orange); text-underline-offset: 4px; }
+.ajuda__item summary:focus-visible { outline-offset: 2px; }
+.ajuda__resp { display: grid; justify-items: start; gap: 10px; padding: 0 2px 18px; font-size: 1.0625rem; line-height: 1.6; }
+.motion-on .ajuda__item[open] .ajuda__resp { animation: body-in 360ms var(--ease) both; }
+
+/* ---------- Balão de boas-vindas (js/ajuda.js) ----------
+   Canto de baixo à esquerda, longe do WhatsApp (à direita); some sozinho do caminho de quem já está comprando. */
+.boas {
+  position: fixed; left: max(16px, env(safe-area-inset-left)); bottom: calc(16px + env(safe-area-inset-bottom)); z-index: 57;
+  width: min(352px, calc(100vw - 32px - 74px)); padding: 18px 18px 8px; border: 1px solid var(--line); border-radius: var(--r-m);
+  background: var(--surface); color: var(--fg); box-shadow: 0 26px 60px -22px rgba(8, 12, 28, .6), 0 2px 8px rgba(8, 12, 28, .08);
+  opacity: 0; transition: opacity 360ms var(--ease), transform 520ms var(--ease);
+}
+.boas::before { content: ""; position: absolute; left: 18px; top: 0; width: 44px; height: 3px; border-radius: 0 0 3px 3px; background: var(--orange); }
+.motion-on .boas { transform: translateY(18px) scale(.98); }
+.boas.is-on { opacity: 1; transform: none; }
+.boas__x { position: absolute; top: 6px; right: 6px; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; color: var(--muted); }
+.boas__x:hover { color: var(--fg); background: var(--surface-2); }
+.boas__x .ic { width: 20px; height: 20px; }
+.boas__titulo { padding-right: 38px; font-size: 1.35rem; font-weight: 850; font-stretch: var(--condensed); text-transform: uppercase; line-height: 1.02; }
+.boas__txt { margin-top: 6px; font-size: var(--fs-sm); line-height: 1.5; color: var(--muted); }
+.boas__acoes { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.boas__acoes .btn { flex: 1 1 auto; }
+.boas__olhar { display: block; width: 100%; min-height: 44px; font-size: var(--fs-sm); font-weight: 700; color: var(--muted);
+  text-decoration: underline; text-decoration-color: var(--line-strong); text-underline-offset: 4px; }
+.boas__olhar:hover { color: var(--fg); text-decoration-color: var(--orange); }
+/* com o balão aberto, o "Fale conosco" do WhatsApp não aparece junto (os dois disputariam o rodapé) */
+html.tem-balao .zap__txt { visibility: hidden; }
+@media (min-width: 1024px) { .boas { left: 24px; bottom: 24px; } }
 @media (max-width: 1023px) {
   body:has(.fab:not(.is-hidden):not([hidden])) .zap { bottom: calc(84px + env(safe-area-inset-bottom)); }
   body.com-acoes-calc .zap { bottom: calc(150px + env(safe-area-inset-bottom)); }
@@ -1776,7 +1870,7 @@ a.info-card:hover { border-color: var(--orange); background: rgba(239, 80, 35, .
 
 /* cabeçalho em celulares estreitos: logo, busca, tema, pedido e menu cabem sem rolagem lateral (360 e 320 px) */
 @media (max-width: 400px) {
-  .site-header__in { gap: 12px; }
+  .site-header__in { gap: 8px; }
   .header-actions { gap: 4px; }
   .site-header .logo, .site-header.is-compact .logo { height: 32px; }
 }
@@ -1785,7 +1879,7 @@ a.info-card:hover { border-color: var(--orange); background: rgba(239, 80, 35, .
   .site-header__in { gap: 8px; }
   .header-actions { gap: 4px; }
   .site-header .logo, .site-header.is-compact .logo { height: 27px; }
-  .header-actions .search-bar { width: 36px; height: 36px; }
+  .header-actions .search-bar, .ajuda-btn { width: 36px; height: 36px; }
   .quote-btn { padding: 0 9px; }
   .menu-btn { width: 40px; height: 40px; }
 }

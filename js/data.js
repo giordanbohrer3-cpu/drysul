@@ -156,5 +156,15 @@
     }
   };
 
-  root.DRYSUL = { loja: loja, categorias: categorias, produtos: produtos, vendas: vendas, precosMedios: precosMedios };
+  // Foto de exemplo de cada sistema da calculadora (fotos da loja, marcadas como ilustrativas). No computador aparece
+  // ao passar o mouse na aba; no celular, ao tocar nela. `pos` = enquadramento (object-position) para fotos em pé.
+  var fotosSistemas = {
+    parede: { foto: 'assets/img/amb-sala-800.webp', legenda: 'Paredes de drywall com as juntas tratadas, prontas para a pintura.' },
+    fge: { foto: 'assets/img/amb-janelas-800.webp', legenda: 'Forro de chapas no teto, com as juntas já tratadas.', pos: '50% 22%' },
+    fga: { foto: 'assets/img/amb-pintor-800.webp', legenda: 'Acabamento do forro: massa nas juntas antes da pintura.', pos: '50% 16%' },
+    colado: { foto: 'assets/img/amb-massa-800.webp', legenda: 'Massa e tela aplicadas sobre a parede existente.', pos: '40% 38%' },
+    estruturado: { foto: 'assets/img/amb-instalacao-800.webp', legenda: 'Estrutura montada, isolamento e chapas sendo parafusadas.', pos: '62% 30%' }
+  };
+
+  root.DRYSUL = { loja: loja, categorias: categorias, produtos: produtos, vendas: vendas, precosMedios: precosMedios, fotosSistemas: fotosSistemas };
 })(typeof self !== 'undefined' ? self : this);

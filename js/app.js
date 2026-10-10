@@ -756,7 +756,77 @@
     if (box) { box.classList.remove('is-novo'); void box.offsetWidth; box.classList.add('is-novo'); clearTimeout(box._t); box._t = setTimeout(function () { box.classList.remove('is-novo'); }, 1200); }
     if (foco) { var f = $('input', campos); if (f) f.focus({ preventScroll: true }); }
   }
-  tabs.addEventListener('click', function (ev) { var b = ev.target.closest('[data-sys]'); if (b) selecionarSistema(b.getAttribute('data-sys')); });
+  tabs.addEventListener('click', function (ev) {
+    var b = ev.target.closest('[data-sys]'); if (!b) return;
+    selecionarSistema(b.getAttribute('data-sys'));
+    if (!mqPonteiro.matches) mostrarFotoForm(b.getAttribute('data-sys'));
+  });
+
+  /* Foto de exemplo de cada sistema (fotos da loja, marcadas como ilustrativas; dados em D.fotosSistemas).
+     Computador (mouse): passar o mouse ou focar pelo teclado numa aba mostra um cartão com a foto, que desliza de uma
+     aba para outra, com luz quente que acompanha o mouse. Toque: ao escolher a aba, a foto entra no topo do formulário. */
+  var FOTOS = D.fotosSistemas || {}, mqPonteiro = window.matchMedia('(hover: hover) and (pointer: fine)');
+  var calcBox = $('.calc'), prev = null, prevSys = null, prevT = 0, fotosProntas = false;
+  function legendaDe(id) { var s = C.sistema(id); return { nome: s.nome, texto: (FOTOS[id] || {}).legenda || '' }; }
+  function carregarFotos() { // na primeira aproximação do mouse: as cinco fotos já ficam no cache
+    if (fotosProntas) return; fotosProntas = true;
+    Object.keys(FOTOS).forEach(function (id) { var i = new Image(); i.decoding = 'async'; i.src = FOTOS[id].foto; });
+  }
+  function criarPrev() {
+    prev = document.createElement('div');
+    prev.className = 'calc-prev'; prev.setAttribute('aria-hidden', 'true');
+    prev.innerHTML = '<div class="calc-prev__luz"></div><figure class="calc-prev__card"><div class="calc-prev__foto"><img alt="" width="800" height="500" decoding="async"></div>' +
+      '<figcaption><b></b><span></span></figcaption><i class="calc-prev__selo">Foto ilustrativa</i></figure>';
+    calcBox.appendChild(prev);
+  }
+  function mostrarPrev(tab) {
+    var id = tab.getAttribute('data-sys'), f = FOTOS[id]; if (!f || !calcBox) return;
+    if (!prev) criarPrev();
+    clearTimeout(prevT);
+    var primeiro = !prev.classList.contains('is-on');
+    if (prevSys !== id) {
+      var img = $('img', prev), l = legendaDe(id);
+      img.src = f.foto; img.style.objectPosition = f.pos || '';
+      $('b', prev).textContent = l.nome; $('figcaption span', prev).textContent = l.texto;
+      prev.classList.remove('is-troca'); void prev.offsetWidth; prev.classList.add('is-troca');
+      prevSys = id;
+    }
+    // centraliza no meio da aba, sem sair da largura da calculadora; na primeira vez aparece no lugar (sem deslizar)
+    var c = calcBox.getBoundingClientRect(), r = tab.getBoundingClientRect(), w = prev.offsetWidth || 340;
+    var x = Math.max(0, Math.min(c.width - w, r.left - c.left + r.width / 2 - w / 2)), y = r.bottom - c.top + 14;
+    prev.classList.toggle('sem-deslize', primeiro);
+    prev.style.setProperty('--px', Math.round(x) + 'px'); prev.style.setProperty('--py', Math.round(y) + 'px');
+    prev.classList.add('is-on');
+  }
+  function esconderPrev() { clearTimeout(prevT); prevT = setTimeout(function () { if (prev) prev.classList.remove('is-on'); }, 140); }
+  tabs.addEventListener('pointerenter', function (ev) { if (ev.pointerType === 'mouse') carregarFotos(); });
+  tabs.addEventListener('pointerover', function (ev) {
+    if (!mqPonteiro.matches || ev.pointerType !== 'mouse') return;
+    var t = ev.target.closest('.calc-tab'); if (t) mostrarPrev(t);
+  });
+  tabs.addEventListener('pointerleave', esconderPrev);
+  tabs.addEventListener('pointermove', function (ev) { // a luz e a foto seguem o mouse dentro da aba
+    if (!prev || !prev.classList.contains('is-on')) return;
+    var t = ev.target.closest('.calc-tab'); if (!t) return;
+    var r = t.getBoundingClientRect(), k = Math.max(0, Math.min(1, (ev.clientX - r.left) / r.width));
+    prev.style.setProperty('--mx', (k * 2 - 1).toFixed(3));
+  });
+  tabs.addEventListener('focusin', function (ev) {
+    var t = ev.target.closest('.calc-tab');
+    if (t && mqPonteiro.matches && t.matches(':focus-visible')) { carregarFotos(); mostrarPrev(t); }
+  });
+  tabs.addEventListener('focusout', esconderPrev);
+  // toque: a foto do sistema escolhido entra no topo do formulário, e depois a pessoa calcula
+  var fotoForm = $('#calc-foto');
+  function mostrarFotoForm(id) {
+    var f = FOTOS[id]; if (!fotoForm || !f) return;
+    var img = $('img', fotoForm), l = legendaDe(id);
+    img.src = f.foto; img.style.objectPosition = f.pos || '';
+    img.alt = l.nome + ', exemplo: ' + l.texto;
+    $('b', fotoForm).textContent = l.nome; $('span', fotoForm).textContent = l.texto;
+    fotoForm.hidden = false;
+    fotoForm.classList.remove('is-novo'); void fotoForm.offsetWidth; fotoForm.classList.add('is-novo');
+  }
   campos.addEventListener('input', function (ev) {
     if (!ev.target.name) return;
     calc.valores[ev.target.name] = ev.target.value;

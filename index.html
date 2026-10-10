@@ -20,8 +20,8 @@
   <meta name="twitter:card" content="summary_large_image">
 
   <link rel="preload" href="assets/fonts/archivo-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="css/styles.css?v=24">
-  <link rel="stylesheet" href="css/motion.css?v=24">
+  <link rel="stylesheet" href="css/styles.css?v=25">
+  <link rel="stylesheet" href="css/motion.css?v=25">
   <script>
     (function () {
       var root = document.documentElement, pref = null, tema = null;
@@ -351,6 +351,8 @@
         <div class="calc__panel" data-reveal>
           <div class="calc__systems" role="group" aria-label="Sistema construtivo" id="calc-systems"></div>
           <form class="calc__form" id="calc-form" novalidate>
+            <!-- celular e tablet: ao tocar num sistema, a foto de exemplo entra aqui (no computador ela aparece ao passar o mouse na aba) -->
+            <figure class="calc-foto" id="calc-foto" hidden><img alt="" width="800" height="500" decoding="async"><figcaption><b></b><span></span></figcaption><i class="calc-foto__selo">Foto ilustrativa</i></figure>
             <p class="calc__desc" id="calc-desc"></p>
             <div class="calc__fields" id="calc-fields"></div>
             <figure class="calc-viz" aria-hidden="true"><div id="calc-viz"></div><figcaption id="calc-viz-cap">Desenho do sistema · atualiza enquanto você digita</figcaption></figure>
@@ -810,18 +812,18 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script defer src="js/data.js?v=24"></script>
-  <script defer src="js/calculator-model.js?v=24"></script>
-  <script defer src="js/checkout-model.js?v=24"></script>
-  <script defer src="js/busca.js?v=24"></script>
-  <script defer src="js/horario.js?v=24"></script>
-  <script defer src="js/app.js?v=24"></script>
-  <script defer src="js/abertura.js?v=24"></script>
-  <script defer src="js/receipt.js?v=24"></script>
-  <script defer src="js/checkout.js?v=24"></script>
+  <script defer src="js/data.js?v=25"></script>
+  <script defer src="js/calculator-model.js?v=25"></script>
+  <script defer src="js/checkout-model.js?v=25"></script>
+  <script defer src="js/busca.js?v=25"></script>
+  <script defer src="js/horario.js?v=25"></script>
+  <script defer src="js/app.js?v=25"></script>
+  <script defer src="js/abertura.js?v=25"></script>
+  <script defer src="js/receipt.js?v=25"></script>
+  <script defer src="js/checkout.js?v=25"></script>
   <script defer src="js/vendor/lenis.min.js?v=1"></script>
-  <script defer src="js/motion.js?v=24"></script>
-  <script defer src="js/vitrine.js?v=24"></script>
-  <script defer src="js/som.js?v=24"></script>
+  <script defer src="js/motion.js?v=25"></script>
+  <script defer src="js/vitrine.js?v=25"></script>
+  <script defer src="js/som.js?v=25"></script>
 </body>
 </html>

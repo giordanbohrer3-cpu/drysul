@@ -26,6 +26,7 @@
   --orange: #EF5023;
   --orange-hover: #FF6A3D;
   --orange-text: #B83A15;          /* laranja com contraste AA sobre claro (inclui o areia das ofertas) */
+  --orange-on-light: #B83A15;      /* o mesmo, mas fixo nos dois temas: para caixas claras dentro do tema escuro */
   --orange-on-dark: #FF845C;       /* laranja com contraste AA para texto pequeno sobre os azuis (no tema claro os azuis
                                       são um tom mais claros, então este laranja é um pouco mais vivo) */
   --sand: #D8D9D2;
@@ -964,6 +965,53 @@ img.mini { background: var(--navy); }
 .calc-tab[aria-pressed="true"] { color: var(--fg); background: var(--surface-2); }
 .calc-tab[aria-pressed="true"] .calc-tab__ic { color: var(--orange); }
 .calc-tab[aria-pressed="true"]::after { transform: scaleX(1); }
+
+/* ---------- Foto de exemplo do sistema ----------
+   Computador: cartão que aparece ao passar o mouse na aba e desliza entre as abas, com luz quente indireta atrás e
+   em cima da foto (acompanha o mouse: --mx de −1 a 1). Toque: a foto entra no topo do formulário ao escolher a aba. */
+.calc { position: relative; }
+.calc-prev {
+  --px: 0px; --py: 0px; --mx: 0;
+  position: absolute; left: 0; top: 0; z-index: 30; width: 340px; pointer-events: none;
+  transform: translate3d(var(--px), var(--py), 0); opacity: 0; visibility: hidden;
+  transition: opacity 200ms var(--ease), visibility 0s linear 200ms, transform 420ms var(--ease);
+}
+.calc-prev.is-on { opacity: 1; visibility: visible; transition: opacity 200ms var(--ease), visibility 0s, transform 420ms var(--ease); }
+.calc-prev.sem-deslize { transition: opacity 200ms var(--ease), visibility 0s; }
+.calc-prev__luz { position: absolute; inset: -46px -60px -70px; z-index: -1;
+  background: radial-gradient(closest-side, rgba(239, 80, 35, .34), rgba(239, 80, 35, .1) 55%, transparent);
+  transform: translateX(calc(var(--mx) * 14px)); transition: transform 500ms var(--ease); }
+.calc-prev__card { position: relative; margin: 0; overflow: hidden; border-radius: 10px; background: var(--foto-bg); transform-origin: 50% 0;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .1), 0 30px 60px -24px rgba(11, 17, 40, .6), 0 12px 24px -14px rgba(11, 17, 40, .4); }
+.calc-prev__foto { position: relative; aspect-ratio: 16 / 10; overflow: hidden; }
+.calc-prev__foto img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.08) translateX(calc(var(--mx) * -8px)); transition: transform 600ms var(--ease); }
+/* luz indireta: brilho quente de cima (segue o mouse) e sombra embaixo para a legenda */
+.calc-prev__foto::after, .calc-foto::after { content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(110% 80% at calc(50% + var(--mx, 0) * 30%) -10%, rgba(255, 210, 160, .38), transparent 58%),
+    linear-gradient(180deg, transparent 42%, rgba(11, 17, 40, .82)); }
+.calc-prev__card figcaption, .calc-foto figcaption { position: absolute; left: 14px; right: 14px; bottom: 12px; z-index: 1; color: #fff; line-height: 1.3; text-shadow: 0 1px 8px rgba(0, 0, 0, .35); }
+.calc-prev__card figcaption b, .calc-foto figcaption b { display: block; font-size: var(--fs-ui); font-weight: 800; }
+.calc-prev__card figcaption span, .calc-foto figcaption span { display: block; margin-top: 2px; font-size: var(--fs-xs); opacity: .9; }
+.calc-prev__selo, .calc-foto__selo { position: absolute; top: 10px; right: 10px; z-index: 1; padding: 4px 9px; border-radius: 999px;
+  background: rgba(11, 17, 40, .6); color: #fff; font-style: normal; font-size: var(--fs-2xs); font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+/* brilho que atravessa a foto ao trocar de sistema */
+.calc-prev__card::after { content: ""; position: absolute; top: -20%; bottom: -20%; left: -60%; width: 40%; z-index: 2; pointer-events: none;
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, .26), transparent); transform: skewX(-14deg); opacity: 0; }
+.motion-on .calc-prev.is-on .calc-prev__card { animation: prev-entra 460ms var(--ease) both; }
+.motion-on .calc-prev.is-on:not(.sem-deslize) .calc-prev__card { animation: none; }
+.motion-on .calc-prev.is-troca .calc-prev__card::after { animation: prev-brilho 900ms var(--ease) 100ms both; }
+.motion-on .calc-prev.is-troca .calc-prev__foto img { animation: prev-foto 650ms var(--ease) both; }
+@keyframes prev-entra { from { opacity: 0; transform: perspective(900px) rotateX(12deg) translateY(10px) scale(.94); } }
+@keyframes prev-brilho { 0% { opacity: 1; transform: translateX(0) skewX(-14deg); } 100% { opacity: 1; transform: translateX(480%) skewX(-14deg); } }
+@keyframes prev-foto { from { opacity: .25; transform: scale(1.18); } }
+@media not all and (hover: hover) and (pointer: fine) { .calc-prev { display: none; } }
+
+.calc-foto { position: relative; margin: 0; overflow: hidden; aspect-ratio: 16 / 9; border-radius: var(--r-m); background: var(--foto-bg); box-shadow: var(--sh-1); }
+.calc-foto img { width: 100%; height: 100%; object-fit: cover; }
+.motion-on .calc-foto.is-novo { animation: foto-chega 520ms var(--ease) both; }
+.motion-on .calc-foto.is-novo img { animation: prev-foto 700ms var(--ease) both; }
+@keyframes foto-chega { from { opacity: 0; transform: translateY(10px) scale(.97); } }
+@media (hover: hover) and (pointer: fine) { .calc-foto { display: none !important; } }
 .calc__form { padding: clamp(22px, 3vw, 36px); display: flex; flex-direction: column; gap: 20px; border-right: 1px solid var(--line); }
 .calc__desc { color: var(--muted); font-size: var(--fs-ui); }
 .calc__fields { display: grid; gap: 16px; }
@@ -1041,7 +1089,7 @@ img.mini { background: var(--navy); }
 .res__total { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px 20px; flex-wrap: wrap;
   margin-top: 6px; padding: 16px 18px; border-radius: var(--r-m); background: var(--inverse-bg); color: var(--inverse-fg); }
 .res__total p { font-size: var(--fs-label); font-weight: 700; letter-spacing: .14em; text-transform: uppercase; font-stretch: var(--wide); color: var(--orange-on-dark); }
-[data-theme="dark"] .res__total p { color: var(--orange-text); }
+[data-theme="dark"] .res__total p { color: var(--orange-on-light); } /* no escuro a caixa do total é clara (--inverse-bg) */
 .res__total small { display: block; margin-top: 4px; font-size: var(--fs-xs); opacity: .78; max-width: 46ch; }
 .res__total > b { font-size: clamp(1.9rem, 3.4vw, 2.6rem); font-weight: 850; font-stretch: 66%; line-height: .95; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .res__nota { font-size: var(--fs-xs); color: var(--muted); line-height: 1.5; }

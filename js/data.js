@@ -49,15 +49,19 @@
   var PRECO_INSTA = 'Oferta publicada no Instagram em 09/09/2026';
 
   var produtos = [
-    // Linha Drysul — preços informados pela loja (30/09/2026)
+    // Linha Drysul — preços informados pela loja (30/09/2026). `post` = postagem do produto no Instagram da loja: entra
+    // primeiro em "Postagens do Instagram", com a foto da postagem; no catálogo continua a foto do produto.
     { id: 'fita', foto: 'assets/img/prod-fita-800.webp', fotoMini: 'assets/img/prod-fita-400.webp', nome: 'Fita de papel perfurada Drysul', cat: 'acabamento', icone: 'p-fita',
       emb: 'Rolo', un: 'rolo', preco: 65.00, fonte: PRECO_LOJA, destaque: true,
+      post: { link: 'https://www.instagram.com/drysul.loja/p/Dd452LgRQnP/', data: '29/09/2026', foto: 'assets/img/post-fita-800.webp', fotoMini: 'assets/img/post-fita-400.webp' },
       detalhe: 'Para tratamento de juntas entre chapas. Medidas do rolo confirmadas no atendimento.' },
     { id: 'parafuso', foto: 'assets/img/prod-parafuso-800.webp', fotoMini: 'assets/img/prod-parafuso-400.webp', nome: 'Parafusos para drywall Drysul', cat: 'fixacao', icone: 'p-caixa',
       emb: 'Caixa com 1.000 unidades', un: 'caixa', preco: 27.99, fonte: PRECO_LOJA, destaque: true,
+      post: { link: 'https://www.instagram.com/drysul.loja/p/Dd2Y85_xQOF/', data: '28/09/2026', foto: 'assets/img/post-parafuso-800.webp', fotoMini: 'assets/img/post-parafuso-400.webp' },
       detalhe: 'Fixação de chapas na estrutura. Bitola e comprimento confirmados no atendimento.' },
     { id: 'massa', foto: 'assets/img/prod-massa-800.webp', fotoMini: 'assets/img/prod-massa-400.webp', nome: 'Massa para drywall Drysul', cat: 'acabamento', icone: 'p-balde',
       emb: 'Balde de 25 kg', un: 'balde', preco: 54.99, fonte: PRECO_LOJA, destaque: true,
+      post: { link: 'https://www.instagram.com/drysul.loja/p/Dd36UtWxX9m/', data: '29/09/2026', foto: 'assets/img/post-massa-800.webp', fotoMini: 'assets/img/post-massa-400.webp' },
       detalhe: 'Tratamento de juntas e acabamento de superfícies em drywall.' },
 
     // Ofertas publicadas no Instagram (09/09/2026)

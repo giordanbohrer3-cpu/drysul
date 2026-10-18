@@ -519,15 +519,21 @@
   });
 
   /* Ofertas */
-  $('#offer-grid').innerHTML = catalogo.filter(function (p) { return p.oferta; }).map(function (p) {
-    var pr = precoPartes(p.preco);
+  // Postagens do Instagram: primeiro as da linha Drysul (foto da postagem, da mais nova para a mais antiga), depois as ofertas
+  function dataNum(d) { var x = String(d || '').split('/'); return x.length === 3 ? +(x[2] + x[1] + x[0]) : 0; }
+  var postagens = catalogo.filter(function (p) { return p.post; }).sort(function (a, b) { return dataNum(b.post.data) - dataNum(a.post.data); });
+  $('#offer-grid').innerHTML = postagens.concat(catalogo.filter(function (p) { return p.oferta; })).map(function (p) {
+    var pr = precoPartes(p.preco), post = p.post;
+    var foto = post ? '<img src="' + esc(post.foto) + '" srcset="' + esc(post.fotoMini) + ' 400w, ' + esc(post.foto) + ' 800w" sizes="(max-width: 720px) 50vw, 400px"' +
+      ' width="800" height="600" alt="' + esc(p.nome + ' na postagem do Instagram da loja') + '" loading="lazy" decoding="async">' : midia(p);
+    var quando = post ? post.data : p.publicada;
     return '<article class="offer" data-reveal data-tilt>' +
-      '<div class="offer__media"><span class="tag tag--orange">Oferta</span>' + midia(p) + '</div>' +
+      '<div class="offer__media"><span class="tag tag--orange">' + (post ? 'Linha Drysul' : 'Oferta') + '</span>' + foto + '</div>' +
       '<div class="offer__body">' +
-        '<p class="offer__date">' + (p.publicada ? 'Publicada em ' + esc(p.publicada) : 'Publicada no Instagram') + '</p>' +
+        '<p class="offer__date">' + (quando ? 'Publicada em ' + esc(quando) : 'Publicada no Instagram') + '</p>' +
         '<h3 class="offer__name">' + esc(p.nome) + '</h3><p class="offer__emb">' + esc(p.emb) + '</p>' +
         '<p class="offer__price"><small>' + pr.moeda + '</small><strong>' + pr.valor + '</strong><span>/ ' + esc(p.un) + '</span></p>' +
-        '<div class="offer__actions"><a class="prod-card__src" href="' + esc(p.link) + '" target="_blank" rel="noopener">' + icon('i-insta') + 'Ver publicação</a>' + caixaAdd(p) + '</div>' +
+        '<div class="offer__actions"><a class="prod-card__src" href="' + esc(post ? post.link : p.link) + '" target="_blank" rel="noopener">' + icon('i-insta') + 'Ver publicação</a>' + caixaAdd(p) + '</div>' +
       '</div></article>';
   }).join('');
 

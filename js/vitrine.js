@@ -135,49 +135,86 @@
   palco.addEventListener('pointerleave', function (ev) { if (ev.pointerType === 'mouse') soltar('sobre'); });
 
   /* ---------- arrastar / deslizar: gira com inércia ----------
-     Gesto mais vertical que horizontal é rolagem da página (touch-action: pan-y no palco): o anel não interfere. */
+     Dedo (eventos de toque) e mouse (eventos de ponteiro) separados: no Safari do iPhone o ponteiro com pan-y cancelava
+     o arrasto no meio (tranco) e a parte vertical do gesto rolava a página. Agora, decidido que o gesto é horizontal,
+     o toque segura a página (preventDefault) até soltar; gesto mais vertical é rolagem e o anel não interfere.
+     Enquanto arrasta, a animação fica pausada e o anel segue o dedo direto (sem disputar com a troca de velocidade). */
   var arr = null, arrastou = false, rafInercia = 0;
   function msPorPx() { return DUR / (2 * Math.PI * R); }
   // a foto do cartão não pode ser arrastada pelo navegador: isso cancelava o gesto de girar
   palco.addEventListener('dragstart', function (ev) { ev.preventDefault(); });
-  palco.addEventListener('pointerdown', function (ev) {
-    if (!anim || (ev.pointerType === 'mouse' && ev.button !== 0)) return;
+  function inicio(x, y, id) {
+    if (!anim) return;
     cancelAnimationFrame(rafInercia); rafInercia = 0;
-    arr = { x: ev.clientX, y: ev.clientY, t: performance.now(), v: 0, id: ev.pointerId, ativo: false };
+    arr = { x: x, y: y, x0: x, y0: y, t: performance.now(), v: 0, id: id, ativo: false };
     arrastou = false;
-  });
-  palco.addEventListener('pointermove', function (ev) {
-    if (!arr || ev.pointerId !== arr.id) return;
-    var dx = ev.clientX - arr.x, dy = ev.clientY - arr.y;
+  }
+  // devolve true quando o gesto é (ou virou) arrasto horizontal
+  function mover(x, y) {
+    if (!arr) return false;
     if (!arr.ativo) {
-      if (Math.abs(dx) < 6) return;
-      if (Math.abs(dy) > Math.abs(dx)) { arr = null; return; }
-      arr.ativo = true; arrastou = true;
-      try { palco.setPointerCapture(ev.pointerId); } catch (e) {}
-      palco.classList.add('is-arrastando'); parar('arrasto');
+      var dx0 = x - arr.x0, dy0 = y - arr.y0;
+      if (Math.abs(dx0) < 6 && Math.abs(dy0) < 6) return false;
+      if (Math.abs(dy0) >= Math.abs(dx0)) { arr = null; if (motivos.arrasto) retomar(); return false; } // rolagem da página
+      arr.ativo = true; arrastou = true; arr.x = x; arr.t = performance.now();
+      palco.classList.add('is-arrastando');
+      parar('arrasto'); anim.pause();
+      return true;
     }
-    var agora = performance.now(), dt = Math.max(1, agora - arr.t), d = -dx * msPorPx();
+    var agora = performance.now(), dt = Math.max(1, agora - arr.t), d = -(x - arr.x) * msPorPx();
     irPara(tempo() + d);
     arr.v = arr.v * 0.6 + (d / dt) * 0.4; // velocidade suavizada (ms de animação por ms de relógio)
-    arr.x = ev.clientX; arr.y = ev.clientY; arr.t = agora;
-  });
-  function fimArrasto(ev) {
-    if (!arr || ev.pointerId !== arr.id) return;
+    arr.x = x; arr.y = y; arr.t = agora;
+    return true;
+  }
+  function retomar() {
+    // volta a girar do zero e acelera devagar até o ritmo normal (sem tranco)
+    taxa = 0; aplicarTaxa();
+    if (anim && visivel && !document.hidden) anim.play();
+    soltar('arrasto');
+  }
+  function fim() {
+    if (!arr) return;
     var ativo = arr.ativo, v = Math.max(-40, Math.min(40, arr.v)), t0 = performance.now();
+    if (performance.now() - arr.t > 90) v = 0; // dedo parado antes de soltar: sem inércia
     arr = null;
     palco.classList.remove('is-arrastando');
-    if (!ativo) return;
+    // um toque que parou a inércia sem virar arrasto: o anel volta a girar
+    if (!ativo) { if (motivos.arrasto) retomar(); return; }
     // inércia: o anel segue girando e freia sozinho; depois volta ao ritmo normal
     (function inercia(t) {
       var dt = Math.min(48, t - t0); t0 = t;
       irPara(tempo() + v * dt);
       v *= Math.exp(-dt / 320);
-      if (Math.abs(v) > 0.5) rafInercia = requestAnimationFrame(inercia); // abaixo disso o giro normal já assume
-      else { rafInercia = 0; soltar('arrasto'); }
+      if (Math.abs(v) > 0.5) rafInercia = requestAnimationFrame(inercia);
+      else { rafInercia = 0; retomar(); }
     })(t0);
   }
-  palco.addEventListener('pointerup', fimArrasto);
-  palco.addEventListener('pointercancel', fimArrasto);
+  // dedo
+  palco.addEventListener('touchstart', function (ev) {
+    if (ev.touches.length !== 1) { arr = null; return; }
+    var t = ev.touches[0]; inicio(t.clientX, t.clientY, 'toque');
+  }, { passive: true });
+  palco.addEventListener('touchmove', function (ev) {
+    if (!arr || ev.touches.length !== 1) return;
+    var t = ev.touches[0];
+    if (mover(t.clientX, t.clientY) && ev.cancelable) ev.preventDefault(); // segura a página durante o arrasto
+  }, { passive: false });
+  palco.addEventListener('touchend', fim);
+  palco.addEventListener('touchcancel', fim);
+  // mouse e caneta
+  palco.addEventListener('pointerdown', function (ev) {
+    if (ev.pointerType === 'touch' || (ev.pointerType === 'mouse' && ev.button !== 0)) return;
+    inicio(ev.clientX, ev.clientY, ev.pointerId);
+  });
+  palco.addEventListener('pointermove', function (ev) {
+    if (!arr || ev.pointerId !== arr.id) return;
+    var eraAtivo = arr.ativo;
+    if (mover(ev.clientX, ev.clientY) && !eraAtivo) { try { palco.setPointerCapture(ev.pointerId); } catch (e) {} }
+  });
+  function fimPonteiro(ev) { if (arr && ev.pointerId === arr.id) fim(); }
+  palco.addEventListener('pointerup', fimPonteiro);
+  palco.addEventListener('pointercancel', fimPonteiro);
 
   /* ---------- clique: vai ao produto no catálogo (um arrasto não conta como clique) ---------- */
   anel.addEventListener('click', function (ev) {

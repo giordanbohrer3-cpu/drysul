@@ -253,14 +253,14 @@
   var parallax = $$('[data-parallax]'), photos = $$('[data-parallax-img]'), drift = $('[data-drift]');
   var hero = $('.hero');
 
-  /* ---------- hero: parede drywall que desmonta com a rolagem ----------
-     Sem palco fixo (o topo é compacto e a página não fica presa). Ao abrir, a parede se monta sozinha a partir das
-     peças soltas; rolando, desmonta enquanto passa pela tela: a fita sai, as chapas abrem, os parafusos aparecem e
-     fica a estrutura (guias e montantes). O valor desenhado persegue o da rolagem com amortecimento, então a roda do
-     mouse não dá degraus. Sem efeitos fica uma pose parada, com as chapas entreabertas. --rmx/--rmy seguem o mouse. */
+  /* ---------- hero: parede drywall que desmonta quando aparece ----------
+     Sem palco fixo (a página não fica presa). Quando a parede aparece inteira, ela desmonta sozinha em 2,6 s: a fita
+     sai, as chapas abrem, os parafusos aparecem e fica a estrutura (guias e montantes). Mesmo tempo em qualquer
+     aparelho, sem conta nenhuma durante a rolagem. Sem efeitos fica uma pose parada, com as chapas entreabertas.
+     --rmx/--rmy seguem o mouse. */
   var heroEl = $('.hero'), pinEl = $('.hero__pin'), rig = $('#wall-rig'), arteEl = $('.hero__art');
   var P0 = 0.14; // parede montada e já girada em 3D: a pose do começo
-  var parede = { alvo: P0, atual: P0, intro: false, semPar: null, passo: -1, ini: 0, fim: 1, vista: false, paralaxe: false, desloc: 0 };
+  var parede = { alvo: P0, atual: P0, semPar: null, passo: -1, vista: false };
   (function montarParafusos() {
     var box = $('#wall-screws'); if (!box) return;
     var cols = [100, 194, 206, 300], rows = [40, 120, 200, 280, 360, 440], html = ''; // bordas ficam na dobradiça das chapas
@@ -314,85 +314,53 @@
     parede.passo = -1;
   }
   function paredeViva() { return on && parede.vista; }
-  // trecho da rolagem em que a parede desmonta, igual no computador e no celular: começa quando ela aparece inteira
-  // (base a 4% do pé da tela) e termina com ela ainda inteira, o meio a 40% da altura da tela (nunca sob o cabeçalho).
-  // Assim quem rola vê as 4 etapas do começo ao fim. Mede no resize, não a cada quadro.
-  // Computador: a parede está à direita e sobe mais devagar que a página (paralaxe de 30%), então o trecho é maior.
-  var mqLado = window.matchMedia('(min-width: 1024px)');
+  // A parede desmonta sozinha, em velocidade fixa, quando aparece inteira na tela (abaixo do cabeçalho). Antes ela
+  // seguia a rolagem: quem rolava rápido (comum no iPhone) via tudo passar num instante, e em telas baixas o trecho
+  // era curto. Agora as 4 etapas levam o mesmo tempo em qualquer aparelho, e a rolagem não faz conta nenhuma da parede.
+  // Rolando de volta até ela sair por baixo, ela se monta de novo (fora da vista) para a próxima passada; se a página
+  // abre já depois dela, fica desmontada.
+  var DUR_PAREDE = 2600; // ms de P0 (montada) até 1 (só a estrutura)
+  var cabH = 64, paredeRaf = 0, paredeT = 0;
   function medirParede() {
     parede.vista = !!rig && !!arteEl && arteEl.offsetHeight > 0;
-    if (!parede.vista) return;
-    rolY = window.scrollY; // medição fora da rolagem (carga e resize): aqui a leitura é barata
-    var r = arteEl.getBoundingClientRect(), topo = r.top + rolY - (parede.desloc || 0), vh = window.innerHeight;
-    var cab = parseFloat(getComputedStyle(root).getPropertyValue('--header-h')) || 64;
-    parede.paralaxe = mqLado.matches;
-    var vel = parede.paralaxe ? 0.7 : 1; // quanto a parede anda na tela a cada px rolado
-    var alvo = Math.max(cab + 8, vh * 0.4 - r.height / 2); // topo da parede na tela quando termina
-    parede.ini = Math.max(0, topo + r.height - vh * 0.96);
-    parede.fim = parede.ini + Math.max(200, (topo - parede.ini - alvo) / vel);
-    if (!parede.paralaxe && parede.desloc) { parede.desloc = 0; arteEl.style.transform = ''; }
-    // a parede desce até 30% de 1,4× o trecho: o pé do topo reserva esse espaço, senão ela some cortada embaixo
-    if (pinEl) pinEl.style.setProperty('--folga-paralaxe', parede.paralaxe ? Math.ceil((parede.fim - parede.ini) * 1.4 * 0.3) + 'px' : '0px');
-  }
-  function paralaxeParede() {
-    if (!parede.paralaxe || !paredeViva()) return;
-    var d = Math.round(clamp(rolY - parede.ini, 0, (parede.fim - parede.ini) * 1.4) * 0.3);
-    if (d !== parede.desloc) { parede.desloc = d; arteEl.style.transform = 'translate3d(0,' + d + 'px,0)'; }
-  }
-  function progressoParede() { return P0 + (1 - P0) * clamp((rolY - parede.ini) / (parede.fim - parede.ini), 0, 1); }
-  var paredeRaf = 0, paredeT = 0;
-  function seguirParede() {
-    if (paredeRaf || parede.intro || introPendente || !paredeViva()) return;
-    paredeT = performance.now();
-    paredeRaf = requestAnimationFrame(passoParede);
+    cabH = parseFloat(getComputedStyle(root).getPropertyValue('--header-h')) || 64;
   }
   function passoParede(t) {
     paredeRaf = 0;
-    if (!paredeViva() || parede.intro) return;
+    if (!paredeViva()) return;
     var dt = Math.min(64, Math.max(0, t - paredeT)); paredeT = t;
-    parede.alvo = progressoParede();
-    var d = parede.alvo - parede.atual;
-    parede.atual = Math.abs(d) < 0.0004 ? parede.alvo : parede.atual + d * (1 - Math.exp(-dt / (lenis ? 60 : 95)));
+    var passo = dt / DUR_PAREDE * (1 - P0), d = parede.alvo - parede.atual;
+    parede.atual = Math.abs(d) <= passo ? parede.alvo : parede.atual + (d > 0 ? passo : -passo);
     aplicarParede(parede.atual);
     if (parede.atual !== parede.alvo) paredeRaf = requestAnimationFrame(passoParede);
   }
-  // abertura: as peças soltas se juntam. Com a parede fora da tela na carga (a seção "Quem somos" vem antes), ela
-  // espera desmontada e se monta quando aparecer (observador abaixo), em vez de chegar já pronta.
-  var introPendente = false;
-  function introParede(jaNaTela) {
-    var r = arteEl.getBoundingClientRect();
-    if (!jaNaTela && (r.top > window.innerHeight * 0.75 || r.bottom < 0)) {
-      // tablet e celular: entre aparecer e começar a desmontar há pouca rolagem (a montagem não terminaria);
-      // lá ela chega montada, como antes
-      if (!parede.paralaxe) return;
-      introPendente = true; parede.atual = 0.7; aplicarParede(0.7);
-      return;
-    }
-    introPendente = false;
-    var t0 = performance.now(), de = 0.7, dur = 1700;
-    parede.intro = true;
-    (function passo(t) {
-      if (!paredeViva()) { parede.intro = false; return; }
-      parede.alvo = progressoParede();
-      var k = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - k, 3);
-      parede.atual = de + (parede.alvo - de) * e;
-      aplicarParede(parede.atual);
-      if (k < 1) requestAnimationFrame(passo); else { parede.intro = false; parede.atual = parede.alvo; aplicarParede(parede.atual); }
-    })(t0);
+  function animarParede(alvo) {
+    parede.alvo = alvo;
+    if (paredeRaf || parede.atual === alvo) return;
+    paredeT = performance.now();
+    paredeRaf = requestAnimationFrame(passoParede);
   }
-  // liga/desliga junto com os efeitos e com a largura da tela
-  function syncParede(comIntro) {
+  function pularParede(p) { cancelAnimationFrame(paredeRaf); paredeRaf = 0; parede.alvo = parede.atual = p; aplicarParede(p); }
+  // quanto da parede está à vista entre o cabeçalho e o pé da tela
+  function avaliarParede(r) {
+    if (!paredeViva()) return;
+    var vh = window.innerHeight, alt = Math.min(r.height, vh - cabH);
+    var aVista = Math.min(r.bottom, vh) - Math.max(r.top, cabH);
+    if (aVista >= alt * 0.9) animarParede(1);                      // inteira à vista: desmonta
+    else if (r.top >= vh) pularParede(P0);                         // saiu por baixo: monta de novo, fora da vista
+    else if (r.bottom <= cabH && parede.atual < 1) pularParede(1); // passou por cima sem ver: fica desmontada
+  }
+  function syncParede() {
     if (!rig) return;
     medirParede();
     if (!paredeViva()) { aplicarEstatica(); return; }
-    parede.alvo = parede.atual = progressoParede();
-    aplicarParede(parede.atual);
-    paralaxeParede();
-    if (comIntro) introParede(); else introPendente = false;
+    var r = arteEl.getBoundingClientRect();
+    pularParede(r.bottom <= cabH ? 1 : P0);
+    avaliarParede(r);
   }
   if (rig && arteEl && hasIO) new IntersectionObserver(function (es) {
-    if (es[es.length - 1].isIntersecting && introPendente && paredeViva()) introParede(true);
-  }, { threshold: 0.3 }).observe(arteEl);
+    avaliarParede(es[es.length - 1].boundingClientRect);
+  }, { threshold: [0, 0.1, 0.25, 0.5, 0.7, 0.8, 0.85, 0.9, 0.95, 1] }).observe(arteEl);
   var visible = new Set();
   var visIO = hasIO ? new IntersectionObserver(function (es) {
     es.forEach(function (e) {
@@ -412,7 +380,6 @@
   function update() {
     ticking = false;
     if (!on) return;
-    if (rig && hero && visible.has(hero)) { paralaxeParede(); seguirParede(); }
     // paralaxe de fotos e camadas: só no computador (no celular, mexer em fotos a cada quadro dava tranco)
     if (!mqRico.matches) {
       if (!paralaxeLimpa) { paralaxeLimpa = true; parallax.concat(photos, drift ? [drift] : []).forEach(function (el) { el.style.transform = ''; }); }
@@ -441,12 +408,11 @@
     completarEscrita();
     parallax.concat(photos, drift ? [drift] : []).forEach(function (el) { el.style.transform = ''; });
     if (rig) { aplicarEstatica(); rig.style.setProperty('--rmx', 0); rig.style.setProperty('--rmy', 0); }
-    if (arteEl) { arteEl.style.transform = ''; parede.desloc = 0; }
     $$('.is-tilting').forEach(function (el) { el.classList.remove('is-tilting'); el.style.transform = ''; });
     $$('[data-magnetic]').forEach(function (el) { el.style.transform = ''; });
   }
   window.addEventListener('scroll', requestUpdate, { passive: true });
-  window.addEventListener('resize', function () { if (rig) { var antes = paredeViva(); medirParede(); if (antes && !paredeViva()) aplicarEstatica(); } requestUpdate(); });
+  window.addEventListener('resize', function () { if (rig) { var antes = paredeViva(); medirParede(); if (antes && !paredeViva()) aplicarEstatica(); else if (paredeViva()) avaliarParede(arteEl.getBoundingClientRect()); } requestUpdate(); });
 
   /* ---------- ponteiro: luz, inclinação e magnetismo (só mouse/trackpad) ---------- */
   var tiltEl = null, magEl = null, pointerFrame = 0, lastEv = null, luzHero = $('.hero__light');

@@ -518,22 +518,15 @@
     a.addEventListener('click', function (ev) { ev.preventDefault(); irParaCategoria(a.getAttribute('data-filter-link')); });
   });
 
-  /* Ofertas */
-  // Postagens do Instagram: primeiro as da linha Drysul (foto da postagem, da mais nova para a mais antiga), depois as ofertas
-  function dataNum(d) { var x = String(d || '').split('/'); return x.length === 3 ? +(x[2] + x[1] + x[0]) : 0; }
-  var postagens = catalogo.filter(function (p) { return p.post; }).sort(function (a, b) { return dataNum(b.post.data) - dataNum(a.post.data); });
-  $('#offer-grid').innerHTML = postagens.concat(catalogo.filter(function (p) { return p.oferta; })).map(function (p) {
-    var pr = precoPartes(p.preco), post = p.post;
-    var foto = post ? '<img src="' + esc(post.foto) + '" srcset="' + esc(post.fotoMini) + ' 400w, ' + esc(post.foto) + ' 800w" sizes="(max-width: 720px) 50vw, 400px"' +
-      ' width="800" height="600" alt="' + esc(p.nome + ' na postagem do Instagram da loja') + '" loading="lazy" decoding="async">' : midia(p);
-    var quando = post ? post.data : p.publicada;
-    return '<article class="offer" data-reveal data-tilt>' +
-      '<div class="offer__media"><span class="tag tag--orange">' + (post ? 'Linha Drysul' : 'Oferta') + '</span>' + foto + '</div>' +
+  /* Postagens do Instagram: só as postagens (foto quadrada, data, título e link), sem produto, preço ou compra */
+  $('#offer-grid').innerHTML = (D.instagram || []).map(function (g) {
+    return '<article class="offer offer--post" data-reveal data-tilt>' +
+      '<div class="offer__media"><img src="' + esc(g.foto) + '" srcset="' + esc(g.fotoMini) + ' 400w, ' + esc(g.foto) + ' 800w"' +
+        ' sizes="(max-width: 720px) 50vw, 300px" width="800" height="800" alt="' + esc(g.alt) + '" loading="lazy" decoding="async"></div>' +
       '<div class="offer__body">' +
-        '<p class="offer__date">' + (quando ? 'Publicada em ' + esc(quando) : 'Publicada no Instagram') + '</p>' +
-        '<h3 class="offer__name">' + esc(p.nome) + '</h3><p class="offer__emb">' + esc(p.emb) + '</p>' +
-        '<p class="offer__price"><small>' + pr.moeda + '</small><strong>' + pr.valor + '</strong><span>/ ' + esc(p.un) + '</span></p>' +
-        '<div class="offer__actions"><a class="prod-card__src" href="' + esc(post ? post.link : p.link) + '" target="_blank" rel="noopener">' + icon('i-insta') + 'Ver publicação</a>' + caixaAdd(p) + '</div>' +
+        '<p class="offer__date">Publicada em ' + esc(g.data) + '</p>' +
+        '<h3 class="offer__name">' + esc(g.titulo) + '</h3>' +
+        '<div class="offer__actions"><a class="prod-card__src" href="' + esc(g.link) + '" target="_blank" rel="noopener">' + icon('i-insta') + 'Ver publicação</a></div>' +
       '</div></article>';
   }).join('');
 

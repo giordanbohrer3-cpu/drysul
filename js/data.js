@@ -49,19 +49,15 @@
   var PRECO_INSTA = 'Oferta publicada no Instagram em 09/09/2026';
 
   var produtos = [
-    // Linha Drysul — preços informados pela loja (30/09/2026). `post` = postagem do produto no Instagram da loja: entra
-    // primeiro em "Postagens do Instagram", com a foto da postagem; no catálogo continua a foto do produto.
+    // Linha Drysul — preços informados pela loja (30/09/2026)
     { id: 'fita', foto: 'assets/img/prod-fita-800.webp', fotoMini: 'assets/img/prod-fita-400.webp', nome: 'Fita de papel perfurada Drysul', cat: 'acabamento', icone: 'p-fita',
       emb: 'Rolo', un: 'rolo', preco: 65.00, fonte: PRECO_LOJA, destaque: true,
-      post: { link: 'https://www.instagram.com/drysul.loja/p/Dd452LgRQnP/', data: '29/09/2026', foto: 'assets/img/post-fita-800.webp', fotoMini: 'assets/img/post-fita-400.webp' },
       detalhe: 'Para tratamento de juntas entre chapas. Medidas do rolo confirmadas no atendimento.' },
     { id: 'parafuso', foto: 'assets/img/prod-parafuso-800.webp', fotoMini: 'assets/img/prod-parafuso-400.webp', nome: 'Parafusos para drywall Drysul', cat: 'fixacao', icone: 'p-caixa',
       emb: 'Caixa com 1.000 unidades', un: 'caixa', preco: 27.99, fonte: PRECO_LOJA, destaque: true,
-      post: { link: 'https://www.instagram.com/drysul.loja/p/Dd2Y85_xQOF/', data: '28/09/2026', foto: 'assets/img/post-parafuso-800.webp', fotoMini: 'assets/img/post-parafuso-400.webp' },
       detalhe: 'Fixação de chapas na estrutura. Bitola e comprimento confirmados no atendimento.' },
     { id: 'massa', foto: 'assets/img/prod-massa-800.webp', fotoMini: 'assets/img/prod-massa-400.webp', nome: 'Massa para drywall Drysul', cat: 'acabamento', icone: 'p-balde',
       emb: 'Balde de 25 kg', un: 'balde', preco: 54.99, fonte: PRECO_LOJA, destaque: true,
-      post: { link: 'https://www.instagram.com/drysul.loja/p/Dd36UtWxX9m/', data: '29/09/2026', foto: 'assets/img/post-massa-800.webp', fotoMini: 'assets/img/post-massa-400.webp' },
       detalhe: 'Tratamento de juntas e acabamento de superfícies em drywall.' },
 
     // Ofertas publicadas no Instagram (09/09/2026)
@@ -194,8 +190,8 @@
         r: 'As formas e as condições de pagamento são combinadas com a equipe no atendimento, pelo WhatsApp ou na loja.',
         acao: { rotulo: 'Perguntar no WhatsApp', loja: 'whatsapp' } },
       { p: 'As ofertas do Instagram valem no site?', tags: 'promoção oferta instagram',
-        r: 'As ofertas mostradas aqui foram publicadas no Instagram @drysul.loja. O prazo e o estoque de cada oferta são confirmados no atendimento.',
-        acao: { rotulo: 'Ver as ofertas', href: '#ofertas' } }
+        r: 'As ofertas publicadas no Instagram @drysul.loja estão no catálogo, com o selo "Oferta". O prazo e o estoque de cada oferta são confirmados no atendimento.',
+        acao: { rotulo: 'Ver o catálogo', href: '#produtos' } }
     ] },
     { tema: 'Loja, retirada e entrega', itens: [
       { p: 'Onde fica a loja?', tags: 'endereço localização mapa rua bairro chegar',
@@ -236,5 +232,19 @@
     ] }
   ];
 
-  root.DRYSUL = { loja: loja, categorias: categorias, produtos: produtos, vendas: vendas, precosMedios: precosMedios, fotosSistemas: fotosSistemas, ajuda: ajuda };
+  // Postagens do Instagram da loja (seção "Postagens do Instagram"): só as postagens, sem preço nem botão de compra.
+  // Foto quadrada, como no grid do Instagram (800 e 400 px). Da mais nova para a mais antiga.
+  var instagram = [
+    { link: 'https://www.instagram.com/drysul.loja/p/Dd452LgRQnP/', data: '29/09/2026', titulo: 'Fita de papel perfurada Drysul',
+      foto: 'assets/img/post-fita-800.webp', fotoMini: 'assets/img/post-fita-400.webp', alt: 'Rolos da fita de papel perfurada Drysul numa obra de drywall' },
+    { link: 'https://www.instagram.com/drysul.loja/p/Dd36UtWxX9m/', data: '29/09/2026', titulo: 'Massa para drywall Drysul',
+      foto: 'assets/img/post-massa-800.webp', fotoMini: 'assets/img/post-massa-400.webp', alt: 'Baldes da massa para drywall Drysul numa obra' },
+    { link: 'https://www.instagram.com/drysul.loja/p/Dd2Y85_xQOF/', data: '28/09/2026', titulo: 'Parafusos para drywall Drysul',
+      foto: 'assets/img/post-parafuso-800.webp', fotoMini: 'assets/img/post-parafuso-400.webp', alt: 'Caixas de parafusos para drywall Drysul empilhadas numa obra' },
+    { link: 'https://www.instagram.com/drysul.loja/p/DdHkLQLH3My/', data: '10/09/2026', titulo: 'Você já tem nosso número?',
+      foto: 'assets/img/post-novidade-800.webp', fotoMini: 'assets/img/post-novidade-400.webp',
+      alt: 'Arte da Drysul: Você já tem nosso número? Faça seu orçamento pelo WhatsApp e nós levamos até você. (55) 99201-0668' }
+  ];
+
+  root.DRYSUL = { instagram: instagram, loja: loja, categorias: categorias, produtos: produtos, vendas: vendas, precosMedios: precosMedios, fotosSistemas: fotosSistemas, ajuda: ajuda };
 })(typeof self !== 'undefined' ? self : this);

@@ -451,12 +451,17 @@ ul, ol { padding: 0; list-style: none; }
 
 /* ---------- Abertura: quem somos, horário, contato e mapa (antes do topo de compras) ----------
    Primeira tela no computador; no celular o texto e os botões vêm primeiro, foto e mapa logo abaixo. */
-.abertura { --degrade: clamp(96px, 11vw, 160px); position: relative; isolation: isolate; overflow: clip; background: var(--bg); color: var(--fg);
+.abertura { --degrade: clamp(56px, 6vw, 96px); position: relative; isolation: isolate; overflow: clip; background: var(--bg); color: var(--fg);
   padding: clamp(32px, 4.5vw, 64px) 0 calc(var(--s-4) + var(--degrade)); }
-/* degradê do fundo claro da abertura para o azul do topo de compras, logo abaixo do conteúdo: separa as duas partes
-   sem corte seco (no tema escuro a passagem é mais sutil) */
+/* degradê da abertura para o azul do topo de compras, logo abaixo do conteúdo: separa as duas partes sem corte seco.
+   Só cores do site: no claro, do papel ao azul-marinho em curva suave; no escuro (onde os dois fundos são quase iguais)
+   uma faixa leve do azul de brilho do topo (--escuro-luz) antes do azul-marinho, para a passagem ficar perceptível. */
 .abertura::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: var(--degrade); z-index: -1; pointer-events: none;
-  background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--escuro-1) 55%, transparent) 55%, var(--escuro-1)); }
+  background: linear-gradient(180deg, transparent 0%, color-mix(in srgb, var(--escuro-1) 10%, transparent) 25%,
+    color-mix(in srgb, var(--escuro-1) 42%, transparent) 55%, color-mix(in srgb, var(--escuro-1) 80%, transparent) 82%, var(--escuro-1) 100%); }
+[data-theme="dark"] .abertura::after {
+  background: linear-gradient(180deg, transparent 0%, color-mix(in srgb, var(--escuro-luz) 45%, transparent) 40%,
+    color-mix(in srgb, var(--escuro-luz) 70%, var(--escuro-1)) 68%, var(--escuro-1) 100%); }
 .abertura__fundo { position: absolute; inset: 0; z-index: -1; pointer-events: none;
   background:
     radial-gradient(46% 60% at 88% 30%, rgba(239, 80, 35, .1), transparent 70%),
@@ -564,8 +569,7 @@ ul, ol { padding: 0; list-style: none; }
    catálogo numa camada de ~7.000 px que é recalculada a cada quadro: a rolagem chegou a ter 3× mais quadros lentos
    só por mudar o tamanho do cartão da loja (medido no Pixel 7 com CPU 4× mais lenta). */
 @media not all and (hover: hover) and (pointer: fine) { .hero, .catalog { will-change: transform; } }
-/* --folga-paralaxe (js/motion.js): espaço no pé do topo para a parede descer com a paralaxe sem ser cortada */
-.hero__pin { position: relative; overflow: clip; isolation: isolate; display: flex; flex-direction: column; justify-content: center; padding: var(--s-7) 0 calc(var(--s-3) + var(--folga-paralaxe, 0px)); }
+.hero__pin { position: relative; overflow: clip; isolation: isolate; display: flex; flex-direction: column; justify-content: center; padding: var(--s-7) 0 var(--s-3); }
 /* fundo técnico animado: no máximo uma tela de altura (desenhar seções inteiras, de milhares de px, a 30 quadros
    pesava na carga) e só onde há folga — no celular é decoração que custa bateria, então sai */
 .tech-canvas { position: absolute; inset: 0 0 auto 0; width: 100%; height: min(100%, 100vh); z-index: -1; pointer-events: none; opacity: 0; transition: opacity 1200ms var(--ease); }
@@ -982,6 +986,8 @@ img.mini { background: var(--navy); }
   background: radial-gradient(260px circle at var(--mx) var(--my), rgba(239, 80, 35, .08), transparent 65%);
 }
 .offer:hover::after { opacity: 1; }
+/* postagens do Instagram: quadradas, como no grid do Instagram (a arte com texto não é cortada) */
+.offer--post .offer__media { aspect-ratio: 1 / 1; }
 .offer__media { position: relative; aspect-ratio: 4 / 3; background: var(--foto-bg); display: grid; place-items: center; overflow: hidden; }
 .offer__media img { width: 100%; height: 100%; object-fit: cover; transition: transform var(--t-slow) var(--ease); }
 .offer:hover .offer__media img { transform: scale(1.05); }
@@ -1846,7 +1852,9 @@ html.tem-balao .zap__txt { visibility: hidden; }
   .hide-sm { display: none; }
   .quote-btn > span:not(.quote-count) { display: none; }
   .quote-btn { padding: 0 12px; }
-  .offer-grid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); gap: 14px; }
+  .offer-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; } /* postagens: 2 por linha, como no grid do Instagram */
+  .offer--post .offer__body { padding: 12px; }
+  .offer--post .offer__name { font-size: var(--fs-sm); }
   .calc__fields:has(> .field:nth-child(2)) { grid-template-columns: 1fr; }
       .toolbar { align-items: stretch; }
   .chips { flex-wrap: nowrap; overflow-x: auto; margin-inline: calc(var(--gut) * -1); padding-inline: var(--gut); scrollbar-width: none; width: calc(100% + var(--gut) * 2); }

@@ -175,6 +175,8 @@
           });
         } else if (n.nodeType === 1) {
           var clone = n.cloneNode(false); destino.appendChild(clone); copiar(n, clone);
+          // link na cópia animada (escondida do leitor de tela): só o mouse usa; o teclado não para nela
+          if (clone.tagName === 'A') { clone.setAttribute('tabindex', '-1'); clone.removeAttribute('aria-label'); }
         }
       });
     })(el, vis);
@@ -329,6 +331,8 @@
     parede.ini = Math.max(0, topo + r.height - vh * 0.96);
     parede.fim = parede.ini + Math.max(200, (topo - parede.ini - alvo) / vel);
     if (!parede.paralaxe && parede.desloc) { parede.desloc = 0; arteEl.style.transform = ''; }
+    // a parede desce até 30% de 1,4× o trecho: o pé do topo reserva esse espaço, senão ela some cortada embaixo
+    if (pinEl) pinEl.style.setProperty('--folga-paralaxe', parede.paralaxe ? Math.ceil((parede.fim - parede.ini) * 1.4 * 0.3) + 'px' : '0px');
   }
   function paralaxeParede() {
     if (!parede.paralaxe || !paredeViva()) return;

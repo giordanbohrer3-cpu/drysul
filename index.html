@@ -20,8 +20,8 @@
   <meta name="twitter:card" content="summary_large_image">
 
   <link rel="preload" href="assets/fonts/archivo-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="css/styles.css?v=29">
-  <link rel="stylesheet" href="css/motion.css?v=29">
+  <link rel="stylesheet" href="css/styles.css?v=31">
+  <link rel="stylesheet" href="css/motion.css?v=31">
   <script>
     (function () {
       var root = document.documentElement, pref = null, tema = null;
@@ -154,25 +154,24 @@
       </div>
     </div>
 
-    <!-- VITRINE 3D: logo abaixo da faixa laranja do topo; produtos, preços e ofertas girando num anel
-         (montada pelo js/vitrine.js a partir do data.js) -->
-    <div class="vitrine" id="vitrine" role="region" aria-labelledby="vitrine-titulo">
-      <div class="wrap vitrine__topo">
-        <p class="vitrine__titulo" id="vitrine-titulo"><span class="vitrine__ponto" aria-hidden="true"></span>Vitrine Drysul <small>preços da loja e ofertas</small></p>
-        <div class="vitrine__ctrl">
-          <span class="vitrine__dica" aria-hidden="true">Arraste para girar</span>
-          <button class="vitrine__pausa" type="button" aria-pressed="false" aria-label="Pausar a vitrine"><svg class="ic" aria-hidden="true"><use href="#i-pause"/></svg></button>
-        </div>
-      </div>
-      <div class="vitrine__palco">
-        <ul class="vitrine__anel" aria-label="Produtos e preços. Use as setas para passar de um produto a outro."></ul>
-      </div>
-    </div>
-
     <!-- ABERTURA (em teste): quem somos, horário, contato e onde fica, antes da busca e da parede 3D.
          Para voltar ao formato anterior, basta mover esta <section> para depois do hero ou para perto do contato. -->
     <section class="abertura" id="quem-somos" aria-labelledby="abertura-titulo">
       <div class="abertura__fundo" aria-hidden="true"></div>
+      <!-- VITRINE 3D: no alto da abertura, logo abaixo da faixa laranja, sobre o mesmo fundo; produtos, preços e
+           ofertas girando num anel (montada pelo js/vitrine.js a partir do data.js) -->
+      <div class="vitrine" id="vitrine" role="region" aria-labelledby="vitrine-titulo">
+        <div class="wrap vitrine__topo">
+          <p class="vitrine__titulo" id="vitrine-titulo"><span class="vitrine__ponto" aria-hidden="true"></span>Vitrine Drysul <small>preços da loja e ofertas</small></p>
+          <div class="vitrine__ctrl">
+            <span class="vitrine__dica" aria-hidden="true">Arraste para girar</span>
+            <button class="vitrine__pausa" type="button" aria-pressed="false" aria-label="Pausar a vitrine"><svg class="ic" aria-hidden="true"><use href="#i-pause"/></svg></button>
+          </div>
+        </div>
+        <div class="vitrine__palco">
+          <ul class="vitrine__anel" aria-label="Produtos e preços. Use as setas para passar de um produto a outro."></ul>
+        </div>
+      </div>
       <div class="wrap abertura__grid">
         <div class="abertura__texto">
           <p class="eyebrow abertura__eyebrow">Quem somos · Ijuí, RS</p>
@@ -406,7 +405,7 @@
         <header class="sec-head sec-head--row">
           <div>
             <p class="eyebrow" data-reveal>03 · Ofertas do Instagram</p>
-            <h2 class="sec-title" id="of-title" data-reveal>Postagens do Instagram <span class="hl">@drysul.loja</span></h2>
+            <h2 class="sec-title" id="of-title" data-reveal>Postagens do Instagram <a class="hl hl--link" href="https://www.instagram.com/drysul.loja/" target="_blank" rel="noopener" data-store-link="instagram" aria-label="@drysul.loja no Instagram (abre em nova aba)">@drysul.loja</a></h2>
           </div>
           <div class="sec-side" data-reveal>
             <p class="sec-lead">Ofertas publicadas no Instagram em 09/09/2026. Cada card leva à publicação original. Vigência e estoque são confirmados no atendimento.</p>
@@ -872,19 +871,19 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script defer src="js/data.js?v=29"></script>
-  <script defer src="js/calculator-model.js?v=29"></script>
-  <script defer src="js/checkout-model.js?v=29"></script>
-  <script defer src="js/busca.js?v=29"></script>
-  <script defer src="js/horario.js?v=29"></script>
-  <script defer src="js/app.js?v=29"></script>
-  <script defer src="js/abertura.js?v=29"></script>
-  <script defer src="js/ajuda.js?v=29"></script>
-  <script defer src="js/receipt.js?v=29"></script>
-  <script defer src="js/checkout.js?v=29"></script>
+  <script defer src="js/data.js?v=31"></script>
+  <script defer src="js/calculator-model.js?v=31"></script>
+  <script defer src="js/checkout-model.js?v=31"></script>
+  <script defer src="js/busca.js?v=31"></script>
+  <script defer src="js/horario.js?v=31"></script>
+  <script defer src="js/app.js?v=31"></script>
+  <script defer src="js/abertura.js?v=31"></script>
+  <script defer src="js/ajuda.js?v=31"></script>
+  <script defer src="js/receipt.js?v=31"></script>
+  <script defer src="js/checkout.js?v=31"></script>
   <script defer src="js/vendor/lenis.min.js?v=1"></script>
-  <script defer src="js/motion.js?v=29"></script>
-  <script defer src="js/vitrine.js?v=29"></script>
-  <script defer src="js/som.js?v=29"></script>
+  <script defer src="js/motion.js?v=31"></script>
+  <script defer src="js/vitrine.js?v=31"></script>
+  <script defer src="js/som.js?v=31"></script>
 </body>
 </html>

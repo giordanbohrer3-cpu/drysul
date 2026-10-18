@@ -47,7 +47,6 @@
 
   var PRECO_LOJA = 'Preço informado pela loja em 30/09/2026';
   var PRECO_INSTA = 'Oferta publicada no Instagram em 09/09/2026';
-  var PRECO_INSTA_SEM_DATA = 'Oferta publicada no Instagram da loja';
 
   var produtos = [
     // Linha Drysul — preços informados pela loja (30/09/2026)
@@ -82,13 +81,13 @@
       emb: 'Por unidade', un: 'un.', preco: 4.90, fonte: PRECO_INSTA, oferta: true,
       link: 'https://www.instagram.com/drysul.loja/p/DdFBMFan2vL/',
       detalhe: 'Chumbador para fixação em concreto.' },
-    { id: 'gn25-broca', foto: 'assets/img/prod-gn25-broca-800.webp', fotoMini: 'assets/img/prod-gn25-broca-400.webp', nome: 'Parafuso GN25 ponta broca 3,5 × 25', cat: 'fixacao', icone: 'p-caixa',
-      emb: 'Caixa com 1.000 unidades', un: 'caixa', preco: 84.90, fonte: PRECO_INSTA_SEM_DATA, oferta: true,
-      link: loja.instagramUrl,
+    { id: 'gn25-broca', foto: 'assets/img/prod-gn25-broca-800.webp', fotoMini: 'assets/img/prod-gn25-broca-400.webp', publicada: '09/09/2026', nome: 'Parafuso GN25 ponta broca 3,5 × 25', cat: 'fixacao', icone: 'p-caixa',
+      emb: 'Caixa com 1.000 unidades', un: 'caixa', preco: 84.90, fonte: PRECO_INSTA, oferta: true,
+      link: 'https://www.instagram.com/drysul.loja/p/DdFAxHmnxj7/',
       detalhe: 'Fixa chapas de drywall na estrutura; a ponta broca vence perfis de aço mais espessos.' },
-    { id: 'gn25-agulha', foto: 'assets/img/prod-gn25-agulha-800.webp', fotoMini: 'assets/img/prod-gn25-agulha-400.webp', nome: 'Parafuso GN25 ponta agulha 3,5 × 25', cat: 'fixacao', icone: 'p-caixa',
-      emb: 'Caixa com 1.000 unidades', un: 'caixa', preco: 59.90, fonte: PRECO_INSTA_SEM_DATA, oferta: true,
-      link: loja.instagramUrl,
+    { id: 'gn25-agulha', foto: 'assets/img/prod-gn25-agulha-800.webp', fotoMini: 'assets/img/prod-gn25-agulha-400.webp', publicada: '09/09/2026', nome: 'Parafuso GN25 ponta agulha 3,5 × 25', cat: 'fixacao', icone: 'p-caixa',
+      emb: 'Caixa com 1.000 unidades', un: 'caixa', preco: 59.90, fonte: PRECO_INSTA, oferta: true,
+      link: 'https://www.instagram.com/drysul.loja/p/DdE_o4CH-cy/',
       detalhe: 'Fixa chapas de drywall nos perfis leves da estrutura, com ponta agulha.' },
 
     // Referências de catálogo — sob consulta. Imagens ilustrativas: chapas em 3D com a textura de uma foto do

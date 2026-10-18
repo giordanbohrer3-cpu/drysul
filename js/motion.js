@@ -312,10 +312,10 @@
     parede.passo = -1;
   }
   function paredeViva() { return on && parede.vista; }
-  // trecho da rolagem em que a parede desmonta: começa quando ela está inteira na tela (ou no topo da página)
-  // e termina quando o meio dela chega perto do cabeçalho; mede no resize, não a cada quadro
-  // Computador: a parede está à direita, já na tela; ela sobe mais devagar que a página (paralaxe de 30%) para
-  // dar tempo de ver as 4 etapas. Tablet e celular: ela vem depois dos atalhos e desmonta enquanto atravessa a tela.
+  // trecho da rolagem em que a parede desmonta, igual no computador e no celular: começa quando ela aparece inteira
+  // (base a 4% do pé da tela) e termina com ela ainda inteira, o meio a 40% da altura da tela (nunca sob o cabeçalho).
+  // Assim quem rola vê as 4 etapas do começo ao fim. Mede no resize, não a cada quadro.
+  // Computador: a parede está à direita e sobe mais devagar que a página (paralaxe de 30%), então o trecho é maior.
   var mqLado = window.matchMedia('(min-width: 1024px)');
   function medirParede() {
     parede.vista = !!rig && !!arteEl && arteEl.offsetHeight > 0;
@@ -324,15 +324,10 @@
     var r = arteEl.getBoundingClientRect(), topo = r.top + rolY - (parede.desloc || 0), vh = window.innerHeight;
     var cab = parseFloat(getComputedStyle(root).getPropertyValue('--header-h')) || 64;
     parede.paralaxe = mqLado.matches;
-    if (parede.paralaxe) {
-      // começa quando o topo de compras encosta no cabeçalho: com a abertura "Quem somos" (e a faixa) acima, não é no 0
-      var base = Math.max(0, heroEl.getBoundingClientRect().top + rolY - cab);
-      parede.ini = base;
-      parede.fim = base + Math.max(320, (topo - base + r.height - cab) * 0.75);
-    } else {
-      parede.ini = Math.max(0, topo + r.height * 0.7 - vh);
-      parede.fim = Math.max(parede.ini + 260, topo + r.height * 0.5 - cab - vh * 0.08);
-    }
+    var vel = parede.paralaxe ? 0.7 : 1; // quanto a parede anda na tela a cada px rolado
+    var alvo = Math.max(cab + 8, vh * 0.4 - r.height / 2); // topo da parede na tela quando termina
+    parede.ini = Math.max(0, topo + r.height - vh * 0.96);
+    parede.fim = parede.ini + Math.max(200, (topo - parede.ini - alvo) / vel);
     if (!parede.paralaxe && parede.desloc) { parede.desloc = 0; arteEl.style.transform = ''; }
   }
   function paralaxeParede() {

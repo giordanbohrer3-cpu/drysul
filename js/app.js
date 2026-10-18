@@ -1146,13 +1146,23 @@
     }, { rootMargin: '-45% 0px -50% 0px' });
     secs.forEach(function (s) { navIO.observe(s); });
 
-    var stage = $('#story-stage'), steps = $$('.step');
+    // passo ativo = o que está na faixa do meio da tela. Dois passos podem dividir a faixa: quando o ativo sai
+    // (rolando para cima, por exemplo), o que continua nela assume. Antes, só quem "entrava" mudava o palco, e ele
+    // ficava preso no passo 3 com o 2 na tela.
+    var stage = $('#story-stage'), steps = $$('.step'), naFaixa = [], ativo = null;
+    function ativarPasso(alvo) {
+      if (!alvo || alvo === ativo) return;
+      ativo = alvo;
+      steps.forEach(function (s) { s.classList.toggle('is-active', s === alvo); });
+      stage.setAttribute('data-step', alvo.getAttribute('data-step'));
+    }
     var stepIO = new IntersectionObserver(function (es) {
+      var entrou = null;
       es.forEach(function (e) {
-        if (!e.isIntersecting) return;
-        steps.forEach(function (s) { s.classList.toggle('is-active', s === e.target); });
-        stage.setAttribute('data-step', e.target.getAttribute('data-step'));
+        naFaixa = naFaixa.filter(function (s) { return s !== e.target; });
+        if (e.isIntersecting) { naFaixa.push(e.target); entrou = e.target; }
       });
+      ativarPasso(entrou || (naFaixa.indexOf(ativo) < 0 ? naFaixa[naFaixa.length - 1] : null));
     }, { rootMargin: '-45% 0px -45% 0px' });
     steps.forEach(function (s) { stepIO.observe(s); });
 

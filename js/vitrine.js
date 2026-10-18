@@ -88,7 +88,9 @@
   function parar(m) { motivos[m] = true; rever(); }
   function soltar(m) { motivos[m] = false; rever(); }
   function tempo() { return anim ? anim.currentTime || 0 : 0; }
-  function irPara(t) { if (anim) anim.currentTime = t; marcarFrente(); }
+  // o tempo fica sempre dentro de uma volta: girar para trás (arrasto ou inércia) deixava o tempo negativo, a animação
+  // saía de cena e o anel parava no primeiro produto até o tempo voltar a ser positivo (segundos parado)
+  function irPara(t) { if (anim) anim.currentTime = ((t % DUR) + DUR) % DUR; marcarFrente(); }
 
   // o cartão que passa pela frente acende (conta leve, 5 vezes por segundo, sem ler o layout)
   var frente = -1, timerFrente = 0;

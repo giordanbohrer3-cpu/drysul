@@ -1,15 +1,17 @@
 /* Comprovante do pedido: tela, imagem PNG (galeria/WhatsApp), impressão/PDF e compartilhamento.
-   MODO DE TESTE (vendas.demo): o comprovante leva marca d'água e não tem valor. Com o provedor ligado, ele é emitido pelo
-   servidor da loja só depois da confirmação do provedor de pagamento, com código assinado e cópia por e-mail. */
+   - Comprovante de PEDIDO (WhatsApp): montado aqui, sempre "aguardando confirmação da loja".
+   - Comprovante de PAGAMENTO: só com os dados que o servidor da loja devolve depois que o Mercado Pago confirma
+     (doServidor), com o código de verificação assinado pelo servidor. No ambiente de testes leva marca d'água. */
 (function () {
   'use strict';
 
   var A = window.DrysulApp, V = window.DrysulVendas, D = window.DRYSUL;
   if (!A || !V || !D) return;
   var $ = function (s, r) { return (r || document).querySelector(s); };
-  var BRL = A.BRL, esc = A.esc, loja = D.loja, DEMO = !!(D.vendas && D.vendas.demo);
+  var BRL = A.BRL, esc = A.esc, loja = D.loja;
   var KEY = 'drysul-comprovante';
-  var PAG = { pix: 'Pix', credito: 'Cartão de crédito', debito: 'Cartão de débito', whatsapp: 'Combinar no atendimento' };
+  var PAG = { pix: 'Pix', credito: 'Cartão de crédito', debito: 'Cartão de débito', boleto: 'Boleto', saldo: 'Saldo no Mercado Pago',
+    mercadopago: 'Mercado Pago', whatsapp: 'Combinar no atendimento' };
 
   function dataHora(iso) {
     return new Date(iso).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
@@ -21,12 +23,12 @@
   /* ---------- dados ---------- */
   function montar(o) {
     var r = {
-      demo: DEMO,
+      demo: false,
       numero: o.numero,
       dataISO: new Date().toISOString(),
-      status: o.pago ? 'pago' : 'aguardando',
+      status: 'aguardando',
       pagamento: o.pagamento,
-      transacao: o.pago ? (DEMO ? 'TESTE-' : '') + Math.random().toString(36).slice(2, 10).toUpperCase() : null,
+      transacao: null,
       entrega: o.entrega,
       cliente: { nome: o.nome, telefone: V.mascararTelefone(o.telefone), email: V.mascararEmail(o.email) },
       itens: o.linhas.map(function (l) {
@@ -36,15 +38,25 @@
       total: o.total
     };
     r.codigo = V.codigoVerificacao(V.conteudoComprovante(r));
-    try { sessionStorage.setItem(KEY, JSON.stringify(r)); } catch (e) {}
+    guardar(r);
     return r;
   }
+  // Pagamento confirmado pelo servidor: nada aqui é calculado no navegador
+  function doServidor(c) {
+    var r = {
+      demo: !!c.teste, servidor: true, numero: c.numero, dataISO: c.dataISO, status: c.status === 'pago' ? 'pago' : 'aguardando',
+      pagamento: c.pagamento, transacao: c.transacao, entrega: c.entrega, cliente: c.cliente, itens: c.itens, total: c.total, codigo: c.codigo
+    };
+    guardar(r);
+    return r;
+  }
+  function guardar(r) { try { sessionStorage.setItem(KEY, JSON.stringify(r)); } catch (e) {} }
   function ultimo() { try { return JSON.parse(sessionStorage.getItem(KEY)); } catch (e) { return null; } }
 
   function titulo(r) { return r.status === 'pago' ? 'Comprovante de pagamento' : 'Comprovante de pedido'; }
   function statusTxt(r) {
     if (r.status !== 'pago') return 'Aguardando confirmação da loja';
-    return r.demo ? 'Pagamento aprovado (simulado)' : 'Pagamento aprovado';
+    return r.demo ? 'Pagamento aprovado (ambiente de testes)' : 'Pagamento aprovado';
   }
 
   /* ---------- HTML ---------- */
@@ -58,7 +70,7 @@
       '<p class="rcpt__total"><small>' + (r.status === 'pago' ? 'Total pago' : 'Total dos produtos') + '</small><strong>' + BRL.format(r.total) + '</strong></p>' +
       '<dl class="rcpt__meta">' +
         linhaMeta('Pedido', r.numero) + linhaMeta('Data e hora', dataHora(r.dataISO)) +
-        linhaMeta('Pagamento', PAG[r.pagamento]) + linhaMeta('ID da transação', r.transacao) +
+        linhaMeta('Pagamento', PAG[r.pagamento] || PAG.mercadopago) + linhaMeta('ID da transação', r.transacao) +
         linhaMeta('Recebimento', recebimento(r)) + linhaMeta('Cliente', r.cliente.nome) +
         linhaMeta('WhatsApp', r.cliente.telefone) + linhaMeta('E-mail', r.cliente.email) +
       '</dl>' +
@@ -85,7 +97,7 @@
   function mensagemLoja(r) {
     var L = [(r.status === 'pago' ? 'Olá, Drysul! Paguei o pedido ' : 'Olá, Drysul! Quero fazer o pedido ') + r.numero + ' pelo site.', '', '*Itens*'];
     r.itens.forEach(function (i) { L.push('• ' + i.qtd + ' × ' + i.nome + ' — ' + i.emb.toLowerCase() + ' = ' + BRL.format(i.total)); });
-    L.push('', 'Total: ' + BRL.format(r.total), 'Pagamento: ' + PAG[r.pagamento] + (r.status === 'pago' ? ' — ' + statusTxt(r).toLowerCase() : ''));
+    L.push('', 'Total: ' + BRL.format(r.total), 'Pagamento: ' + (PAG[r.pagamento] || PAG.mercadopago) + (r.status === 'pago' ? ' — ' + statusTxt(r).toLowerCase() : ''));
     if (r.transacao) L.push('ID da transação: ' + r.transacao);
     L.push('Recebimento: ' + recebimento(r), 'Código de verificação: ' + r.codigo, 'Data: ' + dataHora(r.dataISO));
     L.push('', 'Nome: ' + r.cliente.nome);
@@ -146,7 +158,7 @@
     if (!medir) { ctx.fillStyle = 'rgba(16,22,43,.14)'; ctx.fillRect(P, y, W - 2 * P, 2); }
     y += 24;
     // metadados
-    [['Pedido', r.numero], ['Data e hora', dataHora(r.dataISO)], ['Pagamento', PAG[r.pagamento]], ['ID da transação', r.transacao],
+    [['Pedido', r.numero], ['Data e hora', dataHora(r.dataISO)], ['Pagamento', PAG[r.pagamento] || PAG.mercadopago], ['ID da transação', r.transacao],
      ['Recebimento', recebimento(r)], ['Cliente', r.cliente.nome], ['WhatsApp', r.cliente.telefone], ['E-mail', r.cliente.email]]
       .forEach(function (m) {
         if (!m[1]) return;
@@ -273,6 +285,7 @@
 
   window.DrysulRecibo = {
     montar: function (o) { var r = montar(o); atualizarBotao(); return r; },
+    doServidor: function (c) { var r = doServidor(c); atualizarBotao(); return r; },
     mostrar: mostrar, mensagemLoja: mensagemLoja, gerarPng: gerarPng, abrirUltimo: abrirUltimo, ultimo: ultimo
   };
 })();

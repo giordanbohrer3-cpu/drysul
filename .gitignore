@@ -1,0 +1,7 @@
+# Segredos locais do Worker (copie .dev.vars.example para .dev.vars)
+.dev.vars
+.dev.vars.*
+!.dev.vars.example
+# Banco local e cache do Wrangler
+.wrangler/
+node_modules/

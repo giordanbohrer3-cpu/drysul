@@ -121,6 +121,7 @@
   if ('IntersectionObserver' in window) {
     new IntersectionObserver(function (es) {
       visivel = es[es.length - 1].isIntersecting;
+      raiz.classList.toggle('is-fora', !visivel); // pausa também o pulso e o brilho decorativos (CSS)
       if (anim) { if (visivel) anim.play(); else anim.pause(); }
       relogio(visivel && !!anim);
     }, { rootMargin: '80px 0px' }).observe(raiz);

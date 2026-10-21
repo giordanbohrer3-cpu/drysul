@@ -1,0 +1,41 @@
+// Drysul no Cloudflare: o site (Static Assets) e o servidor da loja (Worker + D1) no mesmo endereço.
+// Guia completo: docs/PAGAMENTOS.md
+//   npx wrangler dev                    → computador (AMBIENTE local, segredos em .dev.vars)
+//   npx wrangler deploy --env teste     → drysul-teste.<sua-conta>.workers.dev (credenciais de TESTE do Mercado Pago)
+//   npx wrangler deploy --env producao  → bloqueado para cobrar até PAGAMENTOS_ATIVOS = "true" (veja o checklist)
+// Segredos (nunca neste arquivo): MP_ACCESS_TOKEN, MP_WEBHOOK_SECRET, CHAVE_PEDIDOS → npx wrangler secret put NOME --env teste
+{
+  "name": "drysul-local",
+  "main": "worker/src/index.js",
+  "compatibility_date": "2026-10-01",
+  "workers_dev": true,
+  "assets": {
+    "directory": ".",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*"]
+  },
+  "observability": { "enabled": true },
+  "vars": { "AMBIENTE": "local", "PAGAMENTOS_ATIVOS": "true" },
+  "d1_databases": [
+    { "binding": "DB", "database_name": "drysul-local", "database_id": "00000000-0000-0000-0000-000000000000", "migrations_dir": "worker/migrations" }
+  ],
+  "env": {
+    "teste": {
+      "name": "drysul-teste",
+      // SITE_URL é opcional no teste: sem ele, o endereço vem da própria requisição (o workers.dev)
+      "vars": { "AMBIENTE": "teste", "PAGAMENTOS_ATIVOS": "true" },
+      "d1_databases": [
+        { "binding": "DB", "database_name": "drysul-teste", "database_id": "COLE_AQUI_O_ID_DO_BANCO_DE_TESTE", "migrations_dir": "worker/migrations" }
+      ]
+    },
+    "producao": {
+      "name": "drysul",
+      // Bloqueado. Só mude para "true" depois do checklist de segurança (docs/PAGAMENTOS.md), com autorização da loja.
+      // SITE_URL: o endereço público, sem barra no fim (ex.: https://drysul.<sua-conta>.workers.dev ou o domínio próprio)
+      "vars": { "AMBIENTE": "producao", "PAGAMENTOS_ATIVOS": "false", "SITE_URL": "" },
+      "d1_databases": [
+        { "binding": "DB", "database_name": "drysul-producao", "database_id": "COLE_AQUI_O_ID_DO_BANCO_DE_PRODUCAO", "migrations_dir": "worker/migrations" }
+      ]
+    }
+  }
+}

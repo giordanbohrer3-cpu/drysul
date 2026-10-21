@@ -4,6 +4,10 @@
 
 Site da **Drysul — gesso e acabamento**. HTML, CSS e JavaScript puros, sem build. Única biblioteca: o Lenis (rolagem suave, licença MIT), copiado em `js/vendor/`. Publicado pelo GitHub Pages até a mudança para o domínio da loja.
 
+**Pagamentos online (em testes):** o mesmo site roda no Cloudflare (Static Assets) com um servidor da loja (Worker + banco D1)
+que cria e confirma pagamentos no Mercado Pago (Checkout Pro). Implantação, Mercado Pago, domínio próprio e checklist de
+segurança: [`docs/PAGAMENTOS.md`](docs/PAGAMENTOS.md). No GitHub Pages não há servidor: a compra segue pelo WhatsApp.
+
 ## Estrutura
 
 | Arquivo | Função |
@@ -17,7 +21,12 @@ Site da **Drysul — gesso e acabamento**. HTML, CSS e JavaScript puros, sem bui
 | `js/busca.js` | Regras da busca (sem DOM, testável no Node): sem acento, plural, sinônimos de balcão, erro de digitação, relevância e o filtro do catálogo, que nunca devolve a grade vazia havendo produtos |
 | `js/app.js` | Catálogo, filtros, busca rápida, pedido/lista e barra do pedido, WhatsApp, calculadora e atalho "descreva a obra", menu |
 | `js/checkout-model.js` | Regras da central de vendas: canal (site x WhatsApp), limite, validações (testável no Node) |
-| `js/checkout.js` | Central de vendas: pedido → entrega → pagamento (Pix, crédito, débito, WhatsApp) → confirmação |
+| `js/checkout.js` | Central de vendas: pedido → entrega → pagamento (Pix ou cartão no Mercado Pago, ou WhatsApp) → acompanhamento. Pergunta ao servidor (`/api/status`) se o pagamento online está ativo; mostra "pago" e o comprovante só com a confirmação do servidor |
+| `js/receipt.js` | Comprovante: de pedido (WhatsApp, "aguardando confirmação") ou de pagamento (dados e código assinados pelo servidor); imagem PNG, impressão/PDF e compartilhamento |
+| `worker/src/` | Servidor da loja (Cloudflare Worker): `index.js` (rotas `/api/*`), `config.js` (ambientes e travas), `catalogo.js` (preço pelo `data.js`), `pedidos.js` (pedidos, pagamento, webhook, comprovante), `mercadopago.js` (Orders API), `webhook.js` (assinatura), `db.js` (D1) |
+| `worker/migrations/` | Tabelas do banco D1: pedidos, itens, transações, pagamentos e notificações recebidas |
+| `wrangler.jsonc` | Configuração do Cloudflare: ambientes local, teste e produção (produção bloqueada para cobrar) |
+| `.assetsignore` | O que não vai para o site publicado no Cloudflare (servidor, testes, documentação, segredos locais) |
 | `js/vitrine.js` | Vitrine 3D no alto da abertura, logo abaixo da faixa laranja: um anel com os produtos, preços e ofertas do `data.js` girando devagar (só o anel anima, no compositor). Mouse em cima desacelera até parar; arrastar ou deslizar gira com inércia (no celular, por eventos de toque: decidido que o gesto é horizontal, a página fica parada até soltar); clicar leva ao produto no catálogo; Tab entra num cartão e as setas passam de um a outro (o focado vem para a frente); botão de pausa. Sem efeitos, vira uma faixa plana com rolagem lateral |
 | `js/motion.js` | Parede 3D do topo: quando aparece inteira na tela, desmonta sozinha em 2,6 s nas 4 etapas (fita, chapas, parafusos, estrutura), no mesmo tempo em qualquer aparelho e sem conta nenhuma durante a rolagem; rolando de volta até ela sair por baixo, se monta de novo; escrita animada dos títulos, rolagem suave no computador (Lenis), canvas técnico, fundos que andam com a rolagem, pausa de efeitos; anima só o que está perto da tela. **Celular e tablet (toque):** sem 3D ligado à rolagem, sem paralaxe, sem cortina nas fotos, títulos inteiros e cabeçalho sem desfoque: as fotos ficam paradas e nítidas e a rolagem fica leve. Nada lê a posição da rolagem em JavaScript durante a rolagem (barra de progresso em CSS, cabeçalho compacto por IntersectionObserver) |
 | `js/som.js` | Sons de interface sintetizados no navegador (sem arquivos), bem baixos, no espírito dos toques do iPhone: "tic" no clique, clique de chave ao alternar (tema, filtros, abas), duas notas de vidro ao adicionar ao pedido, ar quase imperceptível na rolagem e um swoosh baixinho nas etapas da parede. Sem música e sem botão próprio: seguem o "Pausar efeitos e sons" do rodapé; com "menos movimento" no aparelho, já começam desligados. O áudio só nasce no primeiro toque |
@@ -30,6 +39,7 @@ Site da **Drysul — gesso e acabamento**. HTML, CSS e JavaScript puros, sem bui
 | `tests/checkout.test.js` | Regras de roteamento e validação da central de vendas |
 | `tests/horario.test.js` | Aberto/fechado, "fecha em X min", próximo dia de abertura e fuso da loja |
 | `tests/ajuda.test.js` | Dúvidas bem formadas e a busca da ajuda com perguntas do jeito que as pessoas escrevem |
+| `tests/worker.test.mjs` | Servidor de pagamentos com D1 em memória e Mercado Pago simulado: pedido válido, sem preço, valores adulterados, aprovado, recusado, pendente, webhook duplicado e com assinatura inválida, falhas de rede, recarregar/clique duplo, credenciais e trava da produção |
 
 ## Como editar
 
@@ -47,7 +57,7 @@ Site da **Drysul — gesso e acabamento**. HTML, CSS e JavaScript puros, sem bui
   com aviso e botão do WhatsApp. Com uma categoria escolhida e nada nela, a busca vale para todas ("massa" em Chapas mostra a massa).
 - **Textos de exemplo dos campos:** `placeholder` (longo) e `data-ph-curto` (curto) no `index.html`; o site usa o longo quando cabe no campo.
 - **Preços da calculadora:** cada material vira embalagem de compra (`COMPRA` no `js/calculator-model.js`) e usa o preço do produto da loja em `js/data.js`; sem preço da loja, usa a tabela `precosMedios` (médias de mercado de 03/10/2026, marcadas com “≈ média”). Para usar o preço da Drysul, preencha `preco` no produto. A mensagem do WhatsApp leva só os itens, sem preços da estimativa.
-- **Limite da compra pelo site:** `vendas.limiteOnline` em `js/data.js` (atual: R$ 1.000).
+- **Limite da compra pelo site:** `vendas.limiteOnline` em `js/data.js` (atual: R$ 1.000). O servidor usa o mesmo arquivo: mudou preço ou limite, publique o Worker de novo (`npm run deploy:teste`).
 - **WhatsApp:** as mensagens prontas ficam em `MSG_WHATS` no `js/app.js` (saudação pelo horário + motivo: contato, produto ou busca sem resultado).
 - **Busca rápida:** botão no cabeçalho, tecla `/` ou `Ctrl+K`; usa os mesmos dados do catálogo. Os termos sugeridos estão em `POPULARES` no `js/app.js`.
 - **Tema claro/escuro:** botão no cabeçalho; a escolha fica salva no navegador e, sem escolha, segue o aparelho. Cores em `:root` e `[data-theme="dark"]` no `css/styles.css`. As partes escuras (cabeçalho, topo, seções azuis, rodapé) usam `--escuro-1`, `--escuro-2`, `--escuro-3`: no tema claro elas ficam um tom mais claras, para a troca de tema aparecer já no topo.
@@ -66,23 +76,22 @@ Site da **Drysul — gesso e acabamento**. HTML, CSS e JavaScript puros, sem bui
 
 ## Central de vendas
 
-Pedidos só com itens de preço, sem quantidades vindas da calculadora e até o limite vão para a compra no site
-(retirada na loja; Pix, crédito ou débito). Com cálculo de obra, item sob consulta, valor acima do limite
+Pedidos só com itens de preço, sem quantidades vindas da calculadora e até o limite podem ser pagos no site
+(retirada na loja; Pix ou cartão no Mercado Pago). Com cálculo de obra, item sob consulta, valor acima do limite
 ou entrega no endereço, o pedido segue para o WhatsApp com a mensagem pronta.
 
-Enquanto `vendas.demo` (em `js/data.js`) for `true`, a central está em **modo de teste**: nenhum pagamento é processado,
-o cliente vê o aviso "Pagamento online em fase de testes" e o comprovante leva marca d'água. Para ligar a cobrança real:
+Quem decide se o pagamento online está ativo é o servidor (`GET /api/status`):
+- **GitHub Pages / sem servidor:** "Pix ou cartão" aparece desativado; a compra segue pelo WhatsApp.
+- **Cloudflare, ambiente de teste:** paga no Mercado Pago com credenciais de teste (nada é cobrado); o comprovante leva marca d'água.
+- **Cloudflare, produção:** bloqueada até `PAGAMENTOS_ATIVOS = "true"` (veja o checklist em `docs/PAGAMENTOS.md`).
 
-1. Conta no provedor de pagamento (ex.: Mercado Pago ou PagBank) no CNPJ da loja.
-2. Função no servidor (ex.: Cloudflare Workers) que recebe só `{id, qtd}`, recalcula os preços com o catálogo
-   dela e cria a cobrança; as chaves secretas ficam só no servidor.
-3. Checkout hospedado pelo provedor: o cartão é digitado no ambiente dele, nunca no site da loja.
-4. Confirmação por webhook do provedor (assinatura verificada), e não pelo retorno do navegador.
+O navegador nunca confirma pagamento: o servidor recalcula o pedido, abre o checkout oficial, confere a assinatura do
+webhook e relê a order no Mercado Pago antes de marcar "pago". Não existe mais QR Code ilustrativo nem aprovação simulada.
 
 ## Testes
 
 ```bash
-node --test tests/calculator.test.js tests/busca.test.js tests/checkout.test.js tests/horario.test.js tests/ajuda.test.js
+npm test          # Node 22+: regras do site e servidor de pagamentos (D1 em memória, Mercado Pago simulado)
 ```
 
 ## Imagens ilustrativas
@@ -99,5 +108,5 @@ Ao receber fotos reais, troque os arquivos `assets/img/prod-<id>-800.webp`/`-400
 - Abertura "Quem somos": foto da fachada tirada pela loja (o Street View fica até ela chegar; print do Google não pode) e a história real (ano, quem fundou); hoje o texto é genérico e a foto é a da marca
 - Central de ajuda: a loja confirmar as respostas (retirada, horário, feriados) e completar entrega, frete e pagamento
 - Perfil da Empresa no Google para a Drysul (pelo nome, a busca no Maps cai em outra empresa)
-- Pagamento online real (acima) e `vendas.demo: false`
+- Pagamento online: testar com a conta de teste do Mercado Pago da loja e cumprir o checklist de `docs/PAGAMENTOS.md` antes de ligar a produção
 - Domínio próprio: remover o `noindex`, trocar `og:url`/`og:image`, "© 2026" → "© 2026 Drysul", apagar `proposta/`, SEO local (Schema.org LocalBusiness)

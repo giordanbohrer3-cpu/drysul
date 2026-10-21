@@ -1,0 +1,12 @@
+# Copie para .dev.vars (já está no .gitignore) e preencha só com credenciais de TESTE.
+# Usado apenas pelo "npx wrangler dev" no seu computador. No Cloudflare, use "npx wrangler secret put".
+
+# Access Token de TESTE: Mercado Pago → Suas integrações → sua aplicação → Credenciais de teste
+MP_ACCESS_TOKEN=
+# Assinatura secreta das notificações: Suas integrações → Webhooks → Configurar notificações
+MP_WEBHOOK_SECRET=
+# Chave do servidor para tokens de pedido e códigos de comprovante (64 caracteres aleatórios):
+#   node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+CHAVE_PEDIDOS=
+# Opcional, só no computador: simulador do Mercado Pago (ex.: http://127.0.0.1:8899). Ignorado no teste e na produção.
+# MP_API_BASE=

@@ -1,0 +1,18 @@
+# Arquivos que NÃO vão para o Cloudflare Static Assets (o site público).
+# Código do servidor, segredos locais, testes, documentação e ferramentas ficam de fora.
+worker
+tests
+docs
+proposta
+node_modules
+.wrangler
+.dev.vars*
+.github
+.git
+.gitignore
+.assetsignore
+wrangler.jsonc
+package.json
+package-lock.json
+README.md
+LEIA-ME.md

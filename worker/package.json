@@ -1,0 +1,5 @@
+{
+  "name": "drysul-worker",
+  "private": true,
+  "type": "module"
+}

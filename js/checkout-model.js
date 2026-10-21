@@ -2,7 +2,7 @@
    Decide o canal do pedido:
    - "online": só itens com preço, sem quantidade vinda da calculadora, subtotal até o limite → compra pelo site
    - "whatsapp": tem cálculo de parede/forro, item sob consulta ou valor acima do limite → atendimento
-   Na versão final, o servidor refaz este cálculo com o catálogo dele: preço vindo do navegador não é confiável. */
+   O servidor da loja (worker/src/catalogo.js) refaz este cálculo com o mesmo catálogo: preço vindo do navegador não é confiável. */
 (function (root, factory) {
   var api = factory();
   if (typeof module === 'object' && module.exports) module.exports = api;
@@ -82,8 +82,8 @@
     return m[1].slice(0, Math.min(2, m[1].length)) + '•••@' + m[2];
   }
 
-  // Código de verificação do comprovante: resumo do conteúdo (FNV-1a de 2 × 32 bits).
-  // Na versão final, o código vem assinado pelo servidor da loja (HMAC), e a loja confere no painel.
+  // Código de verificação do comprovante de PEDIDO (WhatsApp): resumo do conteúdo (FNV-1a de 2 × 32 bits).
+  // O comprovante de PAGAMENTO usa o código assinado pelo servidor (HMAC), conferido em /api/comprovantes/verificar.
   function codigoVerificacao(texto) {
     var s = String(texto), h1 = 0x811c9dc5, h2 = 0x01000193 ^ s.length;
     for (var i = 0; i < s.length; i++) {

@@ -539,12 +539,15 @@
 
   // Durante rolagem e toques o fundo congela: a thread principal fica livre para o 3D e para responder.
   // O relógio próprio (vt) só anda quando desenha, então o fundo retoma de onde parou, sem salto.
-  var raf = 0, last = 0, vt = 0, pausaAte = 0;
+  // Sem nenhum fundo na tela, o laço para (nem acorda a cada quadro) e volta quando um fundo reaparece.
+  var raf = 0, last = 0, vt = 0, pausaAte = 0, semFundoNaTela = false;
+  function algumVisivel() { return canvases.some(function (cv) { return cv.visible; }); }
   function pausarFundo() { pausaAte = performance.now() + 180; }
   window.addEventListener('scroll', pausarFundo, { passive: true });
   document.addEventListener('pointerdown', pausarFundo, { passive: true });
   document.addEventListener('keydown', pausarFundo);
   function loop(t) {
+    if (!algumVisivel()) { raf = 0; semFundoNaTela = true; return; }
     raf = requestAnimationFrame(loop);
     if (t - last < 33) return; // ~30 fps
     var dt = Math.min(t - last, 100);
@@ -560,6 +563,7 @@
   if (hasIO) {
     var cvIO = new IntersectionObserver(function (es) {
       es.forEach(function (e) { canvases.forEach(function (cv) { if (cv.cv === e.target) cv.visible = e.isIntersecting; }); });
+      if (semFundoNaTela && algumVisivel()) { semFundoNaTela = false; startCanvas(); }
     });
     canvases.forEach(function (cv) { cvIO.observe(cv.cv); });
   } else canvases.forEach(function (cv) { cv.visible = true; });

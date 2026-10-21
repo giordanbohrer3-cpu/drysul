@@ -136,9 +136,10 @@
 
   // Central de vendas: pedidos com preço, sem cálculo de obra e até este valor podem ser comprados no site.
   // Acima disso, com estimativa da calculadora ou item sob consulta, o pedido segue para o WhatsApp.
+  // O servidor da loja (worker/) lê este mesmo arquivo para recalcular preços e total: mudou aqui, publique o Worker de novo.
+  // Se o pagamento online está ligado, quem decide é o servidor (GET /api/status), não este arquivo.
   var vendas = {
-    limiteOnline: 1000, // R$ — definido em 30/09/2026
-    demo: true          // modo de teste: enquanto o provedor de pagamento não está ligado, nada é cobrado e a central avisa
+    limiteOnline: 1000 // R$ — definido em 30/09/2026
   };
 
   // Preços médios de mercado, usados só na estimativa da calculadora enquanto a loja não informa o preço dela.

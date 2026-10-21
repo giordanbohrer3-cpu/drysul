@@ -25,8 +25,12 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-      - name: Testes (calculadora, busca e central de vendas)
-        run: node --test tests/calculator.test.js tests/busca.test.js tests/checkout.test.js tests/horario.test.js tests/ajuda.test.js
+      # Node 22: os testes do servidor usam node:sqlite (banco D1 em memória)
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Testes (calculadora, busca, central de vendas e servidor de pagamentos)
+        run: npm test
       - uses: actions/configure-pages@v5
       - name: Empacotar o site
         uses: actions/upload-pages-artifact@v3

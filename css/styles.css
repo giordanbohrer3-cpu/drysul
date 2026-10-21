@@ -675,6 +675,7 @@ html:not(.motion-on) .vitrine .vitrine__pausa { display: none; }
   background: linear-gradient(90deg, transparent, rgba(244, 106, 66, .95), transparent); opacity: 0;
 }
 .motion-on .vitrine__palco::after { animation: vt-varre 7s var(--ease-io) infinite; }
+.vitrine.is-fora .vitrine__ponto::after, .vitrine.is-fora .vitrine__palco::after { animation-play-state: paused; }
 @keyframes vt-varre { 0% { opacity: 0; transform: translateX(-30%); } 10% { opacity: 1; } 55% { opacity: 1; } 70%, 100% { opacity: 0; transform: translateX(385%); } }
 
 .vitrine__anel { position: absolute; left: 50%; top: 14px; width: var(--vt-w); height: var(--vt-h); margin: 0 0 0 calc(var(--vt-w) / -2); padding: 0; list-style: none; transform-style: preserve-3d; }
@@ -1702,7 +1703,7 @@ html.tem-balao .zap__txt { visibility: hidden; }
 .opt.is-disabled { cursor: not-allowed; }
 .opt.is-disabled .opt__box { opacity: .45; }
 .co-fields { display: grid; gap: 14px; }
-.co-fields .field__err, .co-pix .field__err { margin: 0; }
+.co-fields .field__err { margin: 0; }
 .co-secure { display: grid; gap: 8px; padding: 14px; background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--r-s); font-size: var(--fs-xs); }
 .co-secure li { display: grid; grid-template-columns: 20px 1fr; gap: 10px; align-items: start; }
 .co-secure .ic { width: 18px; height: 18px; color: var(--success); margin-top: 1px; }
@@ -1712,20 +1713,15 @@ html.tem-balao .zap__txt { visibility: hidden; }
 .co-total strong { font-size: 1.7rem; font-weight: 850; font-stretch: 80%; font-variant-numeric: tabular-nums; }
 .co-total small { font-size: var(--fs-xs); color: var(--muted); }
 .co-nav { display: flex; gap: 10px; }
-.co-ok, .co-pix, .co-card { display: grid; gap: 14px; justify-items: center; text-align: center; padding: 8px 0; }
+.co-ok { display: grid; gap: 14px; justify-items: center; text-align: center; padding: 8px 0; }
 .co-ok > .ic { width: 56px; height: 56px; padding: 12px; border-radius: 50%; background: var(--ok-bg); color: var(--success); stroke-width: 2.2; }
 .co-ok__info { font-size: var(--fs-sm); color: var(--muted); max-width: 44ch; }
-.co-demo-note { font-size: var(--fs-xs); color: var(--note-fg); background: var(--note-bg); padding: 6px 10px; border-radius: var(--r-s); }
-.qr { width: min(220px, 60vw); height: auto; border: 1px solid var(--line); border-radius: var(--r-s); }
-.co-pix .field { width: 100%; text-align: left; }
-.co-pix input[disabled] { color: var(--muted); background: var(--surface-2); font-size: var(--fs-sm); }
-.co-howto { display: grid; gap: 6px; text-align: left; counter-reset: h; font-size: var(--fs-sm); width: 100%; }
-.co-howto li { counter-increment: h; display: grid; grid-template-columns: 26px 1fr; gap: 8px; }
-.co-howto li::before { content: counter(h); display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--inverse-bg); color: var(--inverse-fg); font-size: var(--fs-label); font-weight: 800; }
-.co-provider { display: grid; grid-template-columns: 36px 1fr; gap: 12px; text-align: left; padding: 16px; border: 1.5px dashed var(--line-strong); border-radius: var(--r-s); background: var(--surface-2); }
-.co-provider .ic { width: 30px; height: 30px; color: var(--success); }
-.co-provider b { display: block; margin-bottom: 4px; }
-.co-provider span { font-size: var(--fs-sm); color: var(--muted); }
+/* acompanhamento do pagamento online: espera em neutro, problema em laranja (aprovado usa o verde de .co-ok) */
+.co-ok--verificando > .ic, .co-ok--aguardando > .ic, .co-ok--pendente > .ic, .co-ok--demorando > .ic { background: var(--surface-2); color: var(--fg); }
+.co-ok--recusado > .ic, .co-ok--expirado > .ic, .co-ok--cancelado > .ic, .co-ok--divergente > .ic, .co-ok--reembolsado > .ic,
+.co-ok--sem_conexao > .ic, .co-ok--sem_token > .ic { background: var(--warn-bg); color: var(--orange-text); }
+.co-acoes { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+.co-alerta { margin: 0; padding: 10px 14px; font-size: var(--fs-sm); font-weight: 600; color: var(--fg); background: var(--warn-bg); border: 1px solid var(--warn-line); border-radius: var(--r-s); }
 
 /* ---------- Comprovante ---------- */
 .rcpt, .stage-card {

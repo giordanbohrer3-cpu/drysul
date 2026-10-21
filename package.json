@@ -1,0 +1,16 @@
+{
+  "name": "drysul",
+  "private": true,
+  "description": "Site da Drysul e servidor da loja (Cloudflare Workers + D1 + Mercado Pago)",
+  "scripts": {
+    "test": "node --test tests/calculator.test.js tests/busca.test.js tests/checkout.test.js tests/horario.test.js tests/ajuda.test.js tests/worker.test.mjs",
+    "dev": "wrangler dev",
+    "db:local": "wrangler d1 migrations apply DB --local",
+    "deploy:teste": "wrangler deploy --env teste",
+    "deploy:producao": "wrangler deploy --env producao"
+  },
+  "engines": { "node": ">=22" },
+  "devDependencies": {
+    "wrangler": "4.151.1"
+  }
+}

@@ -161,12 +161,14 @@
     var rolouEm = 0, perto = false, pronto = document.readyState === 'complete';
     window.addEventListener('scroll', function () { rolouEm = Date.now(); }, { passive: true });
     function tentar() {
-      if (frame || economia || loja.fotoFachada || !perto || !pronto) return;
+      // sem permissão para o conteúdo do Google, o Street View só abre ao tocar (consentimento.js)
+      if (frame || economia || loja.fotoFachada || !perto || !pronto || !(window.DrysulConsentimento && DrysulConsentimento.google())) return;
       if (Date.now() - rolouEm < 500) { setTimeout(tentar, 300); return; } // espera a rolagem parar
       var ir = function () { if (!frame && perto) mostrar('fachada', false); };
       if (window.requestIdleCallback) requestIdleCallback(ir, { timeout: 1500 }); else setTimeout(ir, 200);
     }
     if (!pronto) window.addEventListener('load', function () { pronto = true; setTimeout(tentar, 600); });
+    document.addEventListener('drysul:consentimento', tentar);
     new IntersectionObserver(function (es) {
       perto = es[es.length - 1].isIntersecting;
       if (perto) tentar();

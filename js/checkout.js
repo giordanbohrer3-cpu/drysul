@@ -154,6 +154,7 @@
     var soWhats = entrega() === 'entrega', semOnline = !online();
     elHint.hidden = !soWhats;
     elOff.hidden = soWhats || !semOnline;
+    var aceite = $('#co-aceite'); if (aceite) aceite.closest('.co-aceite').hidden = soWhats || semOnline || pagamento() === 'whatsapp';
     $$('input[name="pagamento"]', form).forEach(function (r) {
       r.disabled = r.value !== 'whatsapp' && (soWhats || semOnline);
       r.closest('.opt').classList.toggle('is-disabled', r.disabled);
@@ -203,7 +204,10 @@
     pagamento_pendente: 'Já existe um pagamento deste pedido em análise. Aguarde a confirmação.',
     nome_invalido: 'Confira seu nome na etapa Entrega.',
     telefone_invalido: 'Confira seu WhatsApp na etapa Entrega.',
-    email_invalido: 'Confira seu e-mail na etapa Entrega.'
+    email_invalido: 'Confira seu e-mail na etapa Entrega.',
+    estoque_insuficiente: 'Não há estoque suficiente de algum item. Diminua a quantidade ou fale com a loja no WhatsApp.',
+    muitas_requisicoes: 'Muitas tentativas seguidas. Aguarde alguns minutos e tente de novo.',
+    termos_nao_aceitos: 'Para pagar, marque que leu e aceita os termos e as políticas.'
   };
   function falhou(r) {
     var cod = r && r.dados && r.dados.erro;
@@ -219,12 +223,15 @@
 
   function pagarOnline() {
     alertar('');
+    var aceite = $('#co-aceite');
+    if (aceite && !aceite.checked) { alertar(MENSAGENS.termos_nao_aceitos); aceite.focus(); return; }
     ocupado(true, 'Abrindo o Mercado Pago…');
     var corpo = {
       itens: st.av.linhas.map(function (l) { return { id: l.id, qtd: l.qtd }; }),
       entrega: 'retirada',
       cliente: { nome: valor('nome'), telefone: valor('telefone'), email: valor('email') },
-      totalCentavos: Math.round(st.av.subtotal * 100)
+      totalCentavos: Math.round(st.av.subtotal * 100),
+      aceiteTermos: D.vendas.termosVersao
     };
     pedir('POST', 'pedidos', { corpo: corpo, chave: chaveDoPedido(corpo) }).then(function (r) {
       if (!r.ok || !r.dados || !r.dados.pedido) return falhou(r);
@@ -383,7 +390,7 @@
   form.addEventListener('submit', function (ev) { ev.preventDefault(); avancar(); });
   form.addEventListener('change', function (ev) {
     if (ev.target.name === 'pagamento') st.escolheuWhats = ev.target.value === 'whatsapp';
-    if (ev.target.name === 'entrega' || ev.target.name === 'pagamento') { alertar(''); atualizarRodape(); }
+    if (ev.target.name === 'entrega' || ev.target.name === 'pagamento') { alertar(''); atualizarRodape(); if (st.etapa === 3) ajustarPagamento(); }
   });
   form.addEventListener('input', function (ev) { if (ev.target.getAttribute('aria-invalid') === 'true') erro(ev.target, ''); });
   form.elements.telefone.addEventListener('blur', function () {

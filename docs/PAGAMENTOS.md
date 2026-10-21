@@ -245,3 +245,23 @@ Nada no código depende do endereço: o site chama `api/...` por caminho relativ
 - Entrega no endereço continua pelo WhatsApp.
 - Sem painel administrativo e sem envio de comprovante por e-mail.
 - O comprovante fica no aparelho de quem comprou; outro aparelho não abre o pedido (sem o token).
+
+---
+
+## 7. Operação (painel, estoque, migração 0002)
+
+- **Migração nova** `worker/migrations/0002_operacao.sql` (só acrescenta): histórico do pedido, retirada, aceite dos termos,
+  estoque com reserva, limites e auditoria. Aplicar: `npx wrangler d1 migrations apply DB --env teste --remote`
+  (faça `wrangler d1 export` antes na produção). Desfazer, só com backup e autorização: `worker/migrations-reverter/0002.sql`.
+- **Painel `/admin`:** Cloudflare Zero Trust → Access → *Applications* → *Self-hosted*: domínio do site, caminhos `/admin` e
+  `/api/admin`; política *Allow* só para os e-mails da equipe; exija login com verificação em duas etapas (ex.: Google com
+  2FA). Copie o *Application Audience (AUD) Tag* e o domínio da equipe (`<equipe>.cloudflareaccess.com`) para
+  `ACCESS_AUD` e `ACCESS_TEAM_DOMAIN`, e defina `ADMIN_EMAILS` (`"email:dono,email:atendente"`) no `wrangler.jsonc`.
+  Sem isso o painel responde "não configurado" (fechado por padrão).
+- **Estoque:** só os produtos cadastrados no painel são controlados (reserva na criação do pedido, baixa no pagamento,
+  liberação ao expirar/cancelar, devolução opcional no reembolso). Sem cadastro, o item é confirmado na retirada, como antes.
+- **Retirada (logística):** `em_preparacao` → `pronto_retirada` → `retirado` (ou `cancelado`), separada do status financeiro.
+- **Cancelar/reembolsar:** no painel (papel dono). Reembolso pela API do Mercado Pago com chave fixa por pedido (repetir não duplica).
+- **Agendador:** a cada 30 min (`triggers.crons`) libera reservas vencidas, limpa limites e aplica `RETENCAO_DIAS_NAO_PAGOS` se definido.
+- **Notificações por e-mail:** não implementadas (dependem de um provedor de e-mail e de conta da loja). O cliente acompanha pelo site e pelo WhatsApp.
+- **Rollback de código:** `npx wrangler rollback --env producao` volta à versão anterior do Worker (o banco não volta junto).

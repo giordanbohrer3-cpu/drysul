@@ -1900,3 +1900,16 @@ html.tem-balao .zap__txt { visibility: hidden; }
 @media (max-width: 380px) {
   .prod-grid { grid-template-columns: 1fr; }
 }
+
+/* ---------- Checkout: resumo das condições e aceite ---------- */
+.co-resumo { margin: 0; font-size: var(--fs-xs); color: var(--muted); }
+.co-aceite { display: grid; grid-template-columns: 22px 1fr; gap: 10px; align-items: start; font-size: var(--fs-sm); cursor: pointer; }
+.co-aceite input { width: 20px; height: 20px; margin: 2px 0 0; accent-color: var(--orange); }
+.co-aceite a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+
+/* ---------- Aviso de privacidade (não bloqueia a página) ---------- */
+.consent { position: fixed; left: 16px; right: 16px; bottom: 16px; z-index: 90; max-width: 560px; display: grid; gap: 12px; padding: 16px;
+  background: var(--surface); color: var(--fg); border: 1px solid var(--line-strong); border-radius: var(--r-s); box-shadow: 0 12px 40px rgba(16, 22, 43, .22); font-size: var(--fs-sm); }
+.consent p { margin: 0; }
+.consent a { color: inherit; text-decoration: underline; }
+.consent__acoes { display: flex; flex-wrap: wrap; gap: 8px; }

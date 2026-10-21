@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Painel · Drysul</title>
+  <link rel="stylesheet" href="../css/legal.css?v=1">
+  <link rel="stylesheet" href="admin.css?v=1">
+</head>
+<body>
+  <main class="adm">
+    <header class="adm__top"><h1>Painel da Drysul</h1><p id="eu" aria-live="polite">Carregando…</p></header>
+    <p class="adm__erro" id="erro" role="alert" hidden></p>
+    <section aria-labelledby="h-resumo"><h2 id="h-resumo">Resumo</h2><div id="resumo" class="adm__cards"></div></section>
+    <section aria-labelledby="h-pedidos">
+      <h2 id="h-pedidos">Pedidos</h2>
+      <form id="filtro" class="adm__linha">
+        <label>Pagamento <select name="status"><option value="">todos</option><option>aguardando</option><option>pendente</option><option>pago</option><option>recusado</option><option>expirado</option><option>cancelado</option><option>reembolsado</option><option>divergente</option></select></label>
+        <label>Retirada <select name="entrega"><option value="">todas</option><option>em_preparacao</option><option>pronto_retirada</option><option>retirado</option><option>cancelado</option></select></label>
+        <button type="submit">Filtrar</button>
+      </form>
+      <div class="adm__tabela"><table><thead><tr><th scope="col">Pedido</th><th scope="col">Criado</th><th scope="col">Cliente</th><th scope="col">Total</th><th scope="col">Pagamento</th><th scope="col">Retirada</th></tr></thead><tbody id="pedidos"></tbody></table></div>
+    </section>
+    <section id="detalhe" aria-labelledby="h-detalhe" hidden><h2 id="h-detalhe" tabindex="-1">Pedido</h2><div id="det"></div></section>
+    <section aria-labelledby="h-estoque">
+      <h2 id="h-estoque">Estoque</h2>
+      <p class="adm__nota">Só os produtos cadastrados aqui têm estoque controlado pelo site. Deixe a quantidade vazia para parar de controlar.</p>
+      <form id="form-estoque" class="adm__linha"><label>Produto (id do catálogo) <input name="produto" required></label><label>Quantidade <input name="quantidade" inputmode="numeric"></label><button type="submit">Salvar</button></form>
+      <div class="adm__tabela"><table><thead><tr><th scope="col">Produto</th><th scope="col">Quantidade</th><th scope="col">Reservado</th><th scope="col">Disponível</th></tr></thead><tbody id="estoque"></tbody></table></div>
+    </section>
+    <section aria-labelledby="h-titular">
+      <h2 id="h-titular">Pedidos de titulares (LGPD)</h2>
+      <form id="form-titular" class="adm__linha"><label>WhatsApp <input name="telefone" inputmode="tel"></label><label>E-mail <input name="email" type="email"></label>
+        <button type="submit" name="acao" value="consultar">Consultar dados</button><button type="submit" name="acao" value="anonimizar">Anonimizar</button></form>
+      <pre id="titular" class="adm__saida" hidden></pre>
+    </section>
+  </main>
+  <script src="admin.js?v=1"></script>
+</body>
+</html>

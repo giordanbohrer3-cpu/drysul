@@ -1,0 +1,11 @@
+# Cabeçalhos de segurança do site no Cloudflare (Static Assets). O GitHub Pages ignora este arquivo.
+# CSP: só arquivos da própria loja; o único conteúdo de fora é o mapa/Street View do Google (iframe).
+# style-src permite atributos style (variáveis CSS geradas pelo JS). O hash é do script curto do <head> (tema antes da pintura): mudou o script, gere o hash de novo.
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'sha256-q4BDXPxRL2dX95ppFdyVjUM7QAg0T0PykywSYLXYLzQ='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; frame-src https://www.google.com; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'
+  Strict-Transport-Security: max-age=31536000
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
+  Cross-Origin-Opener-Policy: same-origin

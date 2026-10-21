@@ -6,7 +6,8 @@ Site da **Drysul — gesso e acabamento**. HTML, CSS e JavaScript puros, sem bui
 
 **Pagamentos online (em testes):** o mesmo site roda no Cloudflare (Static Assets) com um servidor da loja (Worker + banco D1)
 que cria e confirma pagamentos no Mercado Pago (Checkout Pro). Implantação, Mercado Pago, domínio próprio e checklist de
-segurança: [`docs/PAGAMENTOS.md`](docs/PAGAMENTOS.md). No GitHub Pages não há servidor: a compra segue pelo WhatsApp.
+segurança: [`docs/PAGAMENTOS.md`](docs/PAGAMENTOS.md). LGPD e incidentes: [`docs/CONFORMIDADE.md`](docs/CONFORMIDADE.md).
+Situação de cada requisito: [`docs/RELATORIO-PROTOCOLO.md`](docs/RELATORIO-PROTOCOLO.md). No GitHub Pages não há servidor: a compra segue pelo WhatsApp.
 
 ## Estrutura
 
@@ -26,6 +27,10 @@ segurança: [`docs/PAGAMENTOS.md`](docs/PAGAMENTOS.md). No GitHub Pages não há
 | `worker/src/` | Servidor da loja (Cloudflare Worker): `index.js` (rotas `/api/*`), `config.js` (ambientes e travas), `catalogo.js` (preço pelo `data.js`), `pedidos.js` (pedidos, pagamento, webhook, comprovante), `mercadopago.js` (Orders API), `webhook.js` (assinatura), `db.js` (D1) |
 | `worker/migrations/` | Tabelas do banco D1: pedidos, itens, transações, pagamentos e notificações recebidas |
 | `wrangler.jsonc` | Configuração do Cloudflare: ambientes local, teste e produção (produção bloqueada para cobrar) |
+| `admin/` | Painel da loja (pedidos, retirada, cancelamento, reembolso, estoque, LGPD), protegido pelo Cloudflare Access |
+| `privacidade.html`, `termos.html`, `trocas.html` | Rascunhos jurídicos com campos `[A CONFIRMAR PELA LOJA]` (não publicar sem revisão) |
+| `js/consentimento.js` | Aviso de privacidade: mapa/Street View do Google só com permissão; escolha registrada e revogável |
+| `_headers` | Cabeçalhos de segurança no Cloudflare (CSP, HSTS, etc.) |
 | `.assetsignore` | O que não vai para o site publicado no Cloudflare (servidor, testes, documentação, segredos locais) |
 | `js/vitrine.js` | Vitrine 3D no alto da abertura, logo abaixo da faixa laranja: um anel com os produtos, preços e ofertas do `data.js` girando devagar (só o anel anima, no compositor). Mouse em cima desacelera até parar; arrastar ou deslizar gira com inércia (no celular, por eventos de toque: decidido que o gesto é horizontal, a página fica parada até soltar); clicar leva ao produto no catálogo; Tab entra num cartão e as setas passam de um a outro (o focado vem para a frente); botão de pausa. Sem efeitos, vira uma faixa plana com rolagem lateral |
 | `js/motion.js` | Parede 3D do topo: quando aparece inteira na tela, desmonta sozinha em 2,6 s nas 4 etapas (fita, chapas, parafusos, estrutura), no mesmo tempo em qualquer aparelho e sem conta nenhuma durante a rolagem; rolando de volta até ela sair por baixo, se monta de novo; escrita animada dos títulos, rolagem suave no computador (Lenis), canvas técnico, fundos que andam com a rolagem, pausa de efeitos; anima só o que está perto da tela. **Celular e tablet (toque):** sem 3D ligado à rolagem, sem paralaxe, sem cortina nas fotos, títulos inteiros e cabeçalho sem desfoque: as fotos ficam paradas e nítidas e a rolagem fica leve. Nada lê a posição da rolagem em JavaScript durante a rolagem (barra de progresso em CSS, cabeçalho compacto por IntersectionObserver) |
@@ -39,6 +44,7 @@ segurança: [`docs/PAGAMENTOS.md`](docs/PAGAMENTOS.md). No GitHub Pages não há
 | `tests/checkout.test.js` | Regras de roteamento e validação da central de vendas |
 | `tests/horario.test.js` | Aberto/fechado, "fecha em X min", próximo dia de abertura e fuso da loja |
 | `tests/ajuda.test.js` | Dúvidas bem formadas e a busca da ajuda com perguntas do jeito que as pessoas escrevem |
+| `tests/operacao.test.mjs` | Estoque, limites, aceite dos termos, painel (login, papéis), cancelamento, reembolso, LGPD e falhas |
 | `tests/worker.test.mjs` | Servidor de pagamentos com D1 em memória e Mercado Pago simulado: pedido válido, sem preço, valores adulterados, aprovado, recusado, pendente, webhook duplicado e com assinatura inválida, falhas de rede, recarregar/clique duplo, credenciais e trava da produção |
 
 ## Como editar

@@ -12,9 +12,11 @@
   "assets": {
     "directory": ".",
     "binding": "ASSETS",
-    "run_worker_first": ["/api/*"]
+    "run_worker_first": ["/api/*", "/admin", "/admin/*"]
   },
   "observability": { "enabled": true },
+  // a cada 30 min: libera reservas de estoque vencidas, limpa limites e aplica a retenção de dados (se definida)
+  "triggers": { "crons": ["*/30 * * * *"] },
   "vars": { "AMBIENTE": "local", "PAGAMENTOS_ATIVOS": "true" },
   "d1_databases": [
     { "binding": "DB", "database_name": "drysul-local", "database_id": "00000000-0000-0000-0000-000000000000", "migrations_dir": "worker/migrations" }
@@ -23,7 +25,10 @@
     "teste": {
       "name": "drysul-teste",
       // SITE_URL é opcional no teste: sem ele, o endereço vem da própria requisição (o workers.dev)
-      "vars": { "AMBIENTE": "teste", "PAGAMENTOS_ATIVOS": "true" },
+      // Painel: ACCESS_TEAM_DOMAIN (ex.: drysul.cloudflareaccess.com), ACCESS_AUD (tag da aplicação no Access)
+      // e ADMIN_EMAILS ("email:dono,email:atendente"). RETENCAO_DIAS_NAO_PAGOS: prazo definido pela loja (vazio = não apaga).
+      "vars": { "AMBIENTE": "teste", "PAGAMENTOS_ATIVOS": "true", "ACCESS_TEAM_DOMAIN": "", "ACCESS_AUD": "", "ADMIN_EMAILS": "", "RETENCAO_DIAS_NAO_PAGOS": "" },
+      "triggers": { "crons": ["*/30 * * * *"] },
       "d1_databases": [
         { "binding": "DB", "database_name": "drysul-teste", "database_id": "COLE_AQUI_O_ID_DO_BANCO_DE_TESTE", "migrations_dir": "worker/migrations" }
       ]
@@ -32,7 +37,8 @@
       "name": "drysul",
       // Bloqueado. Só mude para "true" depois do checklist de segurança (docs/PAGAMENTOS.md), com autorização da loja.
       // SITE_URL: o endereço público, sem barra no fim (ex.: https://drysul.<sua-conta>.workers.dev ou o domínio próprio)
-      "vars": { "AMBIENTE": "producao", "PAGAMENTOS_ATIVOS": "false", "SITE_URL": "" },
+      "vars": { "AMBIENTE": "producao", "PAGAMENTOS_ATIVOS": "false", "SITE_URL": "", "ACCESS_TEAM_DOMAIN": "", "ACCESS_AUD": "", "ADMIN_EMAILS": "", "RETENCAO_DIAS_NAO_PAGOS": "" },
+      "triggers": { "crons": ["*/30 * * * *"] },
       "d1_databases": [
         { "binding": "DB", "database_name": "drysul-producao", "database_id": "COLE_AQUI_O_ID_DO_BANCO_DE_PRODUCAO", "migrations_dir": "worker/migrations" }
       ]

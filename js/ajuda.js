@@ -139,7 +139,7 @@
     // não interrompe: aba escondida, diálogo ou menu aberto, ou alguém digitando
     function ocupado() {
       var a = document.activeElement, cab = $('.site-header');
-      if (document.hidden || $('dialog[open]')) return true;
+      if (document.hidden || $('dialog[open]') || document.documentElement.classList.contains('consent-aberto')) return true;
       if (cab && cab.classList.contains('menu-open')) return true;
       return !!(a && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName));
     }

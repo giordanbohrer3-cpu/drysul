@@ -139,7 +139,9 @@
   // O servidor da loja (worker/) lê este mesmo arquivo para recalcular preços e total: mudou aqui, publique o Worker de novo.
   // Se o pagamento online está ligado, quem decide é o servidor (GET /api/status), não este arquivo.
   var vendas = {
-    limiteOnline: 1000 // R$ — definido em 30/09/2026
+    limiteOnline: 1000, // R$ — definido em 30/09/2026
+    // Versão dos Termos/Trocas/Privacidade aceitos no checkout (o servidor guarda no pedido). Mudou o texto, mude a data.
+    termosVersao: '2026-10-21'
   };
 
   // Preços médios de mercado, usados só na estimativa da calculadora enquanto a loja não informa o preço dela.

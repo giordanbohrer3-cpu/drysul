@@ -11,9 +11,11 @@ if (!D || !V) throw new Error('Catálogo indisponível no servidor');
 export const regras = V;
 export const loja = D.loja;
 export const limiteOnline = D.vendas.limiteOnline;
+export const termosVersao = D.vendas.termosVersao; // versão dos termos que o cliente aceita no checkout
 const PRODUTOS = Object.create(null);
 D.produtos.forEach((p) => { PRODUTOS[p.id] = p; });
 const MAX_LINHAS = 50;
+export function produtoExiste(id) { return !!PRODUTOS[id]; }
 
 export function precificar(itens, calculos) {
   if (!Array.isArray(itens) || !itens.length) throw new ErroHttp(422, 'pedido_vazio', 'O pedido está vazio.');

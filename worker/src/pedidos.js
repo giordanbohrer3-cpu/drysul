@@ -6,7 +6,8 @@
 import * as db from './db.js';
 import * as mp from './mercadopago.js';
 import { ErroProvedor } from './mercadopago.js';
-import { precificar, regras as V } from './catalogo.js';
+import { precificar, regras as V, termosVersao } from './catalogo.js';
+import * as estoque from './estoque.js';
 import { checkoutConfiavel } from './config.js';
 import { assinaturaValida } from './webhook.js';
 import { ErroHttp, json, lerJson, agora, sha256, hmac, iguais, uuidDe, aleatorio, centavosDeTexto } from './util.js';
@@ -47,7 +48,7 @@ function resumo(p, t) {
   return {
     id: p.id, numero: p.numero, status: p.status, totalCentavos: p.total_centavos, teste: p.ambiente !== 'producao',
     checkoutUrl: (p.status === 'aguardando' || p.status === 'pendente') && aberta(t) ? t.checkout_url : null,
-    pagoEm: p.pago_em || null
+    statusEntrega: p.status_entrega || 'aguardando_pagamento', pagoEm: p.pago_em || null
   };
 }
 
@@ -74,6 +75,8 @@ export async function criarPedido(request, env, cfg) {
   if (nome.length < 3) throw new ErroHttp(422, 'nome_invalido', 'Informe o nome.');
   if (!V.telefoneValido(telefone)) throw new ErroHttp(422, 'telefone_invalido', 'Informe um WhatsApp com DDD.');
   if (email && !V.emailValido(email)) throw new ErroHttp(422, 'email_invalido', 'Confira o e-mail.');
+  // Decreto 7.962/2013: o cliente vê e aceita as condições antes de pagar. Guardamos a versão aceita.
+  if (corpo.aceiteTermos !== termosVersao) throw new ErroHttp(422, 'termos_nao_aceitos', 'Aceite os termos e a política de trocas para continuar.', { versao: termosVersao });
 
   // O site mostra um total. Se o catálogo do servidor discordar (página antiga, valor alterado no navegador),
   // nada é criado: o cliente vê o valor certo antes de pagar.
@@ -95,20 +98,31 @@ export async function criarPedido(request, env, cfg) {
   const p = {
     id: crypto.randomUUID(), chave_idem: chaveIdem, hash_conteudo: hash, ambiente: cfg.ambiente, status: 'aguardando',
     total_centavos: totalCentavos, entrega: 'retirada', cliente_nome: nome, cliente_telefone: telefone,
-    cliente_email: email || null, criado_em: quando, atualizado_em: quando
+    cliente_email: email || null, termos_versao: termosVersao, termos_aceitos_em: quando, reserva_ate: estoque.reservaAte(),
+    criado_em: quando, atualizado_em: quando
   };
-  for (let i = 0; i < 4; i++) {
-    p.numero = V.numeroPedido(new Date(Date.now() - 3 * 3600000), aleatorio()); // dia e mês no horário de Brasília
-    try {
-      await db.inserirPedido(env.DB, p, linhas);
-      return json({ pedido: resumo(p, null), token: await tokenDe(cfg, p.id) }, 201);
-    } catch (e) {
-      if (!/UNIQUE/i.test(String(e && e.message))) throw e;
-      const corrida = await db.pedidoPorChave(env.DB, chaveIdem); // dois cliques ao mesmo tempo
-      if (corrida) return repetir(corrida);
+  await estoque.liberarVencidas(env.DB);
+  const reservados = await estoque.reservar(env.DB, linhas); // sem estoque: 409 e nada é gravado
+  let desfeito = false;
+  try {
+    for (let i = 0; i < 4; i++) {
+      p.numero = V.numeroPedido(new Date(Date.now() - 3 * 3600000), aleatorio()); // dia e mês no horário de Brasília
+      try {
+        await db.inserirPedido(env.DB, p, linhas, estoque.registrarReservas(env.DB, p.id, reservados, quando)
+          .concat(db.registrarEventoPedido(env.DB, p.id, 'criado', null, 'aguardando', 'cliente', 'termos ' + termosVersao)));
+        return json({ pedido: resumo(p, null), token: await tokenDe(cfg, p.id) }, 201);
+      } catch (e) {
+        if (!/UNIQUE/i.test(String(e && e.message))) throw e;
+        const corrida = await db.pedidoPorChave(env.DB, chaveIdem); // dois cliques ao mesmo tempo
+        if (corrida) { desfeito = true; await estoque.desfazer(env.DB, reservados); return await repetir(corrida); }
+      }
     }
+    throw new ErroHttp(503, 'tente_novamente', 'Tente novamente.');
+  } catch (e) {
+    // falhou ao gravar: a reserva volta (o lote do pedido é tudo ou nada)
+    if (!desfeito) await estoque.desfazer(env.DB, reservados).catch(() => {});
+    throw e;
   }
-  throw new ErroHttp(503, 'tente_novamente', 'Tente novamente.');
 }
 
 /* ---------- POST /api/pedidos/:id/pagamento ---------- */
@@ -128,6 +142,7 @@ export async function iniciarPagamento(request, env, cfg, id) {
   const emAndamento = () => new ErroHttp(409, 'tente_novamente', 'O pagamento já está sendo aberto. Tente de novo em instantes.');
   if (p.tentativas > (await db.ultimaTentativaGravada(env.DB, p.id)) && Date.now() - Date.parse(p.atualizado_em) < RESERVA) throw emAndamento();
 
+  await estoque.renovar(env.DB, p.id); // reserva vencida volta a ser feita (ou 409 sem estoque)
   const n = p.tentativas + 1;
   if (!(await db.reservarTentativa(env.DB, p.id, p.tentativas, agora()))) throw emAndamento();
   let order;
@@ -160,6 +175,7 @@ export async function iniciarPagamento(request, env, cfg, id) {
     total_pago_centavos: centavosDeTexto(order.total_paid_amount) || 0, checkout_url: order.checkout_url, criado_em: quando, atualizado_em: quando
   });
   await db.definirTransacaoAtual(env.DB, p.id, order.id, quando);
+  await db.registrarEventoPedido(env.DB, p.id, 'pagamento', p.status, 'aguardando', 'cliente', 'tentativa ' + n + ' ' + order.id).run();
   p = await db.pedido(env.DB, p.id);
   t = await db.transacao(env.DB, order.id);
   return json({ pedido: resumo(p, t), checkoutUrl: order.checkout_url }, 201);
@@ -191,7 +207,7 @@ async function codigoComprovante(cfg, p, pagoEm) {
   return h.slice(0, 4) + '-' + h.slice(4, 8) + '-' + h.slice(8, 12);
 }
 
-export async function sincronizar(env, cfg, order) {
+export async function sincronizar(env, cfg, order, origem) {
   const id = order && order.external_reference;
   if (typeof id !== 'string' || !ID_PEDIDO.test(id) || typeof order.id !== 'string') return 'sem_pedido';
   if (ordemDeTeste(order.id) !== cfg.teste) return 'ambiente_trocado';
@@ -230,14 +246,30 @@ export async function sincronizar(env, cfg, order) {
   if (!alvo || alvo === p.status || !transicaoPermitida(p.status, alvo)) return p.status;
   if (alvo === 'pago') { extra.pago_em = quando; extra.codigo = await codigoComprovante(cfg, p, quando); }
   if (alvo === 'divergente') console.error('pagamento divergente', p.numero);
-  return (await db.mudarStatus(env.DB, p.id, p.status, alvo, extra, quando)) ? alvo : p.status;
+  if (!(await db.mudarStatus(env.DB, p.id, p.status, alvo, extra, quando))) return p.status;
+  await aposMudanca(env, p.id, p.status, alvo, origem || 'sistema', order.id);
+  return alvo;
+}
+
+// Efeitos de cada troca de status financeiro: histórico, retirada e estoque (todos idempotentes)
+export async function aposMudanca(env, pedidoId, de, para, origem, detalhe) {
+  await db.registrarEventoPedido(env.DB, pedidoId, 'pagamento', de, para, origem, detalhe).run();
+  if (para === 'pago') {
+    await estoque.baixar(env.DB, pedidoId);
+    const r = await env.DB.prepare("UPDATE pedidos SET status_entrega = 'em_preparacao' WHERE id = ? AND status_entrega = 'aguardando_pagamento'").bind(pedidoId).run();
+    if (r.meta.changes) await db.registrarEventoPedido(env.DB, pedidoId, 'entrega', 'aguardando_pagamento', 'em_preparacao', 'sistema').run();
+  }
+  if (para === 'expirado' || para === 'cancelado') await estoque.liberar(env.DB, pedidoId, origem);
+  if (para === 'reembolsado' || para === 'cancelado') {
+    await env.DB.prepare("UPDATE pedidos SET status_entrega = 'cancelado' WHERE id = ? AND status_entrega NOT IN ('retirado', 'cancelado')").bind(pedidoId).run();
+  }
 }
 
 async function atualizarDoProvedor(env, cfg, p, forcar) {
   if (!p.mp_order_id || (p.status !== 'aguardando' && p.status !== 'pendente')) return p;
   if (!forcar && p.consultado_em && Date.now() - Date.parse(p.consultado_em) < INTERVALO_CONSULTA) return p;
   await db.marcarConsulta(env.DB, p.id, agora());
-  await sincronizar(env, cfg, await mp.obterOrder(cfg, p.mp_order_id));
+  await sincronizar(env, cfg, await mp.obterOrder(cfg, p.mp_order_id), 'consulta');
   return db.pedido(env.DB, p.id);
 }
 
@@ -323,7 +355,7 @@ export async function webhook(request, env, cfg, url) {
 
   let resultado;
   try {
-    resultado = await sincronizar(env, cfg, await mp.obterOrder(cfg, dataId));
+    resultado = await sincronizar(env, cfg, await mp.obterOrder(cfg, dataId), 'webhook');
   } catch (e) {
     if (!(e instanceof ErroProvedor)) throw e;
     // order que esta conta não enxerga: confirma o recebimento para o aviso não se repetir

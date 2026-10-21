@@ -15,17 +15,18 @@ export async function itens(db, pedidoId) {
 }
 
 // Pedido e itens entram juntos (batch do D1 é uma transação)
-export function inserirPedido(db, p, linhas) {
+export function inserirPedido(db, p, linhas, extras) {
   const ins = db.prepare(
     'INSERT INTO pedidos (id, numero, chave_idem, hash_conteudo, ambiente, status, total_centavos, entrega, ' +
-    'cliente_nome, cliente_telefone, cliente_email, criado_em, atualizado_em) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+    'cliente_nome, cliente_telefone, cliente_email, termos_versao, termos_aceitos_em, reserva_ate, criado_em, atualizado_em) ' +
+    'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
   ).bind(p.id, p.numero, p.chave_idem, p.hash_conteudo, p.ambiente, p.status, p.total_centavos, p.entrega,
-    p.cliente_nome, p.cliente_telefone, p.cliente_email, p.criado_em, p.atualizado_em);
+    p.cliente_nome, p.cliente_telefone, p.cliente_email, p.termos_versao, p.termos_aceitos_em, p.reserva_ate, p.criado_em, p.atualizado_em);
   const insItem = db.prepare(
     'INSERT INTO itens_pedido (pedido_id, produto_id, nome, emb, un, qtd, unit_centavos, total_centavos) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
   );
   return db.batch([ins].concat(linhas.map((l) =>
-    insItem.bind(p.id, l.id, l.nome, l.emb, l.un, l.qtd, l.unitCentavos, l.totalCentavos))));
+    insItem.bind(p.id, l.id, l.nome, l.emb, l.un, l.qtd, l.unitCentavos, l.totalCentavos)), extras || []));
 }
 
 // Reserva o número da próxima tentativa: só uma requisição ganha a corrida
@@ -92,4 +93,24 @@ export function registrarEvento(db, e) {
 }
 export function concluirEvento(db, chave, resultado) {
   return db.prepare('UPDATE eventos_webhook SET processado = 1, resultado = ? WHERE chave = ?').bind(resultado, chave).run();
+}
+
+// Histórico do pedido
+export function registrarEventoPedido(db, pedidoId, tipo, de, para, origem, detalhe) {
+  return db.prepare('INSERT INTO pedido_eventos (pedido_id, tipo, de, para, origem, detalhe, criado_em) VALUES (?, ?, ?, ?, ?, ?, ?)')
+    .bind(pedidoId, tipo, de || null, para || null, origem, detalhe ? String(detalhe).slice(0, 300) : null, new Date().toISOString());
+}
+
+// Janela fixa por chave: devolve quantas vezes a chave foi usada na janela atual
+export async function contarUso(db, chave, janelaSeg) {
+  const t = Math.floor(Date.now() / 1000);
+  const r = await db.prepare(
+    'INSERT INTO limites (chave, contagem, janela_fim) VALUES (?1, 1, ?2 + ?3) ON CONFLICT (chave) DO UPDATE SET ' +
+    'contagem = CASE WHEN limites.janela_fim < ?2 THEN 1 ELSE limites.contagem + 1 END, ' +
+    'janela_fim = CASE WHEN limites.janela_fim < ?2 THEN ?2 + ?3 ELSE limites.janela_fim END RETURNING contagem'
+  ).bind(chave, t, janelaSeg).first();
+  return r ? r.contagem : 1;
+}
+export function limparLimites(db) {
+  return db.prepare('DELETE FROM limites WHERE janela_fim < ?').bind(Math.floor(Date.now() / 1000)).run();
 }

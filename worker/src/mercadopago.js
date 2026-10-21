@@ -62,3 +62,8 @@ export function obterOrder(cfg, id) {
 export function cancelarOrder(cfg, id) {
   return chamar(cfg, 'POST', '/v1/orders/' + encodeURIComponent(id) + '/cancel');
 }
+
+// Reembolso total da order (estorno pelo provedor). Mesma chave = o mesmo reembolso, nunca dois.
+export function reembolsarOrder(cfg, id, chaveIdem) {
+  return chamar(cfg, 'POST', '/v1/orders/' + encodeURIComponent(id) + '/refund', null, chaveIdem);
+}

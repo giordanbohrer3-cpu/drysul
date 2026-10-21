@@ -38,10 +38,10 @@ async function api(metodo, caminho, { corpo, token, cab = {}, base = SITE, ambie
 const CLIENTE = { nome: 'Maria Teste', telefone: '(55) 99999-1234', email: 'maria@exemplo.com' };
 // 2 rolos de fita (65,00) + 1 balde de massa (54,99) = 184,99
 const ITENS = [{ id: 'fita', qtd: 2 }, { id: 'massa', qtd: 1 }];
-const pedidoValido = (extra) => Object.assign({ itens: ITENS, entrega: 'retirada', cliente: CLIENTE, totalCentavos: 18499 }, extra);
+const pedidoValido = (extra) => Object.assign({ itens: ITENS, entrega: 'retirada', cliente: CLIENTE, totalCentavos: 18499, aceiteTermos: '2026-10-21' }, extra);
 
-async function criar(extra, chave = 'chave-de-teste-0001') {
-  return api('POST', '/api/pedidos', { corpo: pedidoValido(extra), cab: { 'idempotency-key': chave } });
+async function criar(extra, chave = 'chave-de-teste-0001', ip = '10.0.0.1') {
+  return api('POST', '/api/pedidos', { corpo: pedidoValido(extra), cab: { 'idempotency-key': chave, 'cf-connecting-ip': ip } });
 }
 async function criarEPagar() {
   const c = await criar();
@@ -112,7 +112,7 @@ test('pedidos inválidos: produto inexistente, quantidade fora do limite, repeti
   ];
   let n = 0;
   for (const [extra, codigo] of casos) {
-    const r = await criar(Object.assign({ totalCentavos: undefined }, extra), 'chave-invalida-' + String(n++).padStart(4, '0'));
+    const r = await criar(Object.assign({ totalCentavos: undefined }, extra), 'chave-invalida-' + String(n).padStart(4, '0'), '10.0.1.' + n++);
     assert.equal(r.status, 422, codigo);
     assert.equal(r.dados.erro, codigo);
   }

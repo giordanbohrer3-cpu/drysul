@@ -39,10 +39,15 @@ export function criarMp(opcoes = {}) {
         orders.set(id, order); porChave.set(chave, id);
         return resposta(201, order);
       }
-      const m = /^\/v1\/orders\/([A-Z0-9]+)(\/cancel)?$/.exec(u.pathname);
+      const m = /^\/v1\/orders\/([A-Z0-9]+)(\/cancel|\/refund)?$/.exec(u.pathname);
       if (m && orders.has(m[1])) {
         const order = orders.get(m[1]);
-        if (metodo === 'POST' && m[2]) { order.status = 'cancelled'; return resposta(200, order); }
+        if (metodo === 'POST' && m[2] === '/cancel') { order.status = 'cancelled'; return resposta(200, order); }
+        if (metodo === 'POST' && m[2] === '/refund') {
+          if (!opt.headers['x-idempotency-key']) return resposta(400, { code: 'idempotency_key_required' });
+          mp.reembolsos = (mp.reembolsos || new Set()); mp.reembolsos.add(m[1] + '|' + opt.headers['x-idempotency-key']);
+          order.status = 'refunded'; order.status_detail = 'refunded'; return resposta(201, order);
+        }
         if (metodo === 'GET' && !m[2]) return resposta(200, order);
       }
       return resposta(404, { code: 'not_found' });

@@ -20,8 +20,8 @@
   <meta name="twitter:card" content="summary_large_image">
 
   <link rel="preload" href="assets/fonts/archivo-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="css/styles.css?v=34">
-  <link rel="stylesheet" href="css/motion.css?v=34">
+  <link rel="stylesheet" href="css/styles.css?v=35">
+  <link rel="stylesheet" href="css/motion.css?v=35">
   <script>
     (function () {
       var root = document.documentElement, pref = null, tema = null;
@@ -644,6 +644,10 @@
     <div class="wrap footer__bottom">
       <p>© 2026</p>
       <div class="footer__extra">
+        <a class="footer__link" href="termos.html">Termos de compra</a>
+        <a class="footer__link" href="trocas.html">Trocas e devoluções</a>
+        <a class="footer__link" href="privacidade.html">Política de privacidade</a>
+        <button class="footer__link" type="button" data-open-privacidade>Privacidade e cookies</button>
         <button class="footer__link" type="button" data-open="creditos">Créditos das imagens</button>
         <button class="footer__link" type="button" id="motion-toggle" aria-label="Pausar efeitos e sons"><svg class="ic"><use href="#i-pause"/></svg><span>Pausar efeitos e sons</span></button>
       </div>
@@ -784,6 +788,8 @@
             <label class="opt"><input type="radio" name="pagamento" value="mercadopago" checked><span class="opt__box"><svg class="ic"><use href="#i-pix"/></svg><b>Pix ou cartão</b><small>Pago no ambiente seguro do Mercado Pago</small></span></label>
             <label class="opt"><input type="radio" name="pagamento" value="whatsapp"><span class="opt__box"><svg class="ic"><use href="#i-whats"/></svg><b>Conversar no WhatsApp</b><small>Pague no atendimento ou na retirada</small></span></label>
           </fieldset>
+          <p class="co-resumo" id="co-resumo">Retirada na loja (<span data-store="endereco"></span>), sem frete. Pagamento no Mercado Pago. Você pode desistir da compra em até 7 dias da retirada (Código de Defesa do Consumidor, art. 49).</p>
+          <label class="co-aceite"><input type="checkbox" id="co-aceite"><span>Li e aceito os <a href="termos.html" target="_blank" rel="noopener">Termos de compra</a>, a <a href="trocas.html" target="_blank" rel="noopener">Política de trocas</a> e a <a href="privacidade.html" target="_blank" rel="noopener">Política de privacidade</a>.</span></label>
           <p class="co-alerta" id="co-alerta" role="alert" hidden></p>
           <ul class="co-secure" aria-label="Segurança da compra">
             <li><svg class="ic"><use href="#i-lock"/></svg>Conexão protegida (HTTPS)</li>
@@ -872,19 +878,20 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script defer src="js/data.js?v=34"></script>
-  <script defer src="js/calculator-model.js?v=34"></script>
-  <script defer src="js/checkout-model.js?v=34"></script>
-  <script defer src="js/busca.js?v=34"></script>
-  <script defer src="js/horario.js?v=34"></script>
-  <script defer src="js/app.js?v=34"></script>
-  <script defer src="js/abertura.js?v=34"></script>
-  <script defer src="js/ajuda.js?v=34"></script>
-  <script defer src="js/receipt.js?v=34"></script>
-  <script defer src="js/checkout.js?v=34"></script>
+  <script defer src="js/data.js?v=35"></script>
+  <script defer src="js/calculator-model.js?v=35"></script>
+  <script defer src="js/checkout-model.js?v=35"></script>
+  <script defer src="js/busca.js?v=35"></script>
+  <script defer src="js/horario.js?v=35"></script>
+  <script defer src="js/app.js?v=35"></script>
+  <script defer src="js/consentimento.js?v=35"></script>
+  <script defer src="js/abertura.js?v=35"></script>
+  <script defer src="js/ajuda.js?v=35"></script>
+  <script defer src="js/receipt.js?v=35"></script>
+  <script defer src="js/checkout.js?v=35"></script>
   <script defer src="js/vendor/lenis.min.js?v=1"></script>
-  <script defer src="js/motion.js?v=34"></script>
-  <script defer src="js/vitrine.js?v=34"></script>
-  <script defer src="js/som.js?v=34"></script>
+  <script defer src="js/motion.js?v=35"></script>
+  <script defer src="js/vitrine.js?v=35"></script>
+  <script defer src="js/som.js?v=35"></script>
 </body>
 </html>

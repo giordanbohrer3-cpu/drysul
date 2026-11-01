@@ -16,3 +16,5 @@ package.json
 package-lock.json
 README.md
 LEIA-ME.md
+dist
+scripts

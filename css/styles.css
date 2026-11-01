@@ -105,6 +105,8 @@
   --r-m: 4px;
   --sh-1: 0 1px 2px rgba(16, 22, 43, .06), 0 10px 30px -16px rgba(16, 22, 43, .28);
   --sh-2: 0 2px 4px rgba(16, 22, 43, .06), 0 24px 48px -24px rgba(16, 22, 43, .4);
+  --sh-0: 0 1px 1px rgba(16, 22, 43, .04), 0 6px 14px -10px rgba(16, 22, 43, .22);
+  --sh-3: 0 4px 8px -2px rgba(16, 22, 43, .08), 0 34px 60px -26px rgba(16, 22, 43, .45);
 
   /* Movimento */
   --ease: cubic-bezier(.22, 1, .36, 1);
@@ -141,6 +143,8 @@
   --sum-bg: #24305C; --sum-fg: #ECECE6; --sum-line: rgba(244, 106, 66, .45);
   --sh-1: 0 1px 2px rgba(0, 0, 0, .3), 0 14px 34px -16px rgba(0, 0, 0, .7);
   --sh-2: 0 2px 4px rgba(0, 0, 0, .3), 0 28px 54px -24px rgba(0, 0, 0, .8);
+  --sh-0: 0 1px 1px rgba(0, 0, 0, .25), 0 8px 18px -10px rgba(0, 0, 0, .6);
+  --sh-3: 0 4px 8px -2px rgba(0, 0, 0, .35), 0 38px 64px -26px rgba(0, 0, 0, .9);
   --note-bg: rgba(255, 214, 0, .1); --note-fg: #F2D675; --note-line: rgba(242, 214, 117, .35);
   --mapa-chao: #182148; --mapa-rua: #2A3566; --mapa-principal: #5B4A3C;
   color-scheme: dark;
@@ -575,6 +579,8 @@ ul, ol { padding: 0; list-style: none; }
 .tech-canvas { position: absolute; inset: 0 0 auto 0; width: 100%; height: min(100%, 100vh); z-index: -1; pointer-events: none; opacity: 0; transition: opacity 1200ms var(--ease); }
 @media (max-width: 1023px) { .tech-canvas { display: none; } }
 .tech-canvas.is-live { opacity: 1; }
+/* com shader (js/shader.js) o fundo também aparece no celular: um quadro parado, sem custo contínuo */
+@media (max-width: 1023px) { .tech-canvas[data-shader] { display: block; } }
 .sem-parafusos .wl--screws { display: none; }
 /* padrão da marca cobrindo o topo, mais forte à direita (atrás da parede) */
 .hero__pattern {
@@ -1913,3 +1919,12 @@ html.tem-balao .zap__txt { visibility: hidden; }
 .consent p { margin: 0; }
 .consent a { color: inherit; text-decoration: underline; }
 .consent__acoes { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* ---------- Profundidade: cartões com sombra em camadas e luz no topo; no computador, sobem ao passar o mouse ---------- */
+.prod-card, .offer, .opt__box { box-shadow: var(--sh-0); }
+.prod-card, .offer { background-image: linear-gradient(180deg, rgba(255, 255, 255, .05), rgba(255, 255, 255, 0) 40%); }
+@media (hover: hover) and (pointer: fine) {
+  .prod-card, .offer { transition: transform 260ms var(--ease), box-shadow 260ms var(--ease), border-color 260ms var(--ease); }
+  .prod-card:hover, .offer:hover { transform: translateY(-4px); box-shadow: var(--sh-3); }
+}
+@media (prefers-reduced-motion: reduce) { .prod-card:hover, .offer:hover { transform: none; } }

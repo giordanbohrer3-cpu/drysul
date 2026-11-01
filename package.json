@@ -7,9 +7,12 @@
     "dev": "wrangler dev",
     "db:local": "wrangler d1 migrations apply DB --local",
     "deploy:teste": "wrangler deploy --env teste",
-    "deploy:producao": "wrangler deploy --env producao"
+    "deploy:producao": "wrangler deploy --env producao",
+    "build:pages": "node scripts/build-pages.mjs"
   },
-  "engines": { "node": ">=22" },
+  "engines": {
+    "node": ">=22"
+  },
   "devDependencies": {
     "wrangler": "4.151.1"
   }

@@ -5,3 +5,4 @@
 # Banco local e cache do Wrangler
 .wrangler/
 node_modules/
+dist/

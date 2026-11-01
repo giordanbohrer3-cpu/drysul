@@ -1,6 +1,6 @@
 # Drysul — site
 
-**No ar:** https://giordanbohrer3-cpu.github.io/drysul/
+**No ar:** https://giordanbohrer3-cpu.github.io/drysul/ (Cloudflare Pages em preparação: `docs/CLOUDFLARE-PAGES.md`)
 
 Site da **Drysul — gesso e acabamento**. HTML, CSS e JavaScript puros, sem build. Única biblioteca: o Lenis (rolagem suave, licença MIT), copiado em `js/vendor/`. Publicado pelo GitHub Pages até a mudança para o domínio da loja.
 

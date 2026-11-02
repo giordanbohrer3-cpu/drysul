@@ -1,7 +1,7 @@
 name: Publicar no Cloudflare Pages
 
 # A cada push na main: testes → monta dist/ (só o site público) → publica no projeto "drysul" do Cloudflare Pages.
-# Fica desligado (pulado, sem erro) até a conta ser ligada: variável CF_PAGES_ATIVO = true e os segredos
+# Fica desligado (pulado, sem erro) até a conta ser ligada: variável CF_PAGES_ATIVO (true/verdadeiro/sim) e os segredos
 # CLOUDFLARE_API_TOKEN e CLOUDFLARE_ACCOUNT_ID no repositório (Settings → Secrets and variables → Actions).
 # O GitHub Pages continua publicando em paralelo (pages.yml).
 
@@ -19,7 +19,8 @@ concurrency:
 
 jobs:
   publicar:
-    if: ${{ vars.CF_PAGES_ATIVO == 'true' }}
+    # qualquer valor de "ligado" (o tradutor do navegador pode trocar true por verdadeiro); vazio ou false/falso/não desliga
+    if: ${{ vars.CF_PAGES_ATIVO != '' && !contains(fromJSON('["false","falso","nao","não","0","off"]'), vars.CF_PAGES_ATIVO) }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

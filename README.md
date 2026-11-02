@@ -1,8 +1,8 @@
 # Drysul — site
 
-**No ar:** https://giordanbohrer3-cpu.github.io/drysul/ (Cloudflare Pages em preparação: `docs/CLOUDFLARE-PAGES.md`)
+**No ar:** https://drysul.pages.dev (Cloudflare Pages: `docs/CLOUDFLARE-PAGES.md`) · cópia de reserva: https://giordanbohrer3-cpu.github.io/drysul/
 
-Site da **Drysul — gesso e acabamento**. HTML, CSS e JavaScript puros, sem build. Única biblioteca: o Lenis (rolagem suave, licença MIT), copiado em `js/vendor/`. Publicado pelo GitHub Pages até a mudança para o domínio da loja.
+Site da **Drysul — gesso e acabamento**. HTML, CSS e JavaScript puros, sem build. Única biblioteca: o Lenis (rolagem suave, licença MIT), copiado em `js/vendor/`. Publicado no Cloudflare Pages (o GitHub Pages segue como reserva) até a ligação do domínio da loja.
 
 **Pagamentos online (em testes):** o mesmo site roda no Cloudflare (Static Assets) com um servidor da loja (Worker + banco D1)
 que cria e confirma pagamentos no Mercado Pago (Checkout Pro). Implantação, Mercado Pago, domínio próprio e checklist de

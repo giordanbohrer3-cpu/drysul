@@ -18,25 +18,31 @@
     'float at=a*mix(.09,.13,esc),ag=gl*mix(.07,.1,esc)+luz*.08;' +
     'float al=clamp(at+ag,0.,1.);vec3 c=(tinta*at+lar*ag)/max(al,.001);gl_FragColor=vec4(c*al,al);}';
 
-  var fundos = [];
-  Array.prototype.forEach.call(document.querySelectorAll('canvas[data-canvas]'), function (cv) {
+  // Nada de WebGL na carga: cada fundo só cria o contexto e compila quando chega perto da tela, num momento ocioso.
+  if (!window.WebGLRenderingContext) return;
+  var fundos = [], ocioso = window.requestIdleCallback || function (fn) { return setTimeout(fn, 60); };
+  function preparar(cv, tipo) {
     var gl = cv.getContext('webgl', { alpha: true, antialias: false, depth: false, stencil: false, premultipliedAlpha: true, powerPreference: 'low-power' });
-    if (!gl) return;
+    if (!gl) return null; // sem WebGL: o fundo fica liso (o resto da página não muda)
     var prog = gl.createProgram();
     [[gl.VERTEX_SHADER, VS], [gl.FRAGMENT_SHADER, FS]].forEach(function (s) {
       var sh = gl.createShader(s[0]); gl.shaderSource(sh, s[1]); gl.compileShader(sh); gl.attachShader(prog, sh);
     });
     gl.linkProgram(prog);
-    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) return; // fica com o canvas 2D
+    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) return null;
     gl.useProgram(prog);
     gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
     var loc = gl.getAttribLocation(prog, 'p'); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+    return { cv: cv, gl: gl, tipo: tipo, u: { r: gl.getUniformLocation(prog, 'r'), t: gl.getUniformLocation(prog, 't'), esc: gl.getUniformLocation(prog, 'esc') }, vis: true };
+  }
+  var pendentes = [];
+  Array.prototype.forEach.call(document.querySelectorAll('canvas[data-canvas]'), function (cv) {
     var tipo = cv.getAttribute('data-canvas');
     cv.removeAttribute('data-canvas'); cv.setAttribute('data-shader', tipo); // o motion.js deixa este fundo com o shader
-    fundos.push({ cv: cv, gl: gl, tipo: tipo, u: { r: gl.getUniformLocation(prog, 'r'), t: gl.getUniformLocation(prog, 't'), esc: gl.getUniformLocation(prog, 'esc') }, vis: false });
+    pendentes.push({ cv: cv, tipo: tipo });
   });
-  if (!fundos.length) return;
+  if (!pendentes.length) return;
 
   function medir(f) {
     var esc = Math.min(window.devicePixelRatio || 1, 2) * 0.5, w = Math.round(f.cv.clientWidth * esc), h = Math.round(f.cv.clientHeight * esc);
@@ -55,12 +61,11 @@
 
   if ('ResizeObserver' in window) new ResizeObserver(function () { fundos.forEach(medir); if (!ANIMA) parado(); }).observe(document.body);
   new MutationObserver(function () { if (!ANIMA) parado(); else iniciar(); }).observe(html, { attributes: true, attributeFilter: ['data-theme', 'class'] });
-  if (!ANIMA) { parado(); return; }
 
-  // Computador: anima só o necessário
+  // Computador: anima só o necessário (celular e tablet: um quadro parado)
   var raf = 0, ultimo = 0, relogio = 0, pausaAte = 0;
   window.addEventListener('scroll', function () { pausaAte = performance.now() + 180; }, { passive: true });
-  function ativo() { return !document.hidden && html.classList.contains('motion-on') && fundos.some(function (f) { return f.vis; }); }
+  function ativo() { return ANIMA && !document.hidden && html.classList.contains('motion-on') && fundos.some(function (f) { return f.vis; }); }
   function quadro(ts) {
     raf = 0;
     if (!ativo()) return;
@@ -72,9 +77,20 @@
   }
   function iniciar() { if (!raf && ativo()) raf = requestAnimationFrame(quadro); }
   var io = new IntersectionObserver(function (es) {
-    es.forEach(function (e) { fundos.forEach(function (f) { if (f.cv === e.target) { f.vis = e.isIntersecting; if (f.vis && !f.cv.classList.contains('is-live')) desenhar(f, relogio); } }); });
+    es.forEach(function (e) {
+      var f = fundos.filter(function (x) { return x.cv === e.target; })[0];
+      if (f) { f.vis = e.isIntersecting; return; }
+      var p = pendentes.filter(function (x) { return x.cv === e.target; })[0];
+      if (!p || !e.isIntersecting || p.pedido) return;
+      p.pedido = true;
+      ocioso(function () {
+        var novo = preparar(p.cv, p.tipo);
+        if (!novo) return;
+        fundos.push(novo); medir(novo); desenhar(novo, ANIMA ? relogio : 24); iniciar();
+      });
+    });
     iniciar();
-  }, { rootMargin: '100px 0px' });
-  fundos.forEach(function (f) { io.observe(f.cv); });
+  }, { rootMargin: '300px 0px' });
+  pendentes.forEach(function (p) { io.observe(p.cv); });
   document.addEventListener('visibilitychange', iniciar);
 })();

@@ -1,12 +1,13 @@
-// Cloudflare Pages: copia só o site público para dist/ (sem servidor, testes, docs, segredos nem painel).
-// No Pages não existe /api: a compra online fica desativada e tudo segue pelo WhatsApp, como no GitHub Pages.
+// Cloudflare Pages: copia só o site público para dist/ (sem código do servidor, testes, docs nem segredos).
+// /api e /admin rodam pelas Pages Functions (functions/), que usam worker/src. Sem banco e credenciais no projeto,
+// o pagamento online fica desligado e a compra segue pelo WhatsApp; o painel fica fechado.
 // Uso: node scripts/build-pages.mjs   (comando de build do projeto no Pages; diretório de saída: dist)
 import { cpSync, readFileSync, writeFileSync, rmSync, existsSync, readdirSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
 
 const raiz = new URL('..', import.meta.url).pathname, saida = join(raiz, 'dist');
 const fora = new Set(readFileSync(join(raiz, '.assetsignore'), 'utf8').split('\n').map((l) => l.trim()).filter((l) => l && !l.startsWith('#'))
-  .concat(['admin', 'scripts', 'dist', 'package.json', 'package-lock.json', '.nojekyll']));
+  .concat(['functions', 'scripts', 'dist', 'package.json', 'package-lock.json', '.nojekyll']));
 const ignorar = (p) => { const r = relative(raiz, p).split(sep)[0]; return fora.has(r) || (r.startsWith('.dev.vars')); };
 
 rmSync(saida, { recursive: true, force: true });

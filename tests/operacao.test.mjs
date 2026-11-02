@@ -230,3 +230,14 @@ test('respostas não expõem detalhes internos nem segredos', async () => {
   const tudo = JSON.stringify(r.dados) + JSON.stringify((await admin('GET', '/resumo', 'dona@drysul.exemplo')).dados);
   for (const s of [mp.TOKEN, SEGREDO, CHAVE, 'stack', 'at ']) assert.equal(tudo.includes(s), false, s);
 });
+
+test('manutenção pelo painel (Pages não tem agendador): só o dono roda, e fica auditada', async () => {
+  await definirEstoque('fita', 2);
+  const c = await pedido([{ id: 'fita', qtd: 1 }]);
+  env.DB.banco.prepare('UPDATE pedidos SET reserva_ate = ? WHERE id = ?').run('2000-01-01T00:00:00.000Z', c.dados.pedido.id);
+  assert.equal((await admin('POST', '/rotinas', 'balcao@drysul.exemplo', {})).status, 403);
+  const r = await admin('POST', '/rotinas', 'dona@drysul.exemplo', {});
+  assert.equal(r.status, 200); assert.equal(r.dados.liberadas, 1);
+  assert.equal(linha("SELECT reservado FROM estoque WHERE produto_id = 'fita'").reservado, 0);
+  assert.equal(linha("SELECT COUNT(*) AS n FROM auditoria_admin WHERE acao = 'rotinas'").n, 1);
+});

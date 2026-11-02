@@ -79,5 +79,8 @@
     if (a === 'anonimizar' && !confirm('Anonimizar os dados deste titular nos pedidos não pagos?')) return;
     api('POST', '/titulares', { acao: a, telefone: f.get('telefone'), email: f.get('email') }).then(function (d) { var o = $('#titular'); o.hidden = false; o.textContent = JSON.stringify(d, null, 2); }, function (e) { erro(e.message); });
   });
+  $('#rotinas').addEventListener('click', function () {
+    api('POST', '/rotinas', {}).then(function (d) { $('#rotinas-res').textContent = d.liberadas + ' reserva(s) liberada(s), ' + d.anonimizados + ' pedido(s) anonimizado(s).'; atualizar(); }, function (e) { erro(e.message); });
+  });
   api('GET', '/eu').then(function (d) { $('#eu').textContent = d.email + ' · ' + d.papel; return atualizar(); }, function (e) { $('#eu').textContent = ''; erro(e.message); });
 })();

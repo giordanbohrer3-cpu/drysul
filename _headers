@@ -9,3 +9,12 @@
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
   Cross-Origin-Opener-Policy: same-origin
+
+# Cache: CSS e JS são sempre chamados com ?v=N (mudou o arquivo, mude o N no index.html), então podem ficar 1 ano.
+# Imagens e fontes: 1 semana (trocou uma foto mantendo o nome? ela pode demorar até 7 dias para aparecer; prefira um nome novo).
+/css/*
+  Cache-Control: public, max-age=31536000, immutable
+/js/*
+  Cache-Control: public, max-age=31536000, immutable
+/assets/*
+  Cache-Control: public, max-age=604800

@@ -10,11 +10,12 @@ até a nova hospedagem ser validada (não desligue antes).
 | Branch de produção | `main` |
 | Build | `node scripts/build-pages.mjs` (sem dependências; gera `dist/`) |
 | Saída | `dist/` — só o site público: sem `worker/`, testes, docs, painel, `package.json`, segredos |
-| Publicação | GitHub Actions (`.github/workflows/cloudflare-pages.yml`) com `wrangler pages deploy` |
+| Publicação | GitHub Actions (`.github/workflows/cloudflare-pages.yml`): testes → `build-pages.mjs` → `preparar-deploy-pages.mjs` (fora do repositório) → `wrangler pages deploy` |
 | Cabeçalhos | `_headers` (CSP, HSTS, X-Frame-Options...) aplicados pelo Pages |
 | 404 | `dist/404.html` gerado no build |
 | Prévias de link | `og:url`/`og:image` trocados no `dist` para `SITE_URL` (padrão `https://drysul.pages.dev/`) |
-| Compra online | **Desativada**: o Pages não tem `/api`, então o checkout só oferece WhatsApp (preços ainda não confirmados) |
+| `/api` e `/admin` | Pages Functions (`functions/`), com o mesmo servidor de `worker/src`. Padrão publicado: **produção travada, sem banco** → checkout só com WhatsApp e painel fechado |
+| Cache | CSS/JS 1 ano (sempre com `?v=N`), imagens e fontes 7 dias (`_headers`) |
 
 Os caminhos do site já são relativos: nada dependia de `/drysul/`, exceto as tags de prévia, trocadas no build.
 
@@ -42,3 +43,29 @@ se o build do Pages reclamar dele, use o caminho do GitHub Actions acima.
 5. Redirecionar o domínio sem `www` para o `www` (*Rules → Redirect Rules*) e ligar *Always Use HTTPS*.
 6. Quando tudo estiver validado: tirar o `noindex` e, se quiser, desligar o GitHub Pages.
 (Pagamentos online e painel: ver `docs/PAGAMENTOS.md`, que usa Workers — outro passo, com autorização.)
+
+## Ligar pagamentos no drysul.pages.dev (quando a loja autorizar)
+Tudo fica no mesmo endereço (`https://drysul.pages.dev/api/...`). Nada liga sozinho.
+1. **Token**: no Cloudflare, edite o token e acrescente **D1: Editar** (além de Pages: Editar).
+2. **Banco**: *Armazenamento e bancos de dados → D1 → Criar* (`drysul-pages`) e copie o **ID**.
+3. **GitHub → Variables**: `D1_ID` = o ID; `DRYSUL_AMBIENTE` = `teste` (credenciais de teste) e `PAGAMENTOS_ATIVOS` = `true`.
+   A publicação aplica as migrações sozinha.
+4. **Segredos no Cloudflare** (*Workers e Pages → drysul → Configurações → Variáveis e segredos*, tipo **Secreto**, ambiente Produção):
+   `MP_ACCESS_TOKEN` (de teste), `MP_WEBHOOK_SECRET`, `CHAVE_PEDIDOS` (64 caracteres aleatórios).
+5. **Mercado Pago → Webhooks**: URL `https://drysul.pages.dev/api/webhooks/mercadopago`, evento *Order (Mercado Pago)*.
+6. Rode a publicação de novo e confira `https://drysul.pages.dev/api/status` (`"pagamentoOnline": true`).
+7. Produção real: `DRYSUL_AMBIENTE` = `producao`, credenciais de produção e o checklist de `docs/PAGAMENTOS.md`.
+
+Painel `/admin`: crie uma aplicação no Cloudflare Access (Zero Trust) para `drysul.pages.dev/admin` e `drysul.pages.dev/api/admin`,
+e preencha `ACCESS_TEAM_DOMAIN`, `ACCESS_AUD` e `ADMIN_EMAILS` nas Variables do GitHub.
+Diferença do Worker: o Pages não tem agendador; use **Rodar manutenção** no painel (libera reservas vencidas e aplica a retenção).
+
+## Navegadores
+Verificação automática (eslint-plugin-compat e doiuse) contra **Safari/iOS 15+, Firefox 115+, Chrome/Edge 100+, Samsung 16+**:
+- JavaScript: só usos já protegidos (`navigator.connection`, `requestIdleCallback` com alternativa).
+- CSS: máscaras com prefixo `-webkit-`; `dvh/svh` com reserva em `vh`; `:has()` só em detalhes visuais (Firefox 115–120 ignora);
+  rolagem 3D, `overscroll-behavior` e `scrollbar` são melhorias que versões antigas apenas não mostram.
+- Safari/iOS real **não** foi testado (o ambiente de testes só tem Chromium). Roteiro rápido num iPhone e num Mac:
+  abrir o site → aceitar/recusar o aviso de privacidade → arrastar a vitrine para os lados (a página não pode rolar junto) →
+  buscar "chapa" → adicionar um item → abrir o pedido e o botão do WhatsApp → calculadora (parede 4 × 2,8 m) → tema escuro →
+  rolar até o rodapé e voltar ao topo (a parede 3D se monta de novo).

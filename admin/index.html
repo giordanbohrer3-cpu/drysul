@@ -35,6 +35,11 @@
         <button type="submit" name="acao" value="consultar">Consultar dados</button><button type="submit" name="acao" value="anonimizar">Anonimizar</button></form>
       <pre id="titular" class="adm__saida" hidden></pre>
     </section>
+    <section aria-labelledby="h-manut">
+      <h2 id="h-manut">Manutenção</h2>
+      <p class="adm__nota">Libera reservas de estoque vencidas e aplica o prazo de retenção de dados (se definido). No Cloudflare Pages ela não roda sozinha: use este botão de vez em quando.</p>
+      <button type="button" id="rotinas">Rodar manutenção</button> <span id="rotinas-res" aria-live="polite"></span>
+    </section>
   </main>
   <script src="admin.js?v=1"></script>
 </body>

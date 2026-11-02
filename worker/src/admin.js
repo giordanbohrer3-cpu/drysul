@@ -169,6 +169,13 @@ export async function rotear(request, env, cfg, url) {
     return json({ ok: true });
   }
   if (c === '/titulares' && POST) return titulares(request, env, u);
+  // No Cloudflare Pages não há agendador: a mesma rotina do cron pode ser rodada pelo painel
+  if (c === '/rotinas' && POST) {
+    exigir(u, 'titulares');
+    const r = await rotinas(env);
+    await auditar(env, u, 'rotinas', null, r);
+    return json(r);
+  }
   if (c === '/auditoria' && !POST) { exigir(u, 'titulares'); return json({ auditoria: await todos(env, 'SELECT * FROM auditoria_admin ORDER BY id DESC LIMIT 200') }); }
   throw new ErroHttp(404, 'nao_encontrado', 'Rota não encontrada.');
 }

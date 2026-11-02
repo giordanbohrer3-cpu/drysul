@@ -49,25 +49,28 @@
   // preços citados fora do catálogo (ex.: peças do hero) também vêm do data.js
   $$('[data-preco-id]').forEach(function (el) { var p = produtoPorId[el.getAttribute('data-preco-id')]; if (p && p.preco != null) el.textContent = BRL.format(p.preco); });
   // texto de exemplo dos campos: o longo quando cabe no campo, senão o curto (nunca cortado no meio da palavra).
-  // Mede o próprio campo, não a tela: vale para qualquer largura e layout.
-  var regua = document.createElement('span');
-  regua.setAttribute('aria-hidden', 'true');
-  regua.style.cssText = 'position:absolute;left:-9999px;top:0;visibility:hidden;white-space:pre';
-  document.body.appendChild(regua);
-  function caberTexto(i, t) {
+  // Mede o próprio campo, não a tela: vale para qualquer largura e layout. A medida é feita num canvas (sem mexer no DOM)
+  // e a largura vem do ResizeObserver: nenhuma leitura força o navegador a refazer o layout da página na carga.
+  var regua = document.createElement('canvas').getContext('2d');
+  function caberTexto(i, t, largura) {
     var cs = getComputedStyle(i), ph = getComputedStyle(i, '::placeholder');
-    ['fontFamily', 'fontSize', 'fontStyle', 'fontStretch', 'letterSpacing', 'fontVariationSettings'].forEach(function (k) { regua.style[k] = cs[k]; });
-    regua.style.fontWeight = ph.fontWeight || cs.fontWeight; regua.textContent = t;
+    regua.font = cs.fontStyle + ' ' + (ph.fontWeight || cs.fontWeight) + ' ' + cs.fontSize + ' ' + cs.fontFamily;
+    var esp = parseFloat(cs.letterSpacing) || 0, w = regua.measureText(t).width + esp * t.length;
     // campo de busca: o navegador reserva o espaço do botão de limpar mesmo vazio
-    return regua.offsetWidth + (i.type === 'search' ? 22 : 4) <= i.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+    return w + (i.type === 'search' ? 22 : 4) <= largura;
   }
-  function ajustarExemplo(i) {
+  function ajustarExemplo(i, largura) {
     if (!i.dataset.phLongo) i.dataset.phLongo = i.placeholder;
-    if (i.clientWidth) i.placeholder = caberTexto(i, i.dataset.phLongo) ? i.dataset.phLongo : i.dataset.phCurto;
+    if (largura == null) { var cs = getComputedStyle(i); largura = i.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight); }
+    if (largura > 0) i.placeholder = caberTexto(i, i.dataset.phLongo, largura) ? i.dataset.phLongo : i.dataset.phCurto;
   }
-  var camposEx = $$('[data-ph-curto]'), roEx = window.ResizeObserver ? new ResizeObserver(function (es) { es.forEach(function (e) { ajustarExemplo(e.target); }); }) : null;
-  camposEx.forEach(function (i) { ajustarExemplo(i); if (roEx) roEx.observe(i); });
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { camposEx.forEach(ajustarExemplo); });
+  var camposEx = $$('[data-ph-curto]'), larguras = new Map();
+  if (window.ResizeObserver) {
+    // o observador já avisa uma vez logo após o primeiro layout, antes da pintura: não precisa medir na carga
+    var roEx = new ResizeObserver(function (es) { es.forEach(function (e) { larguras.set(e.target, e.contentRect.width); ajustarExemplo(e.target, e.contentRect.width); }); });
+    camposEx.forEach(function (i) { roEx.observe(i); });
+  } else camposEx.forEach(function (i) { ajustarExemplo(i); });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { camposEx.forEach(function (i) { ajustarExemplo(i, larguras.get(i)); }); });
 
   /* ---------- toast ---------- */
   var toastEl = $('#toast'), toastTimer;
